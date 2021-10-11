@@ -1,7 +1,7 @@
 package ru.pinkgoosik.somikbot.command;
 
-import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.util.PlayerUuid;
 
 public class CapeCommand extends Command {
@@ -34,7 +34,7 @@ public class CapeCommand extends Command {
         if(!PlayerCapes.CAPES.contains(cape) || PlayerUuid.getUuid(nickname) == null) return "Cape or Player not found";
         else {
             PlayerCapes.grantCape(nickname, PlayerUuid.getUuid(nickname), cape);
-            Bot.ftpConnection.updateCapesData();
+            FtpConnection.updateCapesData();
             return nickname + " got successfully granted with the " + cape + " cape" + "\nRejoin the world to see changes";
         }
     }
@@ -42,7 +42,7 @@ public class CapeCommand extends Command {
     private String tryToRevoke(String nickname){
         if(PlayerCapes.hasCape(nickname)){
             PlayerCapes.revokeCape(nickname);
-            Bot.ftpConnection.updateCapesData();
+            FtpConnection.updateCapesData();
             return "Successfully revoked a cape from the player " + nickname;
         }
         else return nickname + " doesn't have a cape";

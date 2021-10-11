@@ -2,9 +2,9 @@ package ru.pinkgoosik.somikbot.config;
 
 public class Config {
 
-    public Secrets secrets;
+    public static Secrets secrets;
 
-    public Config(){
-        this.secrets = Secrets.init();
+    public static void initConfig(){
+        secrets = Secrets.init();
     }
 }

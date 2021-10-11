@@ -1,9 +1,10 @@
-package ru.pinkgoosik.somikbot;
+package ru.pinkgoosik.somikbot.feature;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jcraft.jsch.*;
 import ru.pinkgoosik.somikbot.Bot;
+import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
 
 import java.io.*;
@@ -11,15 +12,15 @@ import java.util.Properties;
 
 public class FtpConnection {
 
-    Session session;
-    Channel channel;
-    ChannelSftp channelSftp;
+    static Session session;
+    static Channel channel;
+    static ChannelSftp channelSftp;
 
-    public void connect(){
-        String host = Bot.config.secrets.ftpHostIp;
+    public static void connect(){
         int port = 22;
-        String user = Bot.config.secrets.ftpUserName;
-        String pass = Bot.config.secrets.ftpPassword;
+        String host = Config.secrets.ftpHostIp;
+        String user = Config.secrets.ftpUserName;
+        String pass = Config.secrets.ftpPassword;
 
         Bot.LOGGER.info("Preparing the ftp connection.");
 
@@ -43,12 +44,12 @@ public class FtpConnection {
         }
     }
 
-    public void updateCapesData(){
+    public static void updateCapesData(){
         connect();
         createCapesJson();
         try{
             channelSftp = (ChannelSftp)channel;
-            channelSftp.cd(Bot.config.secrets.saveDir);
+            channelSftp.cd(Config.secrets.saveDir);
             File file = new File(System.getProperty("user.dir") + "/capes.json");
             channelSftp.put(new FileInputStream(file), "capes.json");
             Bot.LOGGER.info("Remote Capes Data successfully updated.");
@@ -57,7 +58,7 @@ public class FtpConnection {
         }
     }
 
-    private void createCapesJson(){
+    private static void createCapesJson(){
         try{
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();

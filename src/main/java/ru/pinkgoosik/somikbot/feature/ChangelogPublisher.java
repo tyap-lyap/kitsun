@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot;
+package ru.pinkgoosik.somikbot.feature;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,13 +18,15 @@ import java.util.TimerTask;
 
 public class ChangelogPublisher {
 
+    String curseProjectId;
     long delayInSec = 60;
     long channelId = 896632013556162580L;
     RestClient client;
     ArrayList<Integer> cachedFileIds;
 
-    public ChangelogPublisher(RestClient client){
+    public ChangelogPublisher(RestClient client, String curseProjectId){
         this.client = client;
+        this.curseProjectId = curseProjectId;
         this.cachedFileIds = loadCachedFileIds();
         this.startScheduler();
     }
@@ -45,13 +47,10 @@ public class ChangelogPublisher {
         ArrayList<Integer> fileIds = new ArrayList<>();
         String latestChangelog = "";
         CurseFile latestFile = null;
-
         try {
-            if(CurseAPI.project("490812").isPresent()){
-                CurseAPI.project("490812").get().files().forEach(curseFile -> fileIds.add(curseFile.id()));
-
-
-                for(CurseFile curseFile : CurseAPI.project("490812").get().files()){
+            if(CurseAPI.project(curseProjectId).isPresent()){
+                CurseAPI.project(curseProjectId).get().files().forEach(curseFile -> fileIds.add(curseFile.id()));
+                for(CurseFile curseFile : CurseAPI.project(curseProjectId).get().files()){
                     if(fileIds.get(0).equals(curseFile.id())){
                         latestFile = curseFile;
                         try {
@@ -79,10 +78,10 @@ public class ChangelogPublisher {
             return EmbedData.builder()
                     .author(EmbedAuthorData.builder().name(curseFile.project().name()).build())
                     .title(curseFile.displayName())
-                    .url("https://www.curseforge.com/minecraft/mc-mods/artifality")
+                    .url(curseFile.project().url().toString())
                     .description("**Changes:**\n" + latestChangelog.replaceAll("\\*", "-"))
                     .color(Color.GREEN.getRGB())
-                    .thumbnail(EmbedThumbnailData.builder().url("https://media.forgecdn.net/avatars/432/50/637668908001233569.png").build())
+                    .thumbnail(EmbedThumbnailData.builder().url(curseFile.project().logo().url().toString()).build())
                     .build();
         } catch (CurseException e) {
             e.printStackTrace();
@@ -95,7 +94,7 @@ public class ChangelogPublisher {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter("cached_file_ids.json");
+            FileWriter writer = new FileWriter(curseProjectId + "_cached_file_ids.json");
             writer.write(gson.toJson(cachedFileIds));
             writer.close();
         } catch (IOException e) {
@@ -105,10 +104,10 @@ public class ChangelogPublisher {
 
     private ArrayList<Integer> loadCachedFileIds(){
         try {
-            ArrayList<Integer> fileId = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new FileReader("cached_file_ids.json"));
-            JsonParser.parseReader(reader).getAsJsonArray().forEach(jsonElement -> fileId.add(jsonElement.getAsInt()));
-            return fileId;
+            ArrayList<Integer> fileIds = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new FileReader(curseProjectId + "_cached_file_ids.json"));
+            JsonParser.parseReader(reader).getAsJsonArray().forEach(jsonElement -> fileIds.add(jsonElement.getAsInt()));
+            return fileIds;
         } catch (FileNotFoundException ignored) {}
         return new ArrayList<>();
     }
