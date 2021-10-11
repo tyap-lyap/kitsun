@@ -13,8 +13,8 @@ import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
-import ru.pinkgoosik.somikbot.feature.ChangelogPublisher;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
+import ru.pinkgoosik.somikbot.feature.ChangelogPublisher;
 
 public class Bot {
 
@@ -33,8 +33,8 @@ public class Bot {
         assert gateway != null;
         gateway.on(ConnectEvent.class).subscribe(event -> {
             RestClient restClient = event.getClient().getRestClient();
-            new ChangelogPublisher(restClient, "490812");
-            new ChangelogPublisher(restClient, "521126");
+            new ChangelogPublisher(restClient, "artifality");
+            new ChangelogPublisher(restClient, "visuality");
         });
         gateway.on(MessageCreateEvent.class).subscribe(event -> {
             Message message = event.getMessage();
