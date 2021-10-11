@@ -3,13 +3,15 @@ package ru.pinkgoosik.somikbot.feature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
-import com.therandomlabs.curseapi.CurseAPI;
-import com.therandomlabs.curseapi.CurseException;
-import com.therandomlabs.curseapi.file.CurseFile;
 import discord4j.common.util.Snowflake;
-import discord4j.discordjson.json.*;
+import discord4j.discordjson.json.EmbedAuthorData;
+import discord4j.discordjson.json.EmbedData;
+import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.RestClient;
 import discord4j.rest.util.Color;
+import ru.pinkgoosik.somikbot.api.ModVersion;
+import ru.pinkgoosik.somikbot.api.ModrinthAPI;
+import ru.pinkgoosik.somikbot.api.ModrinthMod;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,16 +20,16 @@ import java.util.TimerTask;
 
 public class ChangelogPublisher {
 
-    String curseProjectId;
+    String modSlug;
     long delayInSec = 60;
     long channelId = 896632013556162580L;
     RestClient client;
-    ArrayList<Integer> cachedFileIds;
+    ArrayList<String> cachedVersionIds;
 
-    public ChangelogPublisher(RestClient client, String curseProjectId){
+    public ChangelogPublisher(RestClient client, String modSlug){
         this.client = client;
-        this.curseProjectId = curseProjectId;
-        this.cachedFileIds = loadCachedFileIds();
+        this.modSlug = modSlug;
+        this.cachedVersionIds = loadCachedFileIds();
         this.startScheduler();
     }
 
@@ -44,49 +46,36 @@ public class ChangelogPublisher {
     }
 
     void createMessage(){
-        ArrayList<Integer> fileIds = new ArrayList<>();
+        ModrinthMod modrinthMod = ModrinthAPI.getModBySlug(modSlug);
+        ArrayList<String> versionIds = new ArrayList<>();
         String latestChangelog = "";
-        CurseFile latestFile = null;
-        try {
-            if(CurseAPI.project(curseProjectId).isPresent()){
-                CurseAPI.project(curseProjectId).get().files().forEach(curseFile -> fileIds.add(curseFile.id()));
-                for(CurseFile curseFile : CurseAPI.project(curseProjectId).get().files()){
-                    if(fileIds.get(0).equals(curseFile.id())){
-                        latestFile = curseFile;
-                        try {
-                            latestChangelog = curseFile.changelogPlainText();
-                        } catch (CurseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        } catch (CurseException e) {
-            e.printStackTrace();
-        }
+        ModVersion latestVersion = new ModVersion();
 
-        if(!cachedFileIds.equals(fileIds)){
-            assert latestFile != null;
-            client.getChannelById(Snowflake.of(channelId)).createMessage(createEmbed(latestFile, latestChangelog)).block();
-            cachedFileIds = fileIds;
+        modrinthMod.versions.forEach(version -> versionIds.add(version.id));
+        for(ModVersion modVersion : modrinthMod.versions){
+            if(versionIds.get(0).equals(modVersion.id)){
+                latestVersion = modVersion;
+                latestChangelog = modVersion.changelog;
+            }
+        }
+        if(!cachedVersionIds.equals(versionIds)){
+            if(!versionIds.isEmpty()){
+                client.getChannelById(Snowflake.of(channelId)).createMessage(createEmbed(modrinthMod, latestVersion, latestChangelog)).block();
+                cachedVersionIds = versionIds;
+            }
             saveCachedFileIds();
         }
     }
 
-    EmbedData createEmbed(CurseFile curseFile, String latestChangelog){
-        try {
-            return EmbedData.builder()
-                    .author(EmbedAuthorData.builder().name(curseFile.project().name()).build())
-                    .title(curseFile.displayName())
-                    .url(curseFile.project().url().toString())
-                    .description("**Changes:**\n" + latestChangelog.replaceAll("\\*", "-"))
-                    .color(Color.GREEN.getRGB())
-                    .thumbnail(EmbedThumbnailData.builder().url(curseFile.project().logo().url().toString()).build())
-                    .build();
-        } catch (CurseException e) {
-            e.printStackTrace();
-        }
-        return EmbedData.builder().build();
+    private EmbedData createEmbed(ModrinthMod mod, ModVersion version, String latestChangelog){
+        return EmbedData.builder()
+                .author(EmbedAuthorData.builder().name(mod.title).build())
+                .title(version.name)
+                .url(mod.modUrl)
+                .description("**Changes:**\n" + latestChangelog.replaceAll("\\*", "-"))
+                .color(Color.GREEN.getRGB())
+                .thumbnail(EmbedThumbnailData.builder().url(mod.iconUrl).build())
+                .build();
     }
 
     private void saveCachedFileIds(){
@@ -94,20 +83,20 @@ public class ChangelogPublisher {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter(curseProjectId + "_cached_file_ids.json");
-            writer.write(gson.toJson(cachedFileIds));
+            FileWriter writer = new FileWriter(modSlug + "_cached_ids.json");
+            writer.write(gson.toJson(cachedVersionIds));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private ArrayList<Integer> loadCachedFileIds(){
+    private ArrayList<String> loadCachedFileIds(){
         try {
-            ArrayList<Integer> fileIds = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new FileReader(curseProjectId + "_cached_file_ids.json"));
-            JsonParser.parseReader(reader).getAsJsonArray().forEach(jsonElement -> fileIds.add(jsonElement.getAsInt()));
-            return fileIds;
+            ArrayList<String> ids = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new FileReader(modSlug + "_cached_ids.json"));
+            JsonParser.parseReader(reader).getAsJsonArray().forEach(jsonElement -> ids.add(jsonElement.getAsString()));
+            return ids;
         } catch (FileNotFoundException ignored) {}
         return new ArrayList<>();
     }
