@@ -43,7 +43,7 @@ public class Bot {
             String[] words = stringMsg.split(" ");
 
             if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())){
-                for(Command command : Commands.getCommands()){
+                for(Command command : Commands.COMMANDS){
                     if(words[0].equals("!" + command.getName())){
                         assert channel != null;
                         channel.createMessage(command.respond(words, message.getAuthor().get().getUsername())).block();

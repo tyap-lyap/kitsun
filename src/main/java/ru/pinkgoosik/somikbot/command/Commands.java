@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Commands {
 
-    private static final ArrayList<Command> COMMANDS = new ArrayList<>();
+    public static final ArrayList<Command> COMMANDS = new ArrayList<>();
 
     public static void initCommands(){
         add(new HelpCommand());
@@ -15,9 +15,5 @@ public class Commands {
 
     private static void add(Command command){
         COMMANDS.add(command);
-    }
-
-    public static ArrayList<Command> getCommands() {
-        return COMMANDS;
     }
 }
