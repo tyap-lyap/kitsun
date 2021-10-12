@@ -13,12 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerCapes {
-
     public static final ArrayList<String> CAPES = new ArrayList<>(List.of("uni", "light_green", "purple", "red", "blue",
             "brown", "pink", "green", "light_blue"));
-    public static ArrayList<Entry> entries = new ArrayList<>();
     public static final String URL_STRING = "https://pinkgoosik.ru/data/capes.json";
-
+    public static ArrayList<Entry> entries = new ArrayList<>();
 
     public static void grantCape(String nickname, String uuid, String cape){
         entries.add(new Entry(nickname, uuid, cape, "normal", "0xFFFFFF"));

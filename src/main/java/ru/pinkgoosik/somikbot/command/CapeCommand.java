@@ -2,7 +2,7 @@ package ru.pinkgoosik.somikbot.command;
 
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
-import ru.pinkgoosik.somikbot.util.PlayerUuid;
+import ru.pinkgoosik.somikbot.util.UuidGetter;
 
 public class CapeCommand extends Command {
 
@@ -31,9 +31,9 @@ public class CapeCommand extends Command {
 
     private String tryToGrant(String nickname, String cape){
         if(PlayerCapes.hasCape(nickname)) return nickname + " already has a cape";
-        if(!PlayerCapes.CAPES.contains(cape) || PlayerUuid.getUuid(nickname) == null) return "Cape or Player not found";
+        if(!PlayerCapes.CAPES.contains(cape) || UuidGetter.getUuid(nickname) == null) return "Cape or Player not found";
         else {
-            PlayerCapes.grantCape(nickname, PlayerUuid.getUuid(nickname), cape);
+            PlayerCapes.grantCape(nickname, UuidGetter.getUuid(nickname), cape);
             FtpConnection.updateCapesData();
             return nickname + " got successfully granted with the " + cape + " cape" + "\nRejoin the world to see changes";
         }

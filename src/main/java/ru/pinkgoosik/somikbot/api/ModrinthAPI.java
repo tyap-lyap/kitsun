@@ -13,7 +13,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class ModrinthAPI {
-
     public static final String MOD_URL_TEMPLATE = "https://modrinth.com/mod/%slug%";
     public static final String API_MOD_URL_TEMPLATE = "https://api.modrinth.com/api/v1/mod/%slug%";
     public static final String MOD_VERSIONS_URL_TEMPLATE = "https://api.modrinth.com/api/v1/mod/%mod_id%/version";

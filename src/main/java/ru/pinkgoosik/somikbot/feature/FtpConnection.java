@@ -11,36 +11,23 @@ import java.io.*;
 import java.util.Properties;
 
 public class FtpConnection {
-
-    static Session session;
-    static Channel channel;
-    static ChannelSftp channelSftp;
+    private static Channel channel;
 
     public static void connect(){
-        int port = 22;
-        String host = Config.secrets.ftpHostIp;
-        String user = Config.secrets.ftpUserName;
-        String pass = Config.secrets.ftpPassword;
-
-        Bot.LOGGER.info("Preparing the ftp connection.");
-
         try {
             JSch jSch = new JSch();
-            session = jSch.getSession(user, host, port);
-            session.setPassword(pass);
+            Session session = jSch.getSession(Config.secrets.ftpUserName, Config.secrets.ftpHostIp, 22);
+            session.setPassword(Config.secrets.ftpPassword);
             Properties props = new Properties();
             props.put("StrictHostKeyChecking", "no");
             session.setConfig(props);
             session.connect();
-            Bot.LOGGER.info("Host connected.");
-
             channel = session.openChannel("sftp");
             channel.connect();
             Bot.LOGGER.info("Sftp channel opened and connected.");
-
         } catch (Exception e) {
-            Bot.LOGGER.info("Failed to connect.");
-            e.printStackTrace();
+            Config.general.capesEnabled = false;
+            Bot.LOGGER.info("Failed to connect due to an exception: " + e);
         }
     }
 
@@ -48,13 +35,13 @@ public class FtpConnection {
         connect();
         createCapesJson();
         try{
-            channelSftp = (ChannelSftp)channel;
+            ChannelSftp channelSftp = (ChannelSftp) channel;
             channelSftp.cd(Config.secrets.saveDir);
             File file = new File(System.getProperty("user.dir") + "/capes.json");
             channelSftp.put(new FileInputStream(file), "capes.json");
             Bot.LOGGER.info("Remote Capes Data successfully updated.");
         } catch (SftpException | FileNotFoundException e) {
-            e.printStackTrace();
+            Bot.LOGGER.info("Failed to update Remote Capes Data due to an exception: " + e);
         }
     }
 
@@ -67,7 +54,7 @@ public class FtpConnection {
             writer.write(gson.toJson(PlayerCapes.entries));
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Bot.LOGGER.info("Failed to create Capes Json due to an exception: " + e);
         }
     }
 }

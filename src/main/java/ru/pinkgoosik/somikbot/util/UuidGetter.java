@@ -9,8 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class PlayerUuid {
-
+public class UuidGetter {
     public static String URL_STRING = "https://api.mojang.com/users/profiles/minecraft/%nickname%";
 
     public static String getUuid(String nickname){

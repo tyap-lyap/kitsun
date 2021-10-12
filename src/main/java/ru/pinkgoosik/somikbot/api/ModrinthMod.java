@@ -3,7 +3,6 @@ package ru.pinkgoosik.somikbot.api;
 import java.util.ArrayList;
 
 public class ModrinthMod {
-
     public String modUrl = "";
     public String iconUrl = "";
     public String modId = "";

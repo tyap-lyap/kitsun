@@ -1,6 +1,6 @@
 package ru.pinkgoosik.somikbot.command;
 
-import ru.pinkgoosik.somikbot.util.PlayerUuid;
+import ru.pinkgoosik.somikbot.util.UuidGetter;
 
 public class UuidCommand extends Command {
 
@@ -22,7 +22,7 @@ public class UuidCommand extends Command {
     @Override
     public String respond(String[] args, String nickname) {
         if(args[1].equals("self")) args[1] = nickname;
-        if(PlayerUuid.getUuid(args[1]) == null) return "Player not found";
-        return PlayerUuid.getUuid(args[1]);
+        if(UuidGetter.getUuid(args[1]) == null) return "Player not found";
+        return UuidGetter.getUuid(args[1]);
     }
 }

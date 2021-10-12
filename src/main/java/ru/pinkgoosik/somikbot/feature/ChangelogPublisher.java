@@ -19,7 +19,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ChangelogPublisher {
-
     String modSlug;
     long delayInSec = 60;
     long channelId = 896632013556162580L;
