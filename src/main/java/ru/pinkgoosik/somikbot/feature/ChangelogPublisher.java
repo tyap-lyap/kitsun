@@ -32,7 +32,7 @@ public class ChangelogPublisher {
         this.startScheduler();
     }
 
-    void startScheduler(){
+    private void startScheduler(){
         new Timer().schedule(
                 new TimerTask() {
                     @Override
@@ -44,7 +44,7 @@ public class ChangelogPublisher {
         );
     }
 
-    void createMessage(){
+    private void createMessage(){
         ModrinthMod modrinthMod = ModrinthAPI.getModBySlug(modSlug);
         ArrayList<String> versionIds = new ArrayList<>();
         String latestChangelog = "";
@@ -71,8 +71,8 @@ public class ChangelogPublisher {
                 .author(EmbedAuthorData.builder().name(mod.title).build())
                 .title(version.name)
                 .url(mod.modUrl)
-                .description("**Changes:**\n" + latestChangelog.replaceAll("\\*", "-"))
-                .color(Color.GREEN.getRGB())
+                .description("**Changes:**\n" + latestChangelog)
+                .color(Color.of(48,178,123).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(mod.iconUrl).build())
                 .build();
     }

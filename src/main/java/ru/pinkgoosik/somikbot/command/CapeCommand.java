@@ -1,5 +1,8 @@
 package ru.pinkgoosik.somikbot.command;
 
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.MessageChannel;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.util.UuidGetter;
@@ -13,20 +16,21 @@ public class CapeCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Grants and revokes a cape from a Player.";
+        return "Gives and removes the cape.";
     }
 
     @Override
-    public String appendDescription() {
-        return "`!" + this.getName() + " <grant|revoke> <self|player> [cape]` " + " - " + this.getDescription();
+    public String appendName() {
+        return "**!" + this.getName() + "** <grant|revoke> <nickname> [cape]";
     }
 
     @Override
-    public String respond(String[] args, String nickname) {
-        if(args[2].equals("self")) args[2] = nickname;
-        if(args[1].equals("revoke")) return tryToRevoke(args[2]);
-        if(args[1].equals("grant")) return tryToGrant(args[2], args[3]);
-        return "Failed";
+    public void respond(MessageCreateEvent event, User user, MessageChannel channel) {
+        String msg = event.getMessage().getContent() + " empty empty empty";
+        String[] args = msg.split(" ");
+
+        if(args[1].equals("revoke")) channel.createMessage(tryToRevoke(args[2])).block();
+        if(args[1].equals("grant")) channel.createMessage(tryToGrant(args[2], args[3])).block();
     }
 
     private String tryToGrant(String nickname, String cape){

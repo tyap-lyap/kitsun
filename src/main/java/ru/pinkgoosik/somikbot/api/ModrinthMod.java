@@ -9,5 +9,11 @@ public class ModrinthMod {
     public String modSlug = "";
     public String title = "";
     public String shortDescription = "";
+    public int downloads = 0;
+    public int followers = 0;
     public ArrayList<ModVersion> versions = new ArrayList<>();
+
+    public boolean isEmpty(){
+        return this.title.equals("");
+    }
 }

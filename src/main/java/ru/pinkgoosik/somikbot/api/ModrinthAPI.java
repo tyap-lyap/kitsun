@@ -37,10 +37,10 @@ public class ModrinthAPI {
             mod.shortDescription = object.get("description").getAsString();
             mod.modUrl = MOD_URL_TEMPLATE.replace("%slug%", mod.modSlug);
             mod.versions = tryToGetVersions(mod.modId);
+            mod.downloads = object.get("downloads").getAsInt();
+            mod.followers = object.get("followers").getAsInt();
             return mod;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return new ModrinthMod();
     }
 
@@ -64,9 +64,7 @@ public class ModrinthAPI {
                 versions.add(version);
             });
             return versions;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return new ArrayList<>();
     }
 }

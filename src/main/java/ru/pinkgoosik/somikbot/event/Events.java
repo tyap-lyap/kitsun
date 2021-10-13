@@ -8,6 +8,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.RestClient;
+import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
@@ -28,22 +29,22 @@ public class Events {
     }
 
     private static void onMemberJoin(MemberJoinEvent event){
+        Bot.LOGGER.info("Tryin go give role " + Config.general.memberRoleId + " to the " + event.getMember().getTag());
         if(!Config.general.memberRoleId.isBlank()){
-            event.getMember().addRole(Snowflake.of(Config.general.memberRoleId));
+            event.getMember().addRole(Snowflake.of(Config.general.memberRoleId)).block();
         }
     }
 
     private static void onMessageCreate(MessageCreateEvent event){
         Message message = event.getMessage();
         MessageChannel channel = message.getChannel().block();
-        String stringMsg = message.getContent() + " empty empty empty empty empty";
-        String[] words = stringMsg.split(" ");
+        String[] words = message.getContent().split(" ");
 
         if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())){
             for(Command command : Commands.COMMANDS){
                 if(words[0].equals("!" + command.getName())){
                     assert channel != null;
-                    channel.createMessage(command.respond(words, message.getAuthor().get().getUsername())).block();
+                    command.respond(event, message.getAuthor().get(), channel);
                 }
             }
         }

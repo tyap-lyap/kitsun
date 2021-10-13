@@ -13,6 +13,7 @@ public class Commands {
             add(new CapesCommand());
             add(new CapeCommand());
         }
+        add(new ModrinthCommand());
     }
 
     private static void add(Command command){

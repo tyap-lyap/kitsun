@@ -14,7 +14,7 @@ import java.util.List;
 
 public class PlayerCapes {
     public static final ArrayList<String> CAPES = new ArrayList<>(List.of("uni", "light_green", "purple", "red", "blue",
-            "brown", "pink", "green", "light_blue"));
+            "brown", "pink", "green", "light_blue", "trans"));
     public static final String URL_STRING = "https://pinkgoosik.ru/data/capes.json";
     public static ArrayList<Entry> entries = new ArrayList<>();
 

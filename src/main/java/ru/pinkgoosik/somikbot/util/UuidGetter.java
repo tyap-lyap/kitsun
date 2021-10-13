@@ -16,9 +16,7 @@ public class UuidGetter {
         String uuid = null;
         try {
             uuid = tryToParse(nickname);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         if(uuid != null){
             return fromTrimmed(uuid);
         }
