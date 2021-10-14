@@ -8,7 +8,6 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.RestClient;
-import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
@@ -18,8 +17,8 @@ public class Events {
 
     public static void initEvents(GatewayDiscordClient gateway){
         gateway.on(ConnectEvent.class).subscribe(Events::onConnect);
-        gateway.on(MemberJoinEvent.class).subscribe(Events::onMemberJoin);
         gateway.on(MessageCreateEvent.class).subscribe(Events::onMessageCreate);
+        gateway.on(MemberJoinEvent.class).subscribe(Events::onMemberJoin);
     }
 
     private static void onConnect(ConnectEvent event){
@@ -29,7 +28,6 @@ public class Events {
     }
 
     private static void onMemberJoin(MemberJoinEvent event){
-        Bot.LOGGER.info("Tryin go give role " + Config.general.memberRoleId + " to the " + event.getMember().getTag());
         if(!Config.general.memberRoleId.isBlank()){
             event.getMember().addRole(Snowflake.of(Config.general.memberRoleId)).block();
         }
