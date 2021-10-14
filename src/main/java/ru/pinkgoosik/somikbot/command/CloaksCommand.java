@@ -8,23 +8,23 @@ import discord4j.rest.entity.RestChannel;
 import discord4j.rest.util.Color;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
 
-public class CapesCommand extends Command {
+public class CloaksCommand extends Command {
 
     @Override
     public String getName() {
-        return "capes";
+        return "cloaks";
     }
 
     @Override
     public String getDescription() {
-        return "Sends list of available capes.";
+        return "Sends list of available cloaks.";
     }
 
     @Override
     public void respond(MessageCreateEvent event, User user, MessageChannel channel) {
         RestChannel restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
         StringBuilder string = new StringBuilder();
-        string.append("**Available Capes**\n");
+        string.append("**Available Cloaks**\n");
         for (String cape : PlayerCapes.CAPES){
             string.append(cape).append(", ");
         }
@@ -34,7 +34,7 @@ public class CapesCommand extends Command {
 
     private EmbedData createEmbed(User user, String text){
         return EmbedData.builder()
-                .title(user.getUsername() + " used command `!capes`")
+                .title(user.getUsername() + " used command `!cloaks`")
                 .description(text)
                 .color(Color.of(96,141,238).getRGB())
                 .build();

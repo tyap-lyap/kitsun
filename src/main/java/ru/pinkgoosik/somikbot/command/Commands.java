@@ -10,8 +10,8 @@ public class Commands {
         add(new HelpCommand());
         add(new UuidCommand());
         if(Config.general.capesEnabled){
-            add(new CapesCommand());
-            add(new CapeCommand());
+            add(new CloaksCommand());
+            add(new CloakGrantCommand());
         }
         add(new ModrinthCommand());
     }
