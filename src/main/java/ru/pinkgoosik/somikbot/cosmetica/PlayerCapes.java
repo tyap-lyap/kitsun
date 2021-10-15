@@ -18,8 +18,8 @@ public class PlayerCapes {
     public static final String URL_STRING = "https://pinkgoosik.ru/data/capes.json";
     public static ArrayList<Entry> entries = new ArrayList<>();
 
-    public static void grantCape(String nickname, String uuid, String cape){
-        entries.add(new Entry(nickname, uuid, cape, "normal", "0xFFFFFF"));
+    public static void grantCape(String discordId, String nickname, String uuid, String cape){
+        entries.add(new Entry(discordId, nickname, uuid, cape, "normal", "0xFFFFFF"));
     }
 
     public static void revokeCape(String nickname){
@@ -30,6 +30,12 @@ public class PlayerCapes {
         ArrayList<String> nicknames = new ArrayList<>();
         entries.forEach(entry -> nicknames.add(entry.name()));
         return nicknames.contains(nickname);
+    }
+
+    public static boolean hasCapeById(String discordId){
+        ArrayList<String> discordIds = new ArrayList<>();
+        entries.forEach(entry -> discordIds.add(entry.id()));
+        return discordIds.contains(discordId);
     }
 
     public static void fillFromUpstream(){
@@ -51,15 +57,16 @@ public class PlayerCapes {
 
         JsonArray jsonArray = JsonParser.parseReader(new InputStreamReader((InputStream) request.getContent())).getAsJsonArray();
         jsonArray.forEach(jsonElement -> {
+            String discordId = jsonElement.getAsJsonObject().get("id").getAsString();
             String name = jsonElement.getAsJsonObject().get("name").getAsString();
             String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
             String cape = jsonElement.getAsJsonObject().get("cape").getAsString();
 //            String type = jsonElement.getAsJsonObject().get("type").getAsString();
 //            String color = jsonElement.getAsJsonObject().get("color").getAsString();
 
-            grantCape(name, uuid, cape);
+            grantCape(discordId, name, uuid, cape);
         });
     }
 
-    public record Entry(String name, String uuid, String cape, String type, String color) {}
+    public record Entry(String id, String name, String uuid, String cape, String type, String color) {}
 }

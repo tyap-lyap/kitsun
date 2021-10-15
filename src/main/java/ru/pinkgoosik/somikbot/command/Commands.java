@@ -8,12 +8,12 @@ public class Commands {
 
     public static void initCommands(){
         add(new HelpCommand());
-        add(new UuidCommand());
+//        add(new UuidCommand());
         if(Config.general.capesEnabled){
             add(new CloaksCommand());
             add(new CloakGrantCommand());
         }
-        add(new ModrinthCommand());
+//        add(new ModrinthCommand());
     }
 
     private static void add(Command command){

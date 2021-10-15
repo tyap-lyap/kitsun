@@ -13,12 +13,12 @@ import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.feature.ChangelogPublisher;
 
-public class Events {
+public class DiscordEvents {
 
     public static void initEvents(GatewayDiscordClient gateway){
-        gateway.on(ConnectEvent.class).subscribe(Events::onConnect);
-        gateway.on(MessageCreateEvent.class).subscribe(Events::onMessageCreate);
-        gateway.on(MemberJoinEvent.class).subscribe(Events::onMemberJoin);
+        gateway.on(ConnectEvent.class).subscribe(DiscordEvents::onConnect);
+        gateway.on(MessageCreateEvent.class).subscribe(DiscordEvents::onMessageCreate);
+        gateway.on(MemberJoinEvent.class).subscribe(DiscordEvents::onMemberJoin);
     }
 
     private static void onConnect(ConnectEvent event){
@@ -37,6 +37,11 @@ public class Events {
         Message message = event.getMessage();
         MessageChannel channel = message.getChannel().block();
         String[] words = message.getContent().split(" ");
+
+        if(message.getContent().equals("somik pray")){
+            assert channel != null;
+            channel.createMessage(":pray:").block();
+        }
 
         if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())){
             for(Command command : Commands.COMMANDS){

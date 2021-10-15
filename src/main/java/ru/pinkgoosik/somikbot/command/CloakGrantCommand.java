@@ -36,34 +36,53 @@ public class CloakGrantCommand extends Command {
         String[] args = msg.split(" ");
         RestChannel restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
 
-        if(args[1].equals("revoke")) tryToRevoke(args[2], restChannel);
-        if(args[1].equals("grant")) tryToGrant(args[2], args[3], restChannel);
+        if(args[1].equals("revoke")) tryToRevoke(args[2], restChannel, user);
+        if(args[1].equals("grant")) tryToGrant(args[2], args[3], restChannel, user);
     }
 
-    private void tryToGrant(String nickname, String cape, RestChannel restChannel){
+    private void tryToGrant(String nickname, String cape, RestChannel restChannel, User user){
         if(PlayerCapes.hasCape(nickname)){
             restChannel.createMessage(createErrorEmbed(nickname + " already has a cloak.")).block();
-            return;
         }
-        if(!PlayerCapes.CAPES.contains(cape) || UuidGetter.getUuid(nickname) == null){
+        else if(!PlayerCapes.CAPES.contains(cape) || UuidGetter.getUuid(nickname) == null){
             restChannel.createMessage(createErrorEmbed("Cloak or Player not found")).block();
         }
         else {
-            PlayerCapes.grantCape(nickname, UuidGetter.getUuid(nickname), cape);
+            PlayerCapes.grantCape(user.getId().asString(), nickname, UuidGetter.getUuid(nickname), cape);
             FtpConnection.updateCapesData();
             String text = nickname + " got successfully granted with the " + cape + " cloak" + "\nRejoin the world to see changes.";
             restChannel.createMessage(createGrantEmbed(text, cape, nickname)).block();
         }
     }
 
-    private void tryToRevoke(String nickname, RestChannel restChannel){
-        if(PlayerCapes.hasCape(nickname)){
-            PlayerCapes.revokeCape(nickname);
-            FtpConnection.updateCapesData();
-            String text = "Successfully revoked a cloak from the player " + nickname + ".";
-            restChannel.createMessage(createRevokeEmbed(text, nickname)).block();
+    private void tryToRevoke(String nickname, RestChannel restChannel, User user){
+        String discordId = user.getId().asString();
+
+        PlayerCapes.entries.forEach(entry -> {
+            if(entry.name().equals(nickname)){
+                if(entry.id().equals(discordId)){
+                    PlayerCapes.revokeCape(nickname);
+                    FtpConnection.updateCapesData();
+                    String text = "Successfully revoked a cloak from the player " + nickname + ".";
+                    restChannel.createMessage(createRevokeEmbed(text, nickname)).block();
+                }else {
+                    String text = "You can't revoke a cloak from the player " + nickname + ".";
+                    restChannel.createMessage(createErrorEmbed(text)).block();
+                }
+            }
+        });
+
+        if(!PlayerCapes.hasCape(nickname)){
+            restChannel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
         }
-        else restChannel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
+
+//        if(PlayerCapes.hasCape(nickname)){
+//            PlayerCapes.revokeCape(nickname);
+//            FtpConnection.updateCapesData();
+//            String text = "Successfully revoked a cloak from the player " + nickname + ".";
+//            restChannel.createMessage(createRevokeEmbed(text, nickname)).block();
+//        }
+//        else restChannel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
     }
 
     private EmbedData createGrantEmbed(String text, String cloak, String user){

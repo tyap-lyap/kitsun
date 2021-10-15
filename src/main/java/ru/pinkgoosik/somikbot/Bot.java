@@ -7,7 +7,7 @@ import reactor.util.Loggers;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
-import ru.pinkgoosik.somikbot.event.Events;
+import ru.pinkgoosik.somikbot.event.DiscordEvents;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
 
 public class Bot {
@@ -27,7 +27,7 @@ public class Bot {
         DiscordClient client = DiscordClient.create(token);
         GatewayDiscordClient gateway = client.login().block();
         if(gateway != null){
-            Events.initEvents(gateway);
+            DiscordEvents.initEvents(gateway);
             gateway.onDisconnect().block();
         }
     }
