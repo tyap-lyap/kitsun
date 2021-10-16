@@ -1,6 +1,7 @@
 package ru.pinkgoosik.somikbot.command;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
@@ -12,101 +13,66 @@ import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.util.UuidGetter;
 
 public class CloakGrantCommand extends Command {
-
     private static final String PREVIEW_CLOAK = "https://raw.githubusercontent.com/PinkGoosik/somik-bot/master/src/main/resources/cloak/%cloak%_cloak_preview.png";
 
     @Override
     public String getName() {
-        return "cloak";
+        return "cloak grant";
     }
 
     @Override
     public String getDescription() {
-        return "Gives and removes the cloak.";
+        return "Grants a cloak to the player.";
     }
 
     @Override
     public String appendName() {
-        return "**!" + this.getName() + "** <grant|revoke> <nickname> [cloak]";
+        return "**!" + this.getName() + "** <nickname> <cloak>";
     }
 
     @Override
-    public void respond(MessageCreateEvent event, User user, MessageChannel channel) {
-        String msg = event.getMessage().getContent() + " empty empty empty";
-        String[] args = msg.split(" ");
-        RestChannel restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+    public void respond(MessageCreateEvent event, String[] args) {
+        User user;
+        Message message = event.getMessage();
+        MessageChannel channel = message.getChannel().block();
+        RestChannel restChannel;
+        String nickname = args[1];
+        String cloak = args[2];
 
-        if(args[1].equals("revoke")) tryToRevoke(args[2], restChannel, user);
-        if(args[1].equals("grant")) tryToGrant(args[2], args[3], restChannel, user);
-    }
+        if(event.getMessage().getAuthor().isEmpty()) return;
+        else user = event.getMessage().getAuthor().get();
+        if(channel == null) return;
+        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
 
-    private void tryToGrant(String nickname, String cape, RestChannel restChannel, User user){
+        if(nickname.equals("empty")){
+            restChannel.createMessage(createErrorEmbed("Nickname is empty.")).block();
+            return;
+        }
+        if(cloak.equals("empty")){
+            restChannel.createMessage(createErrorEmbed("Cloak is empty.")).block();
+            return;
+        }
         if(PlayerCapes.hasCape(nickname)){
             restChannel.createMessage(createErrorEmbed(nickname + " already has a cloak.")).block();
+            return;
         }
-        else if(!PlayerCapes.CAPES.contains(cape) || UuidGetter.getUuid(nickname) == null){
-            restChannel.createMessage(createErrorEmbed("Cloak or Player not found")).block();
+        if(!PlayerCapes.CAPES.contains(cloak) || UuidGetter.getUuid(nickname) == null){
+            restChannel.createMessage(createErrorEmbed("Cloak or Player not found.")).block();
+            return;
         }
-        else {
-            PlayerCapes.grantCape(user.getId().asString(), nickname, UuidGetter.getUuid(nickname), cape);
-            FtpConnection.updateCapesData();
-            String text = nickname + " got successfully granted with the " + cape + " cloak" + "\nRejoin the world to see changes.";
-            restChannel.createMessage(createGrantEmbed(text, cape, nickname)).block();
-        }
+
+        PlayerCapes.grantCape(user.getId().asString(), nickname, UuidGetter.getUuid(nickname), cloak);
+        FtpConnection.updateCapesData();
+        String text = nickname + " got successfully granted with the " + cloak + " cloak." + "\nRejoin the world to see changes.";
+        restChannel.createMessage(createSuccessEmbed(text, cloak, user)).block();
     }
 
-    private void tryToRevoke(String nickname, RestChannel restChannel, User user){
-        String discordId = user.getId().asString();
-
-        PlayerCapes.entries.forEach(entry -> {
-            if(entry.name().equals(nickname)){
-                if(entry.id().equals(discordId)){
-                    PlayerCapes.revokeCape(nickname);
-                    FtpConnection.updateCapesData();
-                    String text = "Successfully revoked a cloak from the player " + nickname + ".";
-                    restChannel.createMessage(createRevokeEmbed(text, nickname)).block();
-                }else {
-                    String text = "You can't revoke a cloak from the player " + nickname + ".";
-                    restChannel.createMessage(createErrorEmbed(text)).block();
-                }
-            }
-        });
-
-        if(!PlayerCapes.hasCape(nickname)){
-            restChannel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
-        }
-
-//        if(PlayerCapes.hasCape(nickname)){
-//            PlayerCapes.revokeCape(nickname);
-//            FtpConnection.updateCapesData();
-//            String text = "Successfully revoked a cloak from the player " + nickname + ".";
-//            restChannel.createMessage(createRevokeEmbed(text, nickname)).block();
-//        }
-//        else restChannel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
-    }
-
-    private EmbedData createGrantEmbed(String text, String cloak, String user){
+    private EmbedData createSuccessEmbed(String text, String cloak, User user){
         return EmbedData.builder()
-                .title(user + " used command `!cloak`")
+                .title(user.getUsername() + " used command `!cloak grant`")
                 .description(text)
                 .color(Color.of(145,219,105).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(PREVIEW_CLOAK.replace("%cloak%", cloak)).build())
-                .build();
-    }
-
-    private EmbedData createRevokeEmbed(String text, String user){
-        return EmbedData.builder()
-                .title(user + " used command `!cloak`")
-                .description(text)
-                .color(Color.of(145,219,105).getRGB())
-                .build();
-    }
-
-    private EmbedData createErrorEmbed(String text){
-        return EmbedData.builder()
-                .title("Error")
-                .description(text)
-                .color(Color.of(246,129,129).getRGB())
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package ru.pinkgoosik.somikbot.command;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
@@ -21,18 +22,27 @@ public class CloaksCommand extends Command {
     }
 
     @Override
-    public void respond(MessageCreateEvent event, User user, MessageChannel channel) {
-        RestChannel restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
-        StringBuilder string = new StringBuilder();
-        string.append("**Available Cloaks**\n");
+    public void respond(MessageCreateEvent event, String[] args) {
+        User user;
+        Message message = event.getMessage();
+        MessageChannel channel = message.getChannel().block();
+        RestChannel restChannel;
+
+        if(event.getMessage().getAuthor().isEmpty()) return;
+        else user = event.getMessage().getAuthor().get();
+        if(channel == null) return;
+        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+
+        StringBuilder text = new StringBuilder();
+        text.append("**Available Cloaks**\n");
         for (String cape : PlayerCapes.CAPES){
-            string.append(cape).append(", ");
+            text.append(cape).append(", ");
         }
-        String respond = string.deleteCharAt(string.length() - 1).deleteCharAt(string.length() - 1).append(".").toString();
-        restChannel.createMessage(createEmbed(user, respond)).block();
+        String respond = text.deleteCharAt(text.length() - 1).deleteCharAt(text.length() - 1).append(".").toString();
+        restChannel.createMessage(createEmbed(respond, user)).block();
     }
 
-    private EmbedData createEmbed(User user, String text){
+    private EmbedData createEmbed(String text, User user){
         return EmbedData.builder()
                 .title(user.getUsername() + " used command `!cloaks`")
                 .description(text)

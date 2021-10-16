@@ -1,8 +1,8 @@
 package ru.pinkgoosik.somikbot.command;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.discordjson.json.EmbedData;
+import discord4j.rest.util.Color;
 
 public abstract class Command {
 
@@ -14,5 +14,13 @@ public abstract class Command {
         return "**!" + this.getName() + "**";
     }
 
-    public void respond(MessageCreateEvent event, User user, MessageChannel channel){}
+    public void respond(MessageCreateEvent event, String[] args){}
+
+    public static EmbedData createErrorEmbed(String text){
+        return EmbedData.builder()
+                .title("Error")
+                .description(text)
+                .color(Color.of(246,129,129).getRGB())
+                .build();
+    }
 }

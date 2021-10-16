@@ -26,7 +26,7 @@ public class FtpConnection {
             channel.connect();
             Bot.LOGGER.info("Sftp channel opened and connected.");
         } catch (Exception e) {
-            Config.general.capesEnabled = false;
+            Config.general.cloaksEnabled = false;
             Bot.LOGGER.info("Failed to connect due to an exception: " + e);
         }
     }

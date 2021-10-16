@@ -1,7 +1,7 @@
 package ru.pinkgoosik.somikbot.command;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedFieldData;
@@ -29,17 +29,17 @@ public class ModrinthCommand extends Command {
     }
 
     @Override
-    public void respond(MessageCreateEvent event, User user, MessageChannel channel) {
-        String msg = event.getMessage().getContent() + " empty";
-        String[] args = msg.split(" ");
-        RestChannel restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+    public void respond(MessageCreateEvent event, String[] args) {
+        Message message = event.getMessage();
+        MessageChannel channel = message.getChannel().block();
+        RestChannel restChannel;
         ModrinthMod mod = ModrinthAPI.getModBySlug(args[1].toLowerCase());
 
-        if (!mod.isEmpty()){
-            restChannel.createMessage(createEmbed(mod)).block();
-        }else if(mod.isEmpty()){
-            restChannel.createMessage(createErrorEmbed()).block();
-        }
+        if(channel == null) return;
+        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+
+        if (!mod.isEmpty())restChannel.createMessage(createEmbed(mod)).block();
+        else restChannel.createMessage(createErrorEmbed("Mod not found.")).block();
     }
 
     private EmbedData createEmbed(ModrinthMod mod){
@@ -51,14 +51,6 @@ public class ModrinthCommand extends Command {
                 .thumbnail(EmbedThumbnailData.builder().url(mod.iconUrl).build())
                 .addField(EmbedFieldData.builder().name("Downloads").value(Integer.toString(mod.downloads)).inline(true).build())
                 .addField(EmbedFieldData.builder().name("Followers").value(Integer.toString(mod.followers)).inline(true).build())
-                .build();
-    }
-
-    private EmbedData createErrorEmbed(){
-        return EmbedData.builder()
-                .title("Error")
-                .description("Mod not found.")
-                .color(Color.of(246,129,129).getRGB())
                 .build();
     }
 }

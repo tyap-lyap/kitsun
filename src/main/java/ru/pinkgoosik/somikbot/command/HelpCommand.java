@@ -1,10 +1,12 @@
 package ru.pinkgoosik.somikbot.command;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
+import discord4j.rest.entity.RestChannel;
 import discord4j.rest.util.Color;
 
 public class HelpCommand extends Command {
@@ -20,13 +22,23 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public void respond(MessageCreateEvent event, User user, MessageChannel channel) {
-        StringBuilder string = new StringBuilder();
+    public void respond(MessageCreateEvent event, String[] args) {
+        User user;
+        Message message = event.getMessage();
+        MessageChannel channel = message.getChannel().block();
+        RestChannel restChannel;
+
+        if(event.getMessage().getAuthor().isEmpty()) return;
+        else user = event.getMessage().getAuthor().get();
+        if(channel == null) return;
+        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+
+        StringBuilder text = new StringBuilder();
         for (Command command : Commands.COMMANDS){
-            string.append(command.appendName()).append("\n");
-            string.append(command.getDescription()).append("\n \n");
+            text.append(command.appendName()).append("\n");
+            text.append(command.getDescription()).append("\n \n");
         }
-        event.getClient().getRestClient().getChannelById(channel.getId()).createMessage(createEmbed(string.toString(), user)).block();
+        restChannel.createMessage(createEmbed(text.toString(), user)).block();
     }
 
     private EmbedData createEmbed(String commands, User user){

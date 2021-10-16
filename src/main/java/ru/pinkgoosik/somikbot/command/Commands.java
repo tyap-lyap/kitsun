@@ -9,9 +9,10 @@ public class Commands {
     public static void initCommands(){
         add(new HelpCommand());
 //        add(new UuidCommand());
-        if(Config.general.capesEnabled){
+        if(Config.general.cloaksEnabled){
             add(new CloaksCommand());
             add(new CloakGrantCommand());
+            add(new CloakRevokeCommand());
         }
 //        add(new ModrinthCommand());
     }

@@ -32,12 +32,6 @@ public class PlayerCapes {
         return nicknames.contains(nickname);
     }
 
-    public static boolean hasCapeById(String discordId){
-        ArrayList<String> discordIds = new ArrayList<>();
-        entries.forEach(entry -> discordIds.add(entry.id()));
-        return discordIds.contains(discordId);
-    }
-
     public static void fillFromUpstream(){
         Bot.LOGGER.info("Loading Player Capes...");
         try {

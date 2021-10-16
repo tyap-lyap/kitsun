@@ -7,13 +7,11 @@ import ru.pinkgoosik.somikbot.Bot;
 import java.io.*;
 
 public class General {
-    public boolean capesEnabled;
-    public String memberRoleId;
-    public static final General EMPTY = new General(true, "");
+    public boolean cloaksEnabled;
+    public static final General EMPTY = new General(true);
 
-    public General(boolean capesEnabled, String memberRoleId){
-        this.capesEnabled = capesEnabled;
-        this.memberRoleId = memberRoleId;
+    public General(boolean cloaksEnabled){
+        this.cloaksEnabled = cloaksEnabled;
     }
 
     public static General init(){
