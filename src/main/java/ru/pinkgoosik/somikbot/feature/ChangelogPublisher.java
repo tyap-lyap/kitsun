@@ -14,21 +14,20 @@ import ru.pinkgoosik.somikbot.api.ModrinthAPI;
 import ru.pinkgoosik.somikbot.api.ModrinthMod;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ChangelogPublisher {
     String modSlug;
-    long delayInSec = 60;
-    long channelId = 896632013556162580L;
+    long delay = 60;
+    String channel = "896632013556162580";
     RestClient client;
-    ArrayList<String> cachedVersionIds;
+    String cachedLatestVersionId;
 
     public ChangelogPublisher(RestClient client, String modSlug){
         this.client = client;
         this.modSlug = modSlug;
-        this.cachedVersionIds = loadCachedFileIds();
+        this.cachedLatestVersionId = loadCachedData();
         this.startScheduler();
     }
 
@@ -37,33 +36,25 @@ public class ChangelogPublisher {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        createMessage();
+                        if(updated()) publish();
                     }
-                },
-                delayInSec * 1000, delayInSec * 1000
+                }, delay * 1000, delay * 1000
         );
     }
 
-    private void createMessage(){
-        ModrinthMod modrinthMod = ModrinthAPI.getModBySlug(modSlug);
-        ArrayList<String> versionIds = new ArrayList<>();
-        String latestChangelog = "";
-        ModVersion latestVersion = new ModVersion();
+    private boolean updated(){
+        ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
+        String latest = mod.versions.get(0).id;
+        return !latest.isEmpty() && !cachedLatestVersionId.equals(latest);
+    }
 
-        modrinthMod.versions.forEach(version -> versionIds.add(version.id));
-        for(ModVersion modVersion : modrinthMod.versions){
-            if(versionIds.get(0).equals(modVersion.id)){
-                latestVersion = modVersion;
-                latestChangelog = modVersion.changelog;
-            }
-        }
-        if(!cachedVersionIds.equals(versionIds)){
-            if(!versionIds.isEmpty()){
-                client.getChannelById(Snowflake.of(channelId)).createMessage(createEmbed(modrinthMod, latestVersion, latestChangelog)).block();
-                cachedVersionIds = versionIds;
-            }
-            saveCachedFileIds();
-        }
+    private void publish(){
+        ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
+        ModVersion modVersion = mod.versions.get(0);
+        String changelog = modVersion.changelog;
+        client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod, modVersion, changelog)).block();
+        cachedLatestVersionId = modVersion.id;
+        saveCachedData();
     }
 
     private EmbedData createEmbed(ModrinthMod mod, ModVersion version, String latestChangelog){
@@ -77,26 +68,28 @@ public class ChangelogPublisher {
                 .build();
     }
 
-    private void saveCachedFileIds(){
+    private void saveCachedData(){
         try {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter(modSlug + "_cached_ids.json");
-            writer.write(gson.toJson(cachedVersionIds));
+            FileWriter writer = new FileWriter(modSlug + "_cached.json");
+            writer.write(gson.toJson(new CachedData(cachedLatestVersionId)));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private ArrayList<String> loadCachedFileIds(){
+    private String loadCachedData(){
         try {
-            ArrayList<String> ids = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new FileReader(modSlug + "_cached_ids.json"));
-            JsonParser.parseReader(reader).getAsJsonArray().forEach(jsonElement -> ids.add(jsonElement.getAsString()));
-            return ids;
+            String id;
+            BufferedReader reader = new BufferedReader(new FileReader(modSlug + "_cached.json"));
+            id = JsonParser.parseReader(reader).getAsJsonObject().get("latestVersionId").getAsString();
+            return id;
         } catch (FileNotFoundException ignored) {}
-        return new ArrayList<>();
+        return "";
     }
+
+    private record CachedData(String latestVersionId){}
 }
