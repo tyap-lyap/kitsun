@@ -9,6 +9,7 @@ import discord4j.rest.RestClient;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.feature.ChangelogPublisher;
+import ru.pinkgoosik.somikbot.feature.MinecraftUpdates;
 
 public class DiscordEvents {
 
@@ -21,6 +22,7 @@ public class DiscordEvents {
         RestClient client = event.getClient().getRestClient();
         new ChangelogPublisher(client, "artifality");
         new ChangelogPublisher(client, "visuality");
+        new MinecraftUpdates(client);
     }
 
     private static void onMessageCreate(MessageCreateEvent event){

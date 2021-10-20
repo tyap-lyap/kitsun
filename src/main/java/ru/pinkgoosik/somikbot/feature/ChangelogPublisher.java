@@ -22,12 +22,12 @@ public class ChangelogPublisher {
     long delay = 60;
     String channel = "896632013556162580";
     RestClient client;
-    String cachedLatestVersionId;
+    String latestVersionId;
 
     public ChangelogPublisher(RestClient client, String modSlug){
         this.client = client;
         this.modSlug = modSlug;
-        this.cachedLatestVersionId = loadCachedData();
+        this.latestVersionId = loadCachedData();
         this.startScheduler();
     }
 
@@ -45,7 +45,7 @@ public class ChangelogPublisher {
     private boolean updated(){
         ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
         String latest = mod.versions.get(0).id;
-        return !latest.isEmpty() && !cachedLatestVersionId.equals(latest);
+        return !latest.isEmpty() && !latestVersionId.equals(latest);
     }
 
     private void publish(){
@@ -53,7 +53,7 @@ public class ChangelogPublisher {
         ModVersion modVersion = mod.versions.get(0);
         String changelog = modVersion.changelog;
         client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod, modVersion, changelog)).block();
-        cachedLatestVersionId = modVersion.id;
+        latestVersionId = modVersion.id;
         saveCachedData();
     }
 
@@ -74,7 +74,7 @@ public class ChangelogPublisher {
             builder.setPrettyPrinting();
             Gson gson = builder.create();
             FileWriter writer = new FileWriter(modSlug + "_cached.json");
-            writer.write(gson.toJson(new CachedData(cachedLatestVersionId)));
+            writer.write(gson.toJson(new CachedData(latestVersionId)));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
