@@ -29,11 +29,15 @@ public class General {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter("general.json");
+
+            File dir = new File("config");
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+
+            FileWriter writer = new FileWriter("config/general.json");
             writer.write(gson.toJson(EMPTY));
             writer.close();
-            Bot.LOGGER.info("Please fill the general config.");
-            System.exit(0);
         } catch (IOException e) {
             Bot.LOGGER.info("Failed to create empty general config due to an exception: " + e);
         }
@@ -42,7 +46,7 @@ public class General {
     private static General readGeneral() throws FileNotFoundException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        BufferedReader reader = new BufferedReader(new FileReader("general.json"));
+        BufferedReader reader = new BufferedReader(new FileReader("config/general.json"));
         return gson.fromJson(reader, General.class);
     }
 

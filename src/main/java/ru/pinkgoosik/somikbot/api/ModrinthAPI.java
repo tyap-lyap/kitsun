@@ -29,19 +29,23 @@ public class ModrinthAPI {
             JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
             JsonObject object = jsonElement.getAsJsonObject();
 
-            ModrinthMod mod = new ModrinthMod();
-            mod.iconUrl = object.get("icon_url").getAsString();
-            mod.modId = object.get("id").getAsString();
-            mod.modSlug = object.get("slug").getAsString();
-            mod.title = object.get("title").getAsString();
-            mod.shortDescription = object.get("description").getAsString();
-            mod.modUrl = MOD_URL_TEMPLATE.replace("%slug%", mod.modSlug);
-            mod.versions = tryToGetVersions(mod.modId);
-            mod.downloads = object.get("downloads").getAsInt();
-            mod.followers = object.get("followers").getAsInt();
-            return mod;
+            String modUrl, iconUrl, modId, modSlug, title, shortDescription;
+            int downloads, followers;
+            ArrayList<ModVersion> versions;
+
+            iconUrl = object.get("icon_url").getAsString();
+            modId = object.get("id").getAsString();
+            modSlug = object.get("slug").getAsString();
+            title = object.get("title").getAsString();
+            shortDescription = object.get("description").getAsString();
+            modUrl = MOD_URL_TEMPLATE.replace("%slug%", modSlug);
+            versions = tryToGetVersions(modId);
+            downloads = object.get("downloads").getAsInt();
+            followers = object.get("followers").getAsInt();
+
+            return new ModrinthMod(modUrl, iconUrl, modId, modSlug, title, shortDescription, downloads, followers, versions);
         } catch (IOException ignored) {}
-        return new ModrinthMod();
+        return ModrinthMod.EMPTY;
     }
 
     private static ArrayList<ModVersion> tryToGetVersions(String modId){
@@ -55,13 +59,12 @@ public class ModrinthAPI {
             ArrayList<ModVersion> versions = new ArrayList<>();
 
             array.forEach(element -> {
-                ModVersion version = new ModVersion();
                 JsonObject object = element.getAsJsonObject();
-                version.id = object.get("id").getAsString();
-                version.name = object.get("name").getAsString();
-                version.version_number = object.get("version_number").getAsString();
-                version.changelog = object.get("changelog").getAsString();
-                versions.add(version);
+                String id, name, changelog;
+                id = object.get("id").getAsString();
+                name = object.get("name").getAsString();
+                changelog = object.get("changelog").getAsString();
+                versions.add(new ModVersion(id, name, changelog));
             });
             return versions;
         } catch (IOException ignored) {}

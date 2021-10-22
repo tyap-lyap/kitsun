@@ -1,8 +1,8 @@
 package ru.pinkgoosik.somikbot.cosmetica;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import ru.pinkgoosik.somikbot.Bot;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,33 +33,24 @@ public class PlayerCapes {
     }
 
     public static void fillFromUpstream(){
-        Bot.LOGGER.info("Loading Player Capes...");
-        try {
-            init();
+        try{
+            URL url = new URL(URL_STRING);
+            URLConnection request = url.openConnection();
+            request.connect();
+            InputStream stream = request.getInputStream();
+            JsonArray array = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonArray();
+            array.forEach(entry -> {
+                JsonObject object = entry.getAsJsonObject();
+                String id, name, uuid, cape;
+                id = object.get("id").getAsString();
+                name = object.get("name").getAsString();
+                uuid = object.get("uuid").getAsString();
+                cape = object.get("cape").getAsString();
+                grantCape(id, name, uuid, cape);
+            });
         } catch (IOException e) {
-            entries = null;
-            Bot.LOGGER.warn("Failed to load Player Capes due to an exception: " + e);
-        } finally {
-            if (entries != null) Bot.LOGGER.info("Player Capes successfully loaded");
+            e.printStackTrace();
         }
-    }
-
-    public static void init() throws IOException {
-        URL url = new URL(URL_STRING);
-        URLConnection request = url.openConnection();
-        request.connect();
-
-        JsonArray jsonArray = JsonParser.parseReader(new InputStreamReader((InputStream) request.getContent())).getAsJsonArray();
-        jsonArray.forEach(jsonElement -> {
-            String discordId = jsonElement.getAsJsonObject().get("id").getAsString();
-            String name = jsonElement.getAsJsonObject().get("name").getAsString();
-            String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
-            String cape = jsonElement.getAsJsonObject().get("cape").getAsString();
-//            String type = jsonElement.getAsJsonObject().get("type").getAsString();
-//            String color = jsonElement.getAsJsonObject().get("color").getAsString();
-
-            grantCape(discordId, name, uuid, cape);
-        });
     }
 
     public record Entry(String id, String name, String uuid, String cape, String type, String color) {}

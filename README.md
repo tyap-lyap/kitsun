@@ -5,3 +5,4 @@ Contributions are welcomed
 
 ## Features
 - Modrinth Mod's Changelog Publisher
+- Minecraft updates Publisher

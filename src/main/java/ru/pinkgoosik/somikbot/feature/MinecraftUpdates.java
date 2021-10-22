@@ -3,6 +3,7 @@ package ru.pinkgoosik.somikbot.feature;
 import com.google.gson.*;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.EmbedData;
+import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.RestClient;
 import discord4j.rest.util.Color;
 
@@ -15,16 +16,18 @@ import java.util.TimerTask;
 public class MinecraftUpdates {
     private static final String MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
     private static final String QUILT_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
+    private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
     String channel = "900427004069957652";
-    long delay = 60;
+    long delay = 300;
     String latestRelease;
     String latestSnapshot;
     RestClient client;
 
     public MinecraftUpdates(RestClient client){
         this.client = client;
-        this.latestRelease = loadCachedData().latestRelease();
-        this.latestSnapshot = loadCachedData().latestSnapshot();
+        CachedData data = loadCachedData();
+        this.latestRelease = data.latestRelease();
+        this.latestSnapshot = data.latestSnapshot();
         this.startScheduler();
     }
 
@@ -60,10 +63,100 @@ public class MinecraftUpdates {
 
     private EmbedData createEmbed(String versionName){
         return EmbedData.builder()
-                .title(versionName + " just got released.")
+                .title(getTitle(versionName))
+                .description(getShortDescription(versionName))
+                .thumbnail(EmbedThumbnailData.builder().url(getImageUrl(versionName)).build())
                 .url(QUILT_PATCH_NOTES.replaceAll("%version%", versionName))
                 .color(Color.of(145,219,105).getRGB())
                 .build();
+    }
+
+    private String getShortDescription(String versionName){
+        String body = getBody(versionName);
+        String[] firstParagraph = body.split("<h1>");
+        return clear(firstParagraph[0]);
+    }
+
+    private String clear(String string){
+        String desc = string;
+        desc = desc.replaceAll("<p>", "");
+        desc = desc.replaceAll("#x26;", "");
+        desc = desc.replaceAll("<a href=\"", "");
+        desc = desc.replaceAll("target=\"_blank\" rel=\"noopener noreferrer\">", "");
+        desc = desc.replaceAll("</a>", "");
+        desc = desc.replaceAll("</p>", " ");
+        desc = desc.replaceAll("<strong>", "**");
+        desc = desc.replaceAll("</strong>", "**");
+        desc = desc.replaceAll("\"", "");
+        return removeUrls(desc);
+    }
+
+    private String removeUrls(String str){
+        String[] words = str.split(" ");
+        StringBuilder newString = new StringBuilder();
+        for(String word : words){
+            if(!word.contains("https://")){
+                newString.append(word);
+                newString.append(" ");
+            }
+        }
+        return newString.toString();
+    }
+
+    private String getBody(String versionName){
+        try {
+            URL url = new URL(LAUNCHER_CONTENT);
+            URLConnection request = url.openConnection();
+            request.connect();
+            JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
+            JsonArray entries = jsonElement.getAsJsonObject().get("entries").getAsJsonArray();
+            for (JsonElement element : entries){
+                if(element.getAsJsonObject().get("version").getAsString().equals(versionName)){
+                    return element.getAsJsonObject().get("body").getAsString();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private String getTitle(String versionName){
+        try {
+            URL url = new URL(LAUNCHER_CONTENT);
+            URLConnection request = url.openConnection();
+            request.connect();
+            JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
+            JsonArray entries = jsonElement.getAsJsonObject().get("entries").getAsJsonArray();
+            for (JsonElement element : entries){
+                if(element.getAsJsonObject().get("version").getAsString().equals(versionName)){
+                    return element.getAsJsonObject().get("title").getAsString();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private String getImageUrl(String versionName){
+        try {
+            URL url = new URL(LAUNCHER_CONTENT);
+            URLConnection request = url.openConnection();
+            request.connect();
+            JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
+            JsonArray entries = jsonElement.getAsJsonObject().get("entries").getAsJsonArray();
+            for (JsonElement element : entries){
+                if(element.getAsJsonObject().get("version").getAsString().equals(versionName)){
+                    String firstPart = "https://launchercontent.mojang.com";
+                    String secondPart = element.getAsJsonObject().get("image").getAsJsonObject().get("url").getAsString();
+                    return firstPart + secondPart;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private String parse(String memberName){
@@ -84,7 +177,13 @@ public class MinecraftUpdates {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter("cached_minecraft_versions.json");
+
+            File dir = new File("cache");
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+
+            FileWriter writer = new FileWriter("cache/cached_minecraft_versions.json");
             writer.write(gson.toJson(new CachedData(latestRelease, latestSnapshot)));
             writer.close();
         } catch (IOException e) {
@@ -94,7 +193,7 @@ public class MinecraftUpdates {
 
     private CachedData loadCachedData(){
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("cached_minecraft_versions.json"));
+            BufferedReader reader = new BufferedReader(new FileReader("cache/cached_minecraft_versions.json"));
             JsonObject object = JsonParser.parseReader(reader).getAsJsonObject();
             String release = object.get("latestRelease").getAsString();
             String snapshot = object.get("latestSnapshot").getAsString();

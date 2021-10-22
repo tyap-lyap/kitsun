@@ -37,7 +37,13 @@ public class Secrets {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter("secrets.json");
+
+            File dir = new File("config");
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+
+            FileWriter writer = new FileWriter("config/secrets.json");
             writer.write(gson.toJson(EMPTY));
             writer.close();
             Bot.LOGGER.info("Please fill the secrets config.");
@@ -50,7 +56,7 @@ public class Secrets {
     private static Secrets readSecrets() throws FileNotFoundException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        BufferedReader reader = new BufferedReader(new FileReader("secrets.json"));
+        BufferedReader reader = new BufferedReader(new FileReader("config/secrets.json"));
         return gson.fromJson(reader, Secrets.class);
     }
 }

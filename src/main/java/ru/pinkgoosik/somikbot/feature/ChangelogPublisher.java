@@ -27,7 +27,7 @@ public class ChangelogPublisher {
     public ChangelogPublisher(RestClient client, String modSlug){
         this.client = client;
         this.modSlug = modSlug;
-        this.latestVersionId = loadCachedData();
+        this.latestVersionId = loadCachedData().latestVersionId();
         this.startScheduler();
     }
 
@@ -44,27 +44,27 @@ public class ChangelogPublisher {
 
     private boolean updated(){
         ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
-        String latest = mod.versions.get(0).id;
+        String latest = mod.versions().get(0).id();
         return !latest.isEmpty() && !latestVersionId.equals(latest);
     }
 
     private void publish(){
         ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
-        ModVersion modVersion = mod.versions.get(0);
-        String changelog = modVersion.changelog;
+        ModVersion modVersion = mod.versions().get(0);
+        String changelog = modVersion.changelog();
         client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod, modVersion, changelog)).block();
-        latestVersionId = modVersion.id;
+        latestVersionId = modVersion.id();
         saveCachedData();
     }
 
     private EmbedData createEmbed(ModrinthMod mod, ModVersion version, String latestChangelog){
         return EmbedData.builder()
-                .author(EmbedAuthorData.builder().name(mod.title).build())
-                .title(version.name)
-                .url(mod.modUrl)
+                .author(EmbedAuthorData.builder().name(mod.title()).build())
+                .title(version.name())
+                .url(mod.modUrl())
                 .description("**Changes:**\n" + latestChangelog)
                 .color(Color.of(48,178,123).getRGB())
-                .thumbnail(EmbedThumbnailData.builder().url(mod.iconUrl).build())
+                .thumbnail(EmbedThumbnailData.builder().url(mod.iconUrl()).build())
                 .build();
     }
 
@@ -73,7 +73,13 @@ public class ChangelogPublisher {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter(modSlug + "_cached.json");
+
+            File dir = new File("cache");
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+
+            FileWriter writer = new FileWriter("cache/" + modSlug + "_cached.json");
             writer.write(gson.toJson(new CachedData(latestVersionId)));
             writer.close();
         } catch (IOException e) {
@@ -81,14 +87,13 @@ public class ChangelogPublisher {
         }
     }
 
-    private String loadCachedData(){
+    private CachedData loadCachedData(){
         try {
-            String id;
-            BufferedReader reader = new BufferedReader(new FileReader(modSlug + "_cached.json"));
-            id = JsonParser.parseReader(reader).getAsJsonObject().get("latestVersionId").getAsString();
-            return id;
+            BufferedReader reader = new BufferedReader(new FileReader("cache/" + modSlug + "_cached.json"));
+            String id = JsonParser.parseReader(reader).getAsJsonObject().get("latestVersionId").getAsString();
+            return new CachedData(id);
         } catch (FileNotFoundException ignored) {}
-        return "";
+        return new CachedData("");
     }
 
     private record CachedData(String latestVersionId){}

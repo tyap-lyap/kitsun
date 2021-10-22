@@ -2,18 +2,9 @@ package ru.pinkgoosik.somikbot.api;
 
 import java.util.ArrayList;
 
-public class ModrinthMod {
-    public String modUrl = "";
-    public String iconUrl = "";
-    public String modId = "";
-    public String modSlug = "";
-    public String title = "";
-    public String shortDescription = "";
-    public int downloads = 0;
-    public int followers = 0;
-    public ArrayList<ModVersion> versions = new ArrayList<>();
+public record ModrinthMod(String modUrl, String iconUrl, String modId, String modSlug, String title, String shortDescription,
+                          int downloads, int followers, ArrayList<ModVersion> versions) {
 
-    public boolean isEmpty(){
-        return this.title.equals("");
-    }
+    public static final ModrinthMod EMPTY = new ModrinthMod("", "", "", "", "", "",
+            0, 0, new ArrayList<>());
 }

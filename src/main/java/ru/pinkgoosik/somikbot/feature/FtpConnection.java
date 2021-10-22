@@ -37,7 +37,7 @@ public class FtpConnection {
         try{
             ChannelSftp channelSftp = (ChannelSftp) channel;
             channelSftp.cd(Config.secrets.saveDir);
-            File file = new File(System.getProperty("user.dir") + "/capes.json");
+            File file = new File(System.getProperty("user.dir") + "/cache/capes.json");
             channelSftp.put(new FileInputStream(file), "capes.json");
             Bot.LOGGER.info("Remote Capes Data successfully updated.");
         } catch (SftpException | FileNotFoundException e) {
@@ -50,7 +50,13 @@ public class FtpConnection {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileWriter writer = new FileWriter("capes.json");
+
+            File dir = new File("cache");
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+
+            FileWriter writer = new FileWriter("cache/capes.json");
             writer.write(gson.toJson(PlayerCapes.entries));
             writer.close();
         } catch (IOException e) {
