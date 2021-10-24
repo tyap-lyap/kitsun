@@ -9,11 +9,13 @@ import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
 import ru.pinkgoosik.somikbot.event.DiscordEvents;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
+import ru.pinkgoosik.somikbot.util.BadWordsFilter;
 
 public class Bot {
     public static final Logger LOGGER = Loggers.getLogger("Bot");
 
     public static void main(String[] args) {
+        BadWordsFilter.loadConfigs();
         Config.initConfig();
         FtpConnection.connect();
         Commands.initCommands();
