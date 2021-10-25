@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.util;
+package ru.pinkgoosik.somikbot.feature;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -20,6 +20,7 @@ public class BadWordsFilter {
     public static void onMessageCreate(MessageCreateEvent event){
         Message message = event.getMessage();
         if (hasBadWords(message.getContent())){
+            DiscordLogger.INSTANCE.messageDeleted(message, "bad wording");
             message.delete("bad wording").block();
         }
     }

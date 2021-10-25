@@ -1,30 +1,84 @@
 package ru.pinkgoosik.somikbot.event;
 
-import discord4j.core.GatewayDiscordClient;
+import discord4j.common.util.Snowflake;
+import discord4j.core.event.domain.guild.MemberJoinEvent;
+import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.rest.RestClient;
+import discord4j.core.event.domain.message.MessageDeleteEvent;
+import discord4j.core.event.domain.message.MessageUpdateEvent;
+import discord4j.core.event.domain.role.RoleCreateEvent;
+import discord4j.core.event.domain.role.RoleDeleteEvent;
+import discord4j.core.event.domain.role.RoleUpdateEvent;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.Role;
+import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.command.Commands;
-import ru.pinkgoosik.somikbot.feature.ChangelogPublisher;
+import ru.pinkgoosik.somikbot.config.Config;
+import ru.pinkgoosik.somikbot.config.entity.ConfiguredChangelogPublisher;
+import ru.pinkgoosik.somikbot.feature.DiscordLogger;
 import ru.pinkgoosik.somikbot.feature.MinecraftUpdates;
-import ru.pinkgoosik.somikbot.util.BadWordsFilter;
+import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
+
+import java.util.Optional;
 
 public class DiscordEvents {
 
-    public static void initEvents(GatewayDiscordClient gateway){
-        gateway.on(ConnectEvent.class).subscribe(DiscordEvents::onConnect);
-        gateway.on(MessageCreateEvent.class).subscribe(DiscordEvents::onMessageCreate);
+    public static void onConnect(ConnectEvent event){
+        Bot.client = event.getClient().getRestClient();
+        Config.general.publishers.forEach(ConfiguredChangelogPublisher::start);
+        new MinecraftUpdates();
+        DiscordLogger.INSTANCE = new DiscordLogger();
     }
 
-    private static void onConnect(ConnectEvent event){
-        RestClient client = event.getClient().getRestClient();
-        new ChangelogPublisher(client, "artifality");
-        new ChangelogPublisher(client, "visuality");
-        new MinecraftUpdates(client);
-    }
-
-    private static void onMessageCreate(MessageCreateEvent event){
+    public static void onMessageCreate(MessageCreateEvent event){
         BadWordsFilter.onMessageCreate(event);
         Commands.onMessageCreate(event);
+    }
+
+    public static void onMessageUpdate(MessageUpdateEvent event){
+        Message newMessage = event.getMessage().block();
+        Optional<Message> oldMessage = event.getOld();
+        if(oldMessage.isPresent() && newMessage != null){
+            DiscordLogger.INSTANCE.messageUpdated(oldMessage.get(), newMessage);
+        }
+    }
+
+    public static void onMessageDelete(MessageDeleteEvent event){
+        Optional<Message> optional = event.getMessage();
+        optional.ifPresent(message -> {
+            if (message.getAuthor().isPresent() && !message.getAuthor().get().isBot()){
+                DiscordLogger.INSTANCE.messageDeleted(message, "");
+            }
+        });
+    }
+
+    public static void onMemberJoin(MemberJoinEvent event){
+        DiscordLogger.INSTANCE.memberJoin(event.getMember());
+        if(!Config.general.memberRoleId.isBlank()){
+            event.getMember().addRole(Snowflake.of(Config.general.memberRoleId)).block();
+        }
+    }
+
+    public static void onMemberLeave(MemberLeaveEvent event){
+        Optional<Member> optional = event.getMember();
+        optional.ifPresent(member -> DiscordLogger.INSTANCE.memberLeave(member));
+    }
+
+    public static void onRoleCreate(RoleCreateEvent event){
+        Role role = event.getRole();
+        DiscordLogger.INSTANCE.roleCreate(role);
+
+    }
+
+    public static void onRoleDelete(RoleDeleteEvent event){
+        Optional<Role> optional = event.getRole();
+        optional.ifPresent(role -> DiscordLogger.INSTANCE.roleDelete(role));
+    }
+
+    public static void onRoleUpdate(RoleUpdateEvent event){
+        Optional<Role> optionalOld = event.getOld();
+        Role role = event.getCurrent();
     }
 }

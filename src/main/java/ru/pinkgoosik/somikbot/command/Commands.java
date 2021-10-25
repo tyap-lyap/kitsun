@@ -3,6 +3,10 @@ package ru.pinkgoosik.somikbot.command;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
+import ru.pinkgoosik.somikbot.command.everyone.CloakGrantCommand;
+import ru.pinkgoosik.somikbot.command.everyone.CloakRevokeCommand;
+import ru.pinkgoosik.somikbot.command.everyone.CloaksCommand;
+import ru.pinkgoosik.somikbot.command.everyone.HelpCommand;
 import ru.pinkgoosik.somikbot.config.Config;
 import java.util.ArrayList;
 

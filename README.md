@@ -4,5 +4,7 @@ A Simple Discord Bot written in Java. Related project: [cosmetica](https://githu
 Contributions are welcomed
 
 ## Features
+- Bad Words Filter
+- Simple Discord Actions Logger
 - Modrinth Mod's Changelog Publisher
-- Minecraft updates Publisher
+- Minecraft Updates Publisher

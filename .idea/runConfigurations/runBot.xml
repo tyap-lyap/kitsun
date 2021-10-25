@@ -7,7 +7,7 @@
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="ru.pinkgoosik.somikbot.config.*" />
+        <option name="PATTERN" value="ru.pinkgoosik.somikbot.config.entity.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

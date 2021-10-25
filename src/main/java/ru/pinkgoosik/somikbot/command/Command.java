@@ -2,7 +2,7 @@ package ru.pinkgoosik.somikbot.command;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.discordjson.json.EmbedData;
-import discord4j.rest.util.Color;
+import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 public abstract class Command {
 
@@ -20,7 +20,7 @@ public abstract class Command {
         return EmbedData.builder()
                 .title("Error")
                 .description(text)
-                .color(Color.of(246,129,129).getRGB())
+                .color(GlobalColors.RED.getRGB())
                 .build();
     }
 }

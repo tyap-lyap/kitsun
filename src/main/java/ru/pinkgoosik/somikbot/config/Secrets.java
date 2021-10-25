@@ -3,6 +3,7 @@ package ru.pinkgoosik.somikbot.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.pinkgoosik.somikbot.Bot;
+import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
 
@@ -23,13 +24,7 @@ public class Secrets {
     }
 
     public static Secrets init(){
-        Secrets secrets = EMPTY;
-        try {
-            secrets = readSecrets();
-        } catch (FileNotFoundException e) {
-            createEmpty();
-        }
-        return secrets;
+        return readSecrets();
     }
 
     private static void createEmpty(){
@@ -37,26 +32,27 @@ public class Secrets {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-
-            File dir = new File("config");
-            if (!dir.exists()){
-                dir.mkdirs();
-            }
+            FileUtils.createDir("config");
 
             FileWriter writer = new FileWriter("config/secrets.json");
             writer.write(gson.toJson(EMPTY));
             writer.close();
-            Bot.LOGGER.info("Please fill the secrets config.");
+            Bot.LOGGER.error("Please fill the secrets config.");
             System.exit(0);
         } catch (IOException e) {
             Bot.LOGGER.info("Failed to create empty secrets config due to an exception: " + e);
         }
     }
 
-    private static Secrets readSecrets() throws FileNotFoundException {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        BufferedReader reader = new BufferedReader(new FileReader("config/secrets.json"));
-        return gson.fromJson(reader, Secrets.class);
+    private static Secrets readSecrets(){
+        try{
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            BufferedReader reader = new BufferedReader(new FileReader("config/secrets.json"));
+            return gson.fromJson(reader, Secrets.class);
+        } catch (FileNotFoundException e) {
+            createEmpty();
+            return Secrets.EMPTY;
+        }
     }
 }

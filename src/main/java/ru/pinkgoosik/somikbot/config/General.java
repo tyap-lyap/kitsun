@@ -3,25 +3,27 @@ package ru.pinkgoosik.somikbot.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.pinkgoosik.somikbot.Bot;
+import ru.pinkgoosik.somikbot.config.entity.ConfiguredChangelogPublisher;
+import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class General {
     public boolean cloaksEnabled;
-    public static final General EMPTY = new General(true);
+    public String memberRoleId;
+    public ArrayList<ConfiguredChangelogPublisher> publishers;
+    public static final General EMPTY = new General(true, "", new ArrayList<>(List.of(new ConfiguredChangelogPublisher("example", "123"))));
 
-    public General(boolean cloaksEnabled){
+    public General(boolean cloaksEnabled, String memberRoleId, ArrayList<ConfiguredChangelogPublisher> publishers){
         this.cloaksEnabled = cloaksEnabled;
+        this.memberRoleId = memberRoleId;
+        this.publishers = publishers;
     }
 
     public static General init(){
-        General general = EMPTY;
-        try {
-            general = readGeneral();
-        } catch (FileNotFoundException e) {
-            createEmpty();
-        }
-        return general;
+        return readGeneral();
     }
 
     private static void createEmpty(){
@@ -29,12 +31,7 @@ public class General {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-
-            File dir = new File("config");
-            if (!dir.exists()){
-                dir.mkdirs();
-            }
-
+            FileUtils.createDir("config");
             FileWriter writer = new FileWriter("config/general.json");
             writer.write(gson.toJson(EMPTY));
             writer.close();
@@ -43,11 +40,16 @@ public class General {
         }
     }
 
-    private static General readGeneral() throws FileNotFoundException {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        BufferedReader reader = new BufferedReader(new FileReader("config/general.json"));
-        return gson.fromJson(reader, General.class);
+    private static General readGeneral(){
+        try{
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            BufferedReader reader = new BufferedReader(new FileReader("config/general.json"));
+            return gson.fromJson(reader, General.class);
+        } catch (FileNotFoundException e) {
+            createEmpty();
+            return General.EMPTY;
+        }
     }
 
     private static void saveGeneral(){

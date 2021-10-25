@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import reactor.util.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,7 @@ public class ModrinthAPI {
     public static final String API_MOD_URL_TEMPLATE = "https://api.modrinth.com/api/v1/mod/%slug%";
     public static final String MOD_VERSIONS_URL_TEMPLATE = "https://api.modrinth.com/api/v1/mod/%mod_id%/version";
 
+    @Nullable
     public static ModrinthMod getModBySlug(String slug){
         return tryToParse(slug);
     }
@@ -45,7 +47,7 @@ public class ModrinthAPI {
 
             return new ModrinthMod(modUrl, iconUrl, modId, modSlug, title, shortDescription, downloads, followers, versions);
         } catch (IOException ignored) {}
-        return ModrinthMod.EMPTY;
+        return null;
     }
 
     private static ArrayList<ModVersion> tryToGetVersions(String modId){

@@ -4,8 +4,9 @@ import com.google.gson.*;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
-import discord4j.rest.RestClient;
-import discord4j.rest.util.Color;
+import ru.pinkgoosik.somikbot.Bot;
+import ru.pinkgoosik.somikbot.util.FileUtils;
+import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 import java.io.*;
 import java.net.URL;
@@ -21,10 +22,8 @@ public class MinecraftUpdates {
     long delay = 300;
     String latestRelease;
     String latestSnapshot;
-    RestClient client;
 
-    public MinecraftUpdates(RestClient client){
-        this.client = client;
+    public MinecraftUpdates(){
         CachedData data = loadCachedData();
         this.latestRelease = data.latestRelease();
         this.latestSnapshot = data.latestSnapshot();
@@ -46,7 +45,7 @@ public class MinecraftUpdates {
     private void checkForReleaseUpdates(){
         String version = parse("release");
         if(!version.isEmpty() && !version.equals(latestRelease)){
-            client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
+            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
             latestRelease = version;
             saveCachedData();
         }
@@ -55,7 +54,7 @@ public class MinecraftUpdates {
     private void checkForSnapshotUpdates(){
         String version = parse("snapshot");
         if(!version.isEmpty() && !version.equals(latestSnapshot)){
-            client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
+            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
             latestSnapshot = version;
             saveCachedData();
         }
@@ -67,7 +66,7 @@ public class MinecraftUpdates {
                 .description(getShortDescription(versionName))
                 .thumbnail(EmbedThumbnailData.builder().url(getImageUrl(versionName)).build())
                 .url(QUILT_PATCH_NOTES.replaceAll("%version%", versionName))
-                .color(Color.of(145,219,105).getRGB())
+                .color(GlobalColors.GREEN.getRGB())
                 .build();
     }
 
@@ -177,11 +176,7 @@ public class MinecraftUpdates {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-
-            File dir = new File("cache");
-            if (!dir.exists()){
-                dir.mkdirs();
-            }
+            FileUtils.createDir("cache");
 
             FileWriter writer = new FileWriter("cache/cached_minecraft_versions.json");
             writer.write(gson.toJson(new CachedData(latestRelease, latestSnapshot)));

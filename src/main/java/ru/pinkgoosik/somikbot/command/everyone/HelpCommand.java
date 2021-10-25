@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.command;
+package ru.pinkgoosik.somikbot.command.everyone;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -7,7 +7,9 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.entity.RestChannel;
-import discord4j.rest.util.Color;
+import ru.pinkgoosik.somikbot.command.Command;
+import ru.pinkgoosik.somikbot.command.Commands;
+import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 public class HelpCommand extends Command {
 
@@ -45,7 +47,7 @@ public class HelpCommand extends Command {
         return EmbedData.builder()
                 .title(user.getUsername() + " used command `!help`")
                 .description(commands)
-                .color(Color.of(96,141,238).getRGB())
+                .color(GlobalColors.BLUE.getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(user.getAvatarUrl()).build())
                 .build();
     }

@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.command;
+package ru.pinkgoosik.somikbot.command.everyone;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -7,9 +7,10 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.entity.RestChannel;
-import discord4j.rest.util.Color;
+import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
+import ru.pinkgoosik.somikbot.util.GlobalColors;
 import ru.pinkgoosik.somikbot.util.UuidGetter;
 
 public class CloakGrantCommand extends Command {
@@ -71,7 +72,7 @@ public class CloakGrantCommand extends Command {
         return EmbedData.builder()
                 .title(user.getUsername() + " used command `!cloak grant`")
                 .description(text)
-                .color(Color.of(145,219,105).getRGB())
+                .color(GlobalColors.GREEN.getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(PREVIEW_CLOAK.replace("%cloak%", cloak)).build())
                 .build();
     }

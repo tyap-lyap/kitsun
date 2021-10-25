@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.command;
+package ru.pinkgoosik.somikbot.command.everyone;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -6,8 +6,9 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.rest.entity.RestChannel;
-import discord4j.rest.util.Color;
+import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 public class CloaksCommand extends Command {
 
@@ -46,7 +47,7 @@ public class CloaksCommand extends Command {
         return EmbedData.builder()
                 .title(user.getUsername() + " used command `!cloaks`")
                 .description(text)
-                .color(Color.of(96,141,238).getRGB())
+                .color(GlobalColors.BLUE.getRGB())
                 .build();
     }
 }

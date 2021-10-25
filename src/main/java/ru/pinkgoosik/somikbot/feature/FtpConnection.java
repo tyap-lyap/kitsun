@@ -6,6 +6,7 @@ import com.jcraft.jsch.*;
 import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
 import java.util.Properties;
@@ -50,11 +51,7 @@ public class FtpConnection {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-
-            File dir = new File("cache");
-            if (!dir.exists()){
-                dir.mkdirs();
-            }
+            FileUtils.createDir("cache");
 
             FileWriter writer = new FileWriter("cache/capes.json");
             writer.write(gson.toJson(PlayerCapes.entries));
