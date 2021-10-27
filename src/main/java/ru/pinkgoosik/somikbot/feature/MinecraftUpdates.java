@@ -19,7 +19,7 @@ public class MinecraftUpdates {
     private static final String QUILT_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
     private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
     String channel = "900427004069957652";
-    long delay = 300;
+    long delay = 120;
     String latestRelease;
     String latestSnapshot;
 

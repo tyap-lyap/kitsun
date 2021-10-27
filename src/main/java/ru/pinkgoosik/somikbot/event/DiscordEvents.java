@@ -49,7 +49,7 @@ public class DiscordEvents {
         Optional<Message> optional = event.getMessage();
         optional.ifPresent(message -> {
             if (message.getAuthor().isPresent() && !message.getAuthor().get().isBot()){
-                DiscordLogger.INSTANCE.messageDeleted(message, "");
+                DiscordLogger.INSTANCE.messageDeleted(message);
             }
         });
     }
@@ -68,13 +68,13 @@ public class DiscordEvents {
 
     public static void onRoleCreate(RoleCreateEvent event){
         Role role = event.getRole();
-        DiscordLogger.INSTANCE.roleCreate(role);
+        DiscordLogger.INSTANCE.roleCreated(role);
 
     }
 
     public static void onRoleDelete(RoleDeleteEvent event){
         Optional<Role> optional = event.getRole();
-        optional.ifPresent(role -> DiscordLogger.INSTANCE.roleDelete(role));
+        optional.ifPresent(role -> DiscordLogger.INSTANCE.roleDeleted(role));
     }
 
     public static void onRoleUpdate(RoleUpdateEvent event){

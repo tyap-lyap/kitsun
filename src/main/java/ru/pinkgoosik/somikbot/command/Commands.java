@@ -27,19 +27,21 @@ public class Commands {
     }
 
     public static void onMessageCreate(MessageCreateEvent event){
-        Message message = event.getMessage();
-        MessageChannel channel = message.getChannel().block();
-        String content = message.getContent();
+        if(event.getGuildId().isPresent()){
+            Message message = event.getMessage();
+            MessageChannel channel = message.getChannel().block();
+            String content = message.getContent();
 
-        if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())){
-            for(Command command : Commands.COMMANDS){
-                String name = "!" + command.getName();
-                if (content.startsWith(name)){
-                    content = content.replace(name, "");
-                    content = content + " empty empty empty";
-                    String[] args = content.split(" ");
-                    assert channel != null;
-                    command.respond(event, args);
+            if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())){
+                for(Command command : Commands.COMMANDS){
+                    String name = "!" + command.getName();
+                    if (content.startsWith(name)){
+                        content = content.replace(name, "");
+                        content = content + " empty empty empty";
+                        String[] args = content.split(" ");
+                        assert channel != null;
+                        command.respond(event, args);
+                    }
                 }
             }
         }

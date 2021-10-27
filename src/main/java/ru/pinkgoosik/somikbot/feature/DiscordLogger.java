@@ -19,28 +19,29 @@ public class DiscordLogger {
     public DiscordLogger(){
     }
 
-    public void messageDeleted(Message message, String reason){
+    public void messageDeleted(Message message){
         var embed = EmbedData.builder();
         embed.title("Message Deleted");
         embed.addField(EmbedFieldData.builder().name("Channel").value(Objects.requireNonNull(message.getRestChannel().getData().block()).name().get()).inline(true).build());
         if (message.getAuthor().isPresent()) embed.addField(EmbedFieldData.builder().name("Member").value(message.getAuthor().get().getTag()).inline(true).build());
         embed.addField(EmbedFieldData.builder().name("Message").value(message.getContent()).inline(false).build());
-        if (!reason.isBlank()) embed.addField(EmbedFieldData.builder().name("Reason").value(reason).inline(false).build());
         embed.color(GlobalColors.BLUE.getRGB());
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
     public void messageUpdated(Message old, Message message){
-        var embed = EmbedData.builder();
-        embed.title("Message Updated");
-        embed.addField(EmbedFieldData.builder().name("Channel").value(Objects.requireNonNull(message.getRestChannel().getData().block()).name().get()).inline(true).build());
-        if (message.getAuthor().isPresent()){
-            embed.addField(EmbedFieldData.builder().name("Member").value(message.getAuthor().get().getTag()).inline(true).build());
+        if(!old.getContent().equals(message.getContent())){
+            var embed = EmbedData.builder();
+            embed.title("Message Updated");
+            embed.addField(EmbedFieldData.builder().name("Channel").value(Objects.requireNonNull(message.getRestChannel().getData().block()).name().get()).inline(true).build());
+            if (message.getAuthor().isPresent()){
+                embed.addField(EmbedFieldData.builder().name("Member").value(message.getAuthor().get().getTag()).inline(true).build());
+            }
+            embed.addField(EmbedFieldData.builder().name("Before").value(old.getContent()).inline(false).build());
+            embed.addField(EmbedFieldData.builder().name("After").value(message.getContent()).inline(false).build());
+            embed.color(GlobalColors.BLUE.getRGB());
+            Bot.client.getChannelById(channel).createMessage(embed.build()).block();
         }
-        embed.addField(EmbedFieldData.builder().name("Before").value(old.getContent()).inline(false).build());
-        embed.addField(EmbedFieldData.builder().name("After").value(message.getContent()).inline(false).build());
-        embed.color(GlobalColors.BLUE.getRGB());
-        Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
     public void memberJoin(Member member){
@@ -61,7 +62,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void roleCreate(Role role){
+    public void roleCreated(Role role){
         var embed = EmbedData.builder();
         embed.title("Role Created");
         embed.addField(EmbedFieldData.builder().name("Name").value(role.getName()).inline(true).build());
@@ -73,7 +74,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void roleDelete(Role role){
+    public void roleDeleted(Role role){
         var embed = EmbedData.builder();
         embed.title("Role Deleted");
         embed.addField(EmbedFieldData.builder().name("Name").value(role.getName()).inline(true).build());

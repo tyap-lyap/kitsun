@@ -18,10 +18,11 @@ public class BadWordsFilter {
     static int largestWordLength = 0;
 
     public static void onMessageCreate(MessageCreateEvent event){
-        Message message = event.getMessage();
-        if (hasBadWords(message.getContent())){
-            DiscordLogger.INSTANCE.messageDeleted(message, "bad wording");
-            message.delete("bad wording").block();
+        if(event.getGuildId().isPresent()){
+            Message message = event.getMessage();
+            if (hasBadWords(message.getContent())){
+                message.delete("bad wording").block();
+            }
         }
     }
 
