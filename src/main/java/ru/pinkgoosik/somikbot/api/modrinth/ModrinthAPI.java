@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.api;
+package ru.pinkgoosik.somikbot.api.modrinth;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

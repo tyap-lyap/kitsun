@@ -18,7 +18,7 @@ import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.config.entity.ConfiguredChangelogPublisher;
 import ru.pinkgoosik.somikbot.feature.DiscordLogger;
-import ru.pinkgoosik.somikbot.feature.MinecraftUpdates;
+import ru.pinkgoosik.somikbot.feature.MCUpdatesPublisher;
 import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
 
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class DiscordEvents {
     public static void onConnect(ConnectEvent event){
         Bot.client = event.getClient().getRestClient();
         Config.general.publishers.forEach(ConfiguredChangelogPublisher::start);
-        new MinecraftUpdates();
+        new MCUpdatesPublisher();
         DiscordLogger.INSTANCE = new DiscordLogger();
     }
 

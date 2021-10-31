@@ -17,7 +17,8 @@ import reactor.util.Logger;
 import reactor.util.Loggers;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
-import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.permissons.AccessManager;
+import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.event.DiscordEvents;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
@@ -27,11 +28,12 @@ public class Bot {
     public static RestClient client;
 
     public static void main(String[] args) {
+        AccessManager.initPermissions();
         BadWordsFilter.loadConfigs();
         Config.initConfig();
         FtpConnection.connect();
         Commands.initCommands();
-        PlayerCapes.fillFromUpstream();
+        PlayerCloaks.fillFromUpstream();
 
         String token = Config.secrets.discordBotToken;
         if(token.isBlank()){

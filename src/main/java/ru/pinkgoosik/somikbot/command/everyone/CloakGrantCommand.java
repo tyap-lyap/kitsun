@@ -1,15 +1,15 @@
 package ru.pinkgoosik.somikbot.command.everyone;
 
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.Member;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.somikbot.command.Command;
-import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.command.CommandUseContext;
+import ru.pinkgoosik.somikbot.permissons.AccessManager;
+import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
+import ru.pinkgoosik.somikbot.permissons.Permissions;
 import ru.pinkgoosik.somikbot.util.GlobalColors;
 import ru.pinkgoosik.somikbot.util.UuidGetter;
 
@@ -32,45 +32,43 @@ public class CloakGrantCommand extends Command {
     }
 
     @Override
-    public void respond(MessageCreateEvent event, String[] args) {
-        User user;
-        Message message = event.getMessage();
-        MessageChannel channel = message.getChannel().block();
-        RestChannel restChannel;
-        String nickname = args[1];
-        String cloak = args[2];
+    public void respond(CommandUseContext context) {
+        RestChannel channel = context.getChannel();
+        Member member = context.getMember();
+        String nickname = context.getFirstArgument();
+        String cloak = context.getSecondArgument();
 
-        if(event.getMessage().getAuthor().isEmpty()) return;
-        else user = event.getMessage().getAuthor().get();
-        if(channel == null) return;
-        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+        if (!AccessManager.hasAccessTo(member, Permissions.CLOAK_GRANT)){
+            channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
+            return;
+        }
 
         if(nickname.equals("empty")){
-            restChannel.createMessage(createErrorEmbed("Nickname is empty.")).block();
+            channel.createMessage(createErrorEmbed("Nickname is empty.")).block();
             return;
         }
         if(cloak.equals("empty")){
-            restChannel.createMessage(createErrorEmbed("Cloak is empty.")).block();
+            channel.createMessage(createErrorEmbed("Cloak is empty.")).block();
             return;
         }
-        if(PlayerCapes.hasCape(nickname)){
-            restChannel.createMessage(createErrorEmbed(nickname + " already has a cloak.")).block();
+        if(PlayerCloaks.hasCloak(nickname)){
+            channel.createMessage(createErrorEmbed(nickname + " already has a cloak.")).block();
             return;
         }
-        if(!PlayerCapes.CAPES.contains(cloak) || UuidGetter.getUuid(nickname) == null){
-            restChannel.createMessage(createErrorEmbed("Cloak or Player not found.")).block();
+        if(!PlayerCloaks.CLOAKS.contains(cloak) || UuidGetter.getUuid(nickname) == null){
+            channel.createMessage(createErrorEmbed("Cloak or Player not found.")).block();
             return;
         }
 
-        PlayerCapes.grantCape(user.getId().asString(), nickname, UuidGetter.getUuid(nickname), cloak);
+        PlayerCloaks.grantCloak(member.getId().asString(), nickname, UuidGetter.getUuid(nickname), cloak);
         FtpConnection.updateCapesData();
         String text = nickname + " got successfully granted with the " + cloak + " cloak." + "\nRejoin the world to see changes.";
-        restChannel.createMessage(createSuccessEmbed(text, cloak, user)).block();
+        channel.createMessage(createSuccessEmbed(text, cloak, member)).block();
     }
 
-    private EmbedData createSuccessEmbed(String text, String cloak, User user){
+    private EmbedData createSuccessEmbed(String text, String cloak, Member member){
         return EmbedData.builder()
-                .title(user.getUsername() + " used command `!cloak grant`")
+                .title(member.getUsername() + " used command `!cloak grant`")
                 .description(text)
                 .color(GlobalColors.GREEN.getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(PREVIEW_CLOAK.replace("%cloak%", cloak)).build())

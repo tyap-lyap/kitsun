@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.command.everyone;
+package ru.pinkgoosik.somikbot.command.moderation;
 
 import discord4j.core.object.entity.Member;
 import discord4j.discordjson.json.EmbedData;
@@ -6,20 +6,19 @@ import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.CommandUseContext;
 import ru.pinkgoosik.somikbot.permissons.AccessManager;
-import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.permissons.Permissions;
 import ru.pinkgoosik.somikbot.util.GlobalColors;
 
-public class CloaksCommand extends Command {
+public class PermissionsCommand extends Command {
 
     @Override
     public String getName() {
-        return "cloaks";
+        return "permissions";
     }
 
     @Override
     public String getDescription() {
-        return "Sends list of available cloaks.";
+        return "Sends list of permissions.";
     }
 
     @Override
@@ -27,22 +26,20 @@ public class CloaksCommand extends Command {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
 
-        if(!AccessManager.hasAccessTo(member, Permissions.CLOAKS)){
+        if (!AccessManager.hasAccessTo(member, Permissions.PERMISSIONS)){
             channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
             return;
         }
         StringBuilder text = new StringBuilder();
-        text.append("**Available Cloaks**\n");
-        for (String cloak : PlayerCloaks.CLOAKS){
-            text.append(cloak).append(", ");
+        for (String permission : Permissions.LIST){
+            text.append(permission).append("\n");
         }
-        String respond = text.deleteCharAt(text.length() - 1).deleteCharAt(text.length() - 1).append(".").toString();
-        channel.createMessage(createEmbed(respond, member)).block();
+        channel.createMessage(createEmbed(text.toString(), member)).block();
     }
 
     private EmbedData createEmbed(String text, Member member){
         return EmbedData.builder()
-                .title(member.getUsername() + " used command `!cloaks`")
+                .title(member.getUsername() + " used command `!permissions`")
                 .description(text)
                 .color(GlobalColors.BLUE.getRGB())
                 .build();

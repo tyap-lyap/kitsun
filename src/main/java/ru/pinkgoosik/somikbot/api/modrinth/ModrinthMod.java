@@ -1,4 +1,4 @@
-package ru.pinkgoosik.somikbot.api;
+package ru.pinkgoosik.somikbot.api.modrinth;
 
 import java.util.ArrayList;
 

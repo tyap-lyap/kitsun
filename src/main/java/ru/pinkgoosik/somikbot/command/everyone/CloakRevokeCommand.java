@@ -1,14 +1,14 @@
 package ru.pinkgoosik.somikbot.command.everyone;
 
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.Member;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.somikbot.command.Command;
-import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.command.CommandUseContext;
+import ru.pinkgoosik.somikbot.permissons.AccessManager;
+import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
+import ru.pinkgoosik.somikbot.permissons.Permissions;
 import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 public class CloakRevokeCommand extends Command {
@@ -29,48 +29,52 @@ public class CloakRevokeCommand extends Command {
     }
 
     @Override
-    public void respond(MessageCreateEvent event, String[] args) {
-        User user;
-        Message message = event.getMessage();
-        MessageChannel channel = message.getChannel().block();
-        RestChannel restChannel;
-        String nickname = args[1];
-
-        if(event.getMessage().getAuthor().isEmpty()) return;
-        else user = event.getMessage().getAuthor().get();
-        if(channel == null) return;
-        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
-
-        String discordId = user.getId().asString();
+    public void respond(CommandUseContext context) {
+        Member member = context.getMember();
+        RestChannel channel = context.getChannel();
+        String nickname = context.getFirstArgument();
+        String discordId = member.getId().asString();
 
         if(nickname.equals("empty")){
-            restChannel.createMessage(createErrorEmbed("Nickname is empty.")).block();
+            channel.createMessage(createErrorEmbed("Nickname is empty.")).block();
             return;
         }
-        if(!PlayerCapes.hasCape(nickname)){
-            restChannel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
+        if(!PlayerCloaks.hasCloak(nickname)){
+            channel.createMessage(createErrorEmbed(nickname + " doesn't have a cloak.")).block();
             return;
         }
 
-        for(var entry : PlayerCapes.entries){
+        for(var entry : PlayerCloaks.ENTRIES){
             if(entry.name().equals(nickname)){
-                if(entry.id().equals(discordId)){
-                    PlayerCapes.revokeCape(nickname);
-                    FtpConnection.updateCapesData();
-                    String text = "Successfully revoked a cloak from the player " + nickname + ".";
-                    restChannel.createMessage(createSuccessEmbed(text, user)).block();
+                if(entry.discord().equals(discordId)){
+                    if (AccessManager.hasAccessTo(member, Permissions.CLOAK_REVOKE_SELF)){
+                        PlayerCloaks.revokeCloak(nickname);
+                        FtpConnection.updateCapesData();
+                        String text = "Successfully revoked a cloak from the player " + nickname + ".";
+                        channel.createMessage(createSuccessEmbed(text, member)).block();
+                    }else {
+                        channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
+                        return;
+                    }
                 }else {
-                    String text = "You can't revoke a cloak from the player " + nickname + ".";
-                    restChannel.createMessage(createErrorEmbed(text)).block();
+                    if (AccessManager.hasAccessTo(member, Permissions.CLOAK_REVOKE_OTHER)){
+                        PlayerCloaks.revokeCloak(nickname);
+                        FtpConnection.updateCapesData();
+                        String text = "Successfully revoked a cloak from the player " + nickname + ".";
+                        channel.createMessage(createSuccessEmbed(text, member)).block();
+                    }else {
+                        channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
+                        return;
+                    }
                 }
                 return;
             }
         }
     }
 
-    private EmbedData createSuccessEmbed(String text, User user){
+    private EmbedData createSuccessEmbed(String text, Member member){
         return EmbedData.builder()
-                .title(user.getUsername() + " used command `!cloak revoke`")
+                .title(member.getUsername() + " used command `!cloak revoke`")
                 .description(text)
                 .color(GlobalColors.GREEN.getRGB())
                 .build();

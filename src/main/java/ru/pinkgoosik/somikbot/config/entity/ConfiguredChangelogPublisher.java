@@ -1,6 +1,6 @@
 package ru.pinkgoosik.somikbot.config.entity;
 
-import ru.pinkgoosik.somikbot.feature.ChangelogPublisher;
+import ru.pinkgoosik.somikbot.feature.ModChangelogPublisher;
 
 public class ConfiguredChangelogPublisher {
     public String mod;
@@ -12,6 +12,6 @@ public class ConfiguredChangelogPublisher {
     }
 
     public void start(){
-        new ChangelogPublisher(mod, channel).startScheduler();
+        new ModChangelogPublisher(mod, channel).startScheduler();
     }
 }

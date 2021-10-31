@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.jcraft.jsch.*;
 import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.config.Config;
-import ru.pinkgoosik.somikbot.cosmetica.PlayerCapes;
+import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
@@ -38,11 +38,11 @@ public class FtpConnection {
         try{
             ChannelSftp channelSftp = (ChannelSftp) channel;
             channelSftp.cd(Config.secrets.saveDir);
-            File file = new File(System.getProperty("user.dir") + "/cache/capes.json");
-            channelSftp.put(new FileInputStream(file), "capes.json");
-            Bot.LOGGER.info("Remote Capes Data successfully updated.");
+            File file = new File(System.getProperty("user.dir") + "/cache/cloaks.json");
+            channelSftp.put(new FileInputStream(file), "cloaks.json");
+            Bot.LOGGER.info("Remote Cloaks Data successfully updated.");
         } catch (SftpException | FileNotFoundException e) {
-            Bot.LOGGER.info("Failed to update Remote Capes Data due to an exception: " + e);
+            Bot.LOGGER.info("Failed to update Remote Cloaks Data due to an exception: " + e);
         }
     }
 
@@ -53,11 +53,11 @@ public class FtpConnection {
             Gson gson = builder.create();
             FileUtils.createDir("cache");
 
-            FileWriter writer = new FileWriter("cache/capes.json");
-            writer.write(gson.toJson(PlayerCapes.entries));
+            FileWriter writer = new FileWriter("cache/cloaks.json");
+            writer.write(gson.toJson(PlayerCloaks.ENTRIES));
             writer.close();
         } catch (IOException e) {
-            Bot.LOGGER.info("Failed to create Capes Json due to an exception: " + e);
+            Bot.LOGGER.info("Failed to create Cloaks Json due to an exception: " + e);
         }
     }
 }

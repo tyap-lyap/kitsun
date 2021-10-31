@@ -9,21 +9,21 @@ import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.util.Color;
 import ru.pinkgoosik.somikbot.Bot;
-import ru.pinkgoosik.somikbot.api.ModVersion;
-import ru.pinkgoosik.somikbot.api.ModrinthAPI;
-import ru.pinkgoosik.somikbot.api.ModrinthMod;
+import ru.pinkgoosik.somikbot.api.modrinth.ModVersion;
+import ru.pinkgoosik.somikbot.api.modrinth.ModrinthAPI;
+import ru.pinkgoosik.somikbot.api.modrinth.ModrinthMod;
 import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ChangelogPublisher {
+public class ModChangelogPublisher {
     String modSlug;
     String channel;
     String latestVersionId;
 
-    public ChangelogPublisher(String modSlug, String channel){
+    public ModChangelogPublisher(String modSlug, String channel){
         this.modSlug = modSlug;
         this.channel = channel;
         this.latestVersionId = loadCachedData().latestVersionId();
