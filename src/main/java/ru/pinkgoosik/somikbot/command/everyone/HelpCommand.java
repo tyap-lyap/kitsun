@@ -70,7 +70,7 @@ public class HelpCommand extends Command {
                 .description(commands)
                 .color(GlobalColors.BLUE.getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(member.getAvatarUrl()).build())
-                .footer(EmbedFooterData.builder().text(stringToInt(page) + " page out of 2 pages.").build())
+                .footer(EmbedFooterData.builder().text("page " + stringToInt(page) + " out of 2 pages.").build())
                 .build();
     }
 }
