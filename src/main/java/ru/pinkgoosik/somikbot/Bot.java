@@ -17,15 +17,21 @@ import reactor.util.Logger;
 import reactor.util.Loggers;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
+import ru.pinkgoosik.somikbot.feature.MCUpdatesPublisher;
+import ru.pinkgoosik.somikbot.feature.ModChangelogPublisher;
 import ru.pinkgoosik.somikbot.permissons.AccessManager;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.event.DiscordEvents;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
 
+import java.util.ArrayList;
+
 public class Bot {
     public static final Logger LOGGER = Loggers.getLogger("Bot");
     public static RestClient client;
+    public static ArrayList<ModChangelogPublisher> publishers = new ArrayList<>();
+    public static MCUpdatesPublisher mcUpdatesPublisher = null;
 
     public static void main(String[] args) {
         AccessManager.initPermissions();

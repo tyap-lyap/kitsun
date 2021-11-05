@@ -1,16 +1,12 @@
 package ru.pinkgoosik.somikbot.command.everyone;
 
 import discord4j.core.object.entity.Member;
-import discord4j.discordjson.json.EmbedData;
-import discord4j.discordjson.json.EmbedFooterData;
-import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.CommandUseContext;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.permissons.AccessManager;
 import ru.pinkgoosik.somikbot.permissons.Permissions;
-import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 public class HelpCommand extends Command {
 
@@ -36,10 +32,10 @@ public class HelpCommand extends Command {
         String page = context.getFirstArgument();
 
         if (!AccessManager.hasAccessTo(member, Permissions.HELP)){
-            channel.createMessage(createErrorEmbed("Not enough permissions."));
+            channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
             return;
         }
-        channel.createMessage(createEmbed(getTextForPage(page), member, page)).block();
+        channel.createMessage(createInfoEmbed("Available Commands", getTextForPage(page))).block();
     }
 
     private String getTextForPage(String arg){
@@ -62,15 +58,5 @@ public class HelpCommand extends Command {
         int page = 1;
         if (arg.equals("2") || arg.equals("two") || arg.equals("second")) page = 2;
         return page;
-    }
-
-    private EmbedData createEmbed(String commands, Member member, String page){
-        return EmbedData.builder()
-                .title(member.getUsername() + " used command `!help`")
-                .description(commands)
-                .color(GlobalColors.BLUE.getRGB())
-                .thumbnail(EmbedThumbnailData.builder().url(member.getAvatarUrl()).build())
-                .footer(EmbedFooterData.builder().text("page " + stringToInt(page) + " out of 2 pages.").build())
-                .build();
     }
 }

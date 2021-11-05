@@ -15,13 +15,11 @@ import ru.pinkgoosik.somikbot.api.modrinth.ModrinthMod;
 import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ModChangelogPublisher {
-    String modSlug;
-    String channel;
-    String latestVersionId;
+    public final String modSlug;
+    public final String channel;
+    private String latestVersionId;
 
     public ModChangelogPublisher(String modSlug, String channel){
         this.modSlug = modSlug;
@@ -29,15 +27,8 @@ public class ModChangelogPublisher {
         this.latestVersionId = loadCachedData().latestVersionId();
     }
 
-    public void startScheduler(){
-        new Timer().schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        if(updated()) publish();
-                    }
-                }, 60 * 1000, 60 * 1000
-        );
+    public void check(){
+        if(updated()) publish();
     }
 
     private boolean updated(){

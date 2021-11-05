@@ -1,6 +1,7 @@
 package ru.pinkgoosik.somikbot.command;
 
 import discord4j.discordjson.json.EmbedData;
+import discord4j.discordjson.json.EmbedThumbnailData;
 import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 public abstract class Command {
@@ -17,9 +18,35 @@ public abstract class Command {
 
     public static EmbedData createErrorEmbed(String text){
         return EmbedData.builder()
-                .title("Error")
+                .title("Failed")
                 .description(text)
                 .color(GlobalColors.RED.getRGB())
                 .build();
     }
+
+    public static EmbedData createSuccessfulEmbed(String title, String text){
+        return EmbedData.builder()
+                .title(title)
+                .description(text)
+                .color(GlobalColors.GREEN.getRGB())
+                .build();
+    }
+
+    public static EmbedData createSuccessfulEmbed(String title, String text, String previewUrl){
+        return EmbedData.builder()
+                .title(title)
+                .description(text)
+                .color(GlobalColors.GREEN.getRGB())
+                .thumbnail(EmbedThumbnailData.builder().url(previewUrl).build())
+                .build();
+    }
+
+    public static EmbedData createInfoEmbed(String title, String text){
+        return EmbedData.builder()
+                .title(title)
+                .description(text)
+                .color(GlobalColors.BLUE.getRGB())
+                .build();
+    }
+
 }

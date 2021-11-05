@@ -14,24 +14,20 @@ public class AccessManager {
     private static final ArrayList<RolePermissions> ENTRIES = new ArrayList<>();
 
     public static boolean hasAccessTo(Member member, String permission){
-        if (getDefaultPermissions().contains(permission)){
-            return true;
-        }
+        if (getDefaultPermissions().contains(permission)) return true;
         ArrayList<String> roles = new ArrayList<>();
         member.getRoleIds().forEach(snowflake -> roles.add(snowflake.asString()));
-        for(var rolePerms : ENTRIES){
-            if(roles.contains(rolePerms.role()) && rolePerms.permissions().contains(permission)){
-                return true;
-            }
+        for(var entry : ENTRIES){
+            if(roles.contains(entry.role()) && entry.permissions().contains(permission)) return true;
         }
         return false;
     }
 
     public static void grant(String role, String permission){
-        for(var rolePerms : ENTRIES){
-            if (rolePerms.role().equals(role)){
-                if (!rolePerms.permissions().contains(permission)){
-                    rolePerms.permissions().add(permission);
+        for(var entry : ENTRIES){
+            if (entry.role().equals(role)){
+                if (!entry.permissions().contains(permission)){
+                    entry.permissions().add(permission);
                     saveData();
                     return;
                 }
@@ -42,9 +38,9 @@ public class AccessManager {
     }
 
     public static ArrayList<String> getDefaultPermissions() {
-        for (var rolePerms : ENTRIES) {
-            if (rolePerms.role().equals("default")) {
-                return rolePerms.permissions();
+        for (var entry : ENTRIES) {
+            if (entry.role().equals("default")) {
+                return entry.permissions();
             }
         }
         return new ArrayList<>();

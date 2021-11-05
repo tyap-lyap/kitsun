@@ -14,6 +14,12 @@ public class MinecraftVersions {
     private static final String MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
     private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
 
+
+    public static boolean hasPatchNote(String name){
+        String title = getTitle(name);
+        return !(title.isEmpty());
+    }
+
     public static Version getVersion(String name){
         String title = getTitle(name);
         String description = getDescription(name);
@@ -36,9 +42,7 @@ public class MinecraftVersions {
             request.connect();
             JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
             return jsonElement.getAsJsonObject().get("latest").getAsJsonObject().get(memberName).getAsString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return "";
     }
 
@@ -91,9 +95,7 @@ public class MinecraftVersions {
                     return element.getAsJsonObject().get("body").getAsString();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return "";
     }
 
@@ -109,9 +111,7 @@ public class MinecraftVersions {
                     return element.getAsJsonObject().get("title").getAsString();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return "";
     }
 
@@ -129,9 +129,7 @@ public class MinecraftVersions {
                     return firstPart + secondPart;
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return "";
     }
 }

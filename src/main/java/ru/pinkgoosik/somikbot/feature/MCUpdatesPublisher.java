@@ -10,37 +10,27 @@ import ru.pinkgoosik.somikbot.util.FileUtils;
 import ru.pinkgoosik.somikbot.util.GlobalColors;
 
 import java.io.*;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MCUpdatesPublisher {
     private static final String QUILT_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
-    String channel = "900427004069957652";
-    String latestRelease;
-    String latestSnapshot;
+    public final String channel = "900427004069957652";
+    private String latestRelease;
+    private String latestSnapshot;
 
     public MCUpdatesPublisher(){
         CachedData data = loadCachedData();
         this.latestRelease = data.latestRelease();
         this.latestSnapshot = data.latestSnapshot();
-        this.startScheduler();
     }
 
-    private void startScheduler(){
-        new Timer().schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        checkForReleaseUpdates();
-                        checkForSnapshotUpdates();
-                    }
-                }, 120 * 1000, 120 * 1000
-        );
+    public void check(){
+        checkForReleaseUpdates();
+        checkForSnapshotUpdates();
     }
 
     private void checkForReleaseUpdates(){
         String version = MinecraftVersions.getLatestRelease();
-        if(!version.isEmpty() && !version.equals(latestRelease)){
+        if(!version.isEmpty() && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)){
             Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
             latestRelease = version;
             saveCachedData();
@@ -49,7 +39,7 @@ public class MCUpdatesPublisher {
 
     private void checkForSnapshotUpdates(){
         String version = MinecraftVersions.getLatestSnapshot();
-        if(!version.isEmpty() && !version.equals(latestSnapshot)){
+        if(!version.isEmpty() && !version.equals(latestSnapshot) && MinecraftVersions.hasPatchNote(version)){
             Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
             latestSnapshot = version;
             saveCachedData();

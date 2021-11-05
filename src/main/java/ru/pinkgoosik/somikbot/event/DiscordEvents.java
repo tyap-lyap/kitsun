@@ -16,10 +16,7 @@ import discord4j.core.object.entity.Role;
 import ru.pinkgoosik.somikbot.Bot;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
-import ru.pinkgoosik.somikbot.config.entity.ConfiguredChangelogPublisher;
-import ru.pinkgoosik.somikbot.feature.DiscordLogger;
-import ru.pinkgoosik.somikbot.feature.MCUpdatesPublisher;
-import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
+import ru.pinkgoosik.somikbot.feature.*;
 
 import java.util.Optional;
 
@@ -27,9 +24,10 @@ public class DiscordEvents {
 
     public static void onConnect(ConnectEvent event){
         Bot.client = event.getClient().getRestClient();
-        Config.general.publishers.forEach(ConfiguredChangelogPublisher::start);
-        new MCUpdatesPublisher();
+        Config.general.publishers.forEach(publisher -> Bot.publishers.add(new ModChangelogPublisher(publisher.mod, publisher.channel)));
+        Bot.mcUpdatesPublisher = new MCUpdatesPublisher();
         DiscordLogger.INSTANCE = new DiscordLogger();
+        Scheduler.start();
     }
 
     public static void onMessageCreate(MessageCreateEvent event){
@@ -38,20 +36,25 @@ public class DiscordEvents {
     }
 
     public static void onMessageUpdate(MessageUpdateEvent event){
-        Message newMessage = event.getMessage().block();
-        Optional<Message> oldMessage = event.getOld();
-        if(oldMessage.isPresent() && newMessage != null){
-            DiscordLogger.INSTANCE.messageUpdated(oldMessage.get(), newMessage);
+        if(event.getGuildId().isPresent()){
+            Message newMessage = event.getMessage().block();
+            Optional<Message> oldMessage = event.getOld();
+            if(oldMessage.isPresent() && newMessage != null){
+                DiscordLogger.INSTANCE.messageUpdated(oldMessage.get(), newMessage);
+            }
         }
+
     }
 
     public static void onMessageDelete(MessageDeleteEvent event){
-        Optional<Message> optional = event.getMessage();
-        optional.ifPresent(message -> {
-            if (message.getAuthor().isPresent() && !message.getAuthor().get().isBot()){
-                DiscordLogger.INSTANCE.messageDeleted(message);
-            }
-        });
+        if(event.getGuildId().isPresent()){
+            Optional<Message> optional = event.getMessage();
+            optional.ifPresent(message -> {
+                if (message.getAuthor().isPresent() && !message.getAuthor().get().isBot()){
+                    DiscordLogger.INSTANCE.messageDeleted(message);
+                }
+            });
+        }
     }
 
     public static void onMemberJoin(MemberJoinEvent event){
