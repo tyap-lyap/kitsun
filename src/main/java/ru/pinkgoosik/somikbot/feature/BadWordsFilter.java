@@ -22,6 +22,8 @@ public class BadWordsFilter {
             Message message = event.getMessage();
             if (hasBadWords(message.getContent())){
                 message.delete("bad wording").block();
+                ArrayList<String> badWords = badWordsFound(message.getContent());
+                DiscordLogger.INSTANCE.info("Bad words were found: " + badWords);
             }
         }
     }
@@ -61,6 +63,7 @@ public class BadWordsFilter {
 
             }
             Bot.LOGGER.info("Loaded " + counter + " words to filter out");
+            unbanWords();
         } catch (IOException e) {
             Bot.LOGGER.info("Failed loading bad words duo to an exception: " + e);
         }
@@ -111,5 +114,15 @@ public class BadWordsFilter {
             }
         }
         return badWords;
+    }
+
+    private static void unbanWords(){
+        Map<String, String[]> newWords = new HashMap<>();
+        words.forEach((str, strings) -> {
+            if (!str.contains("anu") && !str.contains("gay")){
+                newWords.put(str, strings);
+            }
+        });
+        words = newWords;
     }
 }

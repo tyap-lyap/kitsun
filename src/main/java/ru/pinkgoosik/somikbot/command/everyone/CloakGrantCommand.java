@@ -8,7 +8,7 @@ import ru.pinkgoosik.somikbot.permissons.AccessManager;
 import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
 import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.permissons.Permissions;
-import ru.pinkgoosik.somikbot.util.UuidGetter;
+import ru.pinkgoosik.somikbot.api.MojangAPI;
 
 public class CloakGrantCommand extends Command {
     private static final String PREVIEW_CLOAK = "https://raw.githubusercontent.com/PinkGoosik/somik-bot/master/src/main/resources/cloak/%cloak%_cloak_preview.png";
@@ -56,12 +56,12 @@ public class CloakGrantCommand extends Command {
             channel.createMessage(createErrorEmbed("Cloak " + cloak + " is not found. Use `!cloaks` to see available cloaks.")).block();
             return;
         }
-        if(UuidGetter.getUuid(nickname) == null){
+        if(MojangAPI.getUuid(nickname).isEmpty()){
             channel.createMessage(createErrorEmbed("Player " + nickname + " is not found. Write down your Minecraft nickname.")).block();
             return;
         }
 
-        PlayerCloaks.grantCloak(member.getId().asString(), nickname, UuidGetter.getUuid(nickname), cloak);
+        PlayerCloaks.grantCloak(member.getId().asString(), nickname, MojangAPI.getUuid(nickname).get(), cloak);
         FtpConnection.updateCapesData();
         String text = nickname + " got successfully granted with the " + cloak + " cloak." + "\nRejoin the world to see changes.";
         channel.createMessage(createSuccessfulEmbed("Cloak Granting", text, PREVIEW_CLOAK.replace("%cloak%", cloak))).block();

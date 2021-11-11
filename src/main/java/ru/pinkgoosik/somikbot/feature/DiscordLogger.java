@@ -19,6 +19,14 @@ public class DiscordLogger {
     public DiscordLogger(){
     }
 
+    public void info(String text){
+        var embed = EmbedData.builder();
+        embed.title("Info");
+        embed.description(text);
+        embed.color(GlobalColors.BLUE.getRGB());
+        Bot.client.getChannelById(channel).createMessage(embed.build()).block();
+    }
+
     public void messageDeleted(Message message){
         var embed = EmbedData.builder();
         embed.title("Message Deleted");

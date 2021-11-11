@@ -13,8 +13,7 @@ import java.net.URLConnection;
 public class MinecraftVersions {
     private static final String MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
     private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
-
-
+    
     public static boolean hasPatchNote(String name){
         String title = getTitle(name);
         return !(title.isEmpty());

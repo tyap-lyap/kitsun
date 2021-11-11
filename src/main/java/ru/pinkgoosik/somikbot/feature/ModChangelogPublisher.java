@@ -15,6 +15,7 @@ import ru.pinkgoosik.somikbot.api.modrinth.ModrinthMod;
 import ru.pinkgoosik.somikbot.util.FileUtils;
 
 import java.io.*;
+import java.util.Optional;
 
 public class ModChangelogPublisher {
     public final String modSlug;
@@ -32,18 +33,18 @@ public class ModChangelogPublisher {
     }
 
     private boolean updated(){
-        ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
-        if(mod == null) return false;
-        String latest = mod.versions().get(0).id();
+        Optional<ModrinthMod> mod = ModrinthAPI.getModBySlug(modSlug);
+        if(mod.isEmpty()) return false;
+        String latest = mod.get().versions().get(0).id();
         return !latest.isEmpty() && !loadCachedData().latestVersionId().equals(latest);
     }
 
     private void publish(){
-        ModrinthMod mod = ModrinthAPI.getModBySlug(modSlug);
-        if(mod == null) return;
-        ModVersion modVersion = mod.versions().get(0);
+        Optional<ModrinthMod> mod = ModrinthAPI.getModBySlug(modSlug);
+        if(mod.isEmpty()) return;
+        ModVersion modVersion = mod.get().versions().get(0);
         String changelog = modVersion.changelog();
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod, modVersion, changelog)).block();
+        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod.get(), modVersion, changelog)).block();
         latestVersionId = modVersion.id();
         saveCachedData();
     }

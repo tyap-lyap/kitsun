@@ -39,7 +39,7 @@ public class MCUpdatesPublisher {
 
     private void checkForSnapshotUpdates(){
         String version = MinecraftVersions.getLatestSnapshot();
-        if(!version.isEmpty() && !version.equals(latestSnapshot) && MinecraftVersions.hasPatchNote(version)){
+        if(!version.isEmpty() && !version.equals(latestSnapshot) && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)){
             Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
             latestSnapshot = version;
             saveCachedData();
