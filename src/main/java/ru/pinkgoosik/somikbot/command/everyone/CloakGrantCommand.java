@@ -10,6 +10,8 @@ import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.permissons.Permissions;
 import ru.pinkgoosik.somikbot.api.MojangAPI;
 
+import java.util.ArrayList;
+
 public class CloakGrantCommand extends Command {
     private static final String PREVIEW_CLOAK = "https://raw.githubusercontent.com/PinkGoosik/somik-bot/master/src/main/resources/cloak/%cloak%_cloak_preview.png";
 
@@ -61,9 +63,32 @@ public class CloakGrantCommand extends Command {
             return;
         }
 
-        PlayerCloaks.grantCloak(member.getId().asString(), nickname, MojangAPI.getUuid(nickname).get(), cloak);
-        FtpConnection.updateCapesData();
-        String text = nickname + " got successfully granted with the " + cloak + " cloak." + "\nRejoin the world to see changes.";
-        channel.createMessage(createSuccessfulEmbed("Cloak Granting", text, PREVIEW_CLOAK.replace("%cloak%", cloak))).block();
+        String discordId = member.getId().asString();
+
+        if(!hasTwoCloaks(discordId)){
+            PlayerCloaks.grantCloak(discordId, nickname, MojangAPI.getUuid(nickname).get(), cloak);
+            FtpConnection.updateCapesData();
+            String text = nickname + " got successfully granted with the " + cloak + " cloak." + "\nRejoin the world to see changes.";
+            channel.createMessage(createSuccessfulEmbed("Cloak Granting", text, PREVIEW_CLOAK.replace("%cloak%", cloak))).block();
+        }else {
+            String text = "You can only have 2 cloaks, your nicknames: " + getNicknames(discordId);
+            channel.createMessage(createErrorEmbed(text)).block();
+        }
+    }
+
+    private static boolean hasTwoCloaks(String discord){
+        int cloaks = 0;
+        for(var entry : PlayerCloaks.ENTRIES){
+            if(entry.discord().equals(discord)) cloaks++;
+        }
+        return cloaks >= 2;
+    }
+
+    private static ArrayList<String> getNicknames(String discord){
+        ArrayList<String> nicknames = new ArrayList<>();
+        for(var entry : PlayerCloaks.ENTRIES){
+            if(entry.discord().equals(discord)) nicknames.add(entry.name());
+        }
+        return nicknames;
     }
 }

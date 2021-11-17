@@ -16,7 +16,9 @@ public class PlayerCloaks {
     private static final String URL_STRING = "https://pinkgoosik.ru/data/cloaks.json";
 
     public static final ArrayList<String> CLOAKS = new ArrayList<>(List.of("uni", "azure", "crimson", "flamingo", "golden",
-            "lapis", "military", "mint", "mystic", "pumpkin", "smoky", "turtle", "violet", "void", "coffee"));
+            "lapis", "military", "mint", "mystic", "pumpkin", "smoky", "turtle", "violet", "void", "coffee",
+            "pride", "trans", "lesbian", "gay", "pan", "bi", "non-binary", "genderfluid", "aromantic", "demiromantic", "asexual", "demisexual",
+            "jeb", "enchanted-jeb", "cosmic", "swirly"));
     public static final ArrayList<Entry> ENTRIES = new ArrayList<>();
 
     public static void grantCloak(String discordId, String nickname, String uuid, String cloak){
