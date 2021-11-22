@@ -5,6 +5,7 @@ import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.CommandUseContext;
 import ru.pinkgoosik.somikbot.command.Commands;
+import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.permissons.AccessManager;
 import ru.pinkgoosik.somikbot.permissons.Permissions;
 
@@ -22,7 +23,7 @@ public class HelpCommand extends Command {
 
     @Override
     public String appendName() {
-        return "**!" + this.getName() + "** <page>";
+        return "**" + Config.general.prefix + this.getName() + "** <page>";
     }
 
     @Override
@@ -57,6 +58,11 @@ public class HelpCommand extends Command {
     private int stringToInt(String arg){
         int page = 1;
         if (arg.equals("2") || arg.equals("two") || arg.equals("second")) page = 2;
+        if (arg.equals("3") || arg.equals("three") || arg.equals("third")) page = 3;
+        if (arg.equals("4") || arg.equals("four") || arg.equals("fourth")) page = 4;
+        if (arg.equals("5") || arg.equals("five") || arg.equals("fifth")) page = 5;
+        if (arg.equals("6") || arg.equals("six") || arg.equals("sixth")) page = 6;
+        if (arg.equals("7") || arg.equals("seven") || arg.equals("seventh")) page = 7;
         return page;
     }
 }

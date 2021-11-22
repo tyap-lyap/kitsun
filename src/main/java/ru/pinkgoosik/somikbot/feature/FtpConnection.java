@@ -14,7 +14,7 @@ import java.util.Properties;
 public class FtpConnection {
     private static Channel channel;
 
-    public static void connect(){
+    public static void connect() {
         try {
             JSch jSch = new JSch();
             Session session = jSch.getSession(Config.secrets.ftpUserName, Config.secrets.ftpHostIp, 22);
@@ -32,14 +32,14 @@ public class FtpConnection {
         }
     }
 
-    public static void updateCapesData(){
+    public static void updateData(){
         connect();
         createCapesJson();
-        try{
+        try {
             ChannelSftp channelSftp = (ChannelSftp) channel;
             channelSftp.cd(Config.secrets.saveDir);
-            File file = new File(System.getProperty("user.dir") + "/cache/cloaks.json");
-            channelSftp.put(new FileInputStream(file), "cloaks.json");
+            File file = new File(System.getProperty("user.dir") + "/cache/entries.json");
+            channelSftp.put(new FileInputStream(file), "entries.json");
             Bot.LOGGER.info("Remote Cloaks Data successfully updated.");
         } catch (SftpException | FileNotFoundException e) {
             Bot.LOGGER.info("Failed to update Remote Cloaks Data due to an exception: " + e);
@@ -53,9 +53,9 @@ public class FtpConnection {
             Gson gson = builder.create();
             FileUtils.createDir("cache");
 
-            FileWriter writer = new FileWriter("cache/cloaks.json");
-            writer.write(gson.toJson(PlayerCloaks.ENTRIES));
-            writer.close();
+            try (FileWriter writer = new FileWriter("cache/entries.json")) {
+                writer.write(gson.toJson(PlayerCloaks.ENTRIES));
+            }
         } catch (IOException e) {
             Bot.LOGGER.info("Failed to create Cloaks Json due to an exception: " + e);
         }

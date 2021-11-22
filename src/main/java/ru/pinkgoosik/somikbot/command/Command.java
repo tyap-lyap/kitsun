@@ -24,7 +24,7 @@ public abstract class Command {
                 .build();
     }
 
-    public static EmbedData createSuccessfulEmbed(String title, String text){
+    public static EmbedData createSuccessfulEmbed(String title, String text) {
         return EmbedData.builder()
                 .title(title)
                 .description(text)

@@ -17,79 +17,80 @@ import reactor.util.Logger;
 import reactor.util.Loggers;
 import ru.pinkgoosik.somikbot.command.Commands;
 import ru.pinkgoosik.somikbot.config.Config;
+import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
+import ru.pinkgoosik.somikbot.event.DiscordEvents;
+import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
+import ru.pinkgoosik.somikbot.feature.FtpConnection;
 import ru.pinkgoosik.somikbot.feature.MCUpdatesPublisher;
 import ru.pinkgoosik.somikbot.feature.ModChangelogPublisher;
 import ru.pinkgoosik.somikbot.permissons.AccessManager;
-import ru.pinkgoosik.somikbot.cosmetica.PlayerCloaks;
-import ru.pinkgoosik.somikbot.event.DiscordEvents;
-import ru.pinkgoosik.somikbot.feature.FtpConnection;
-import ru.pinkgoosik.somikbot.feature.BadWordsFilter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Bot {
-    public static final Logger LOGGER = Loggers.getLogger("Bot");
-    public static RestClient client;
-    public static ArrayList<ModChangelogPublisher> publishers = new ArrayList<>();
-    public static MCUpdatesPublisher mcUpdatesPublisher = null;
+	public static final Logger LOGGER = Loggers.getLogger("Bot");
+	public static RestClient client;
+	public static List<ModChangelogPublisher> publishers = new ArrayList<>();
+	public static MCUpdatesPublisher mcUpdatesPublisher = null;
 
-    public static void main(String[] args) {
-        AccessManager.initPermissions();
-        BadWordsFilter.loadConfigs();
-        Config.initConfig();
-        FtpConnection.connect();
-        Commands.initCommands();
-        PlayerCloaks.fillFromUpstream();
+	public static void main(String[] args) {
+		AccessManager.initPermissions();
+		BadWordsFilter.loadConfigs();
+		Config.initConfig();
+		FtpConnection.connect();
+		Commands.initCommands();
+		PlayerCloaks.fillFromUpstream();
 
-        String token = Config.secrets.discordBotToken;
-        if(token.isBlank()){
-            LOGGER.error("Token is blank");
-            System.exit(0);
-        }
-        DiscordClientBuilder.create(token)
-                .build().gateway()
-                .setEnabledIntents(IntentSet.all())
-                .withGateway(gateway -> {
-                    Mono<Void> connect = gateway.on(ConnectEvent.class, event -> {
-                        DiscordEvents.onConnect(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> memberJoin = gateway.on(MemberJoinEvent.class, event -> {
+		String token = Config.secrets.discordBotToken;
+		if (token.isBlank()) {
+			LOGGER.error("Token is blank");
+			System.exit(0);
+		}
+		DiscordClientBuilder.create(token)
+				.build().gateway()
+				.setEnabledIntents(IntentSet.all())
+				.withGateway(gateway -> {
+					Mono<Void> connect = gateway.on(ConnectEvent.class, event -> {
+						DiscordEvents.onConnect(event);
+						return Mono.empty();
+					}).then();
+					Mono<Void> memberJoin = gateway.on(MemberJoinEvent.class, event -> {
                         DiscordEvents.onMemberJoin(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> memberLeave = gateway.on(MemberLeaveEvent.class, event -> {
+						return Mono.empty();
+					}).then();
+					Mono<Void> memberLeave = gateway.on(MemberLeaveEvent.class, event -> {
                         DiscordEvents.onMemberLeave(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> messageCreate = gateway.on(MessageCreateEvent.class, event -> {
-                        DiscordEvents.onMessageCreate(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> messageUpdate = gateway.on(MessageUpdateEvent.class, event -> {
-                        DiscordEvents.onMessageUpdate(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> messageDelete = gateway.on(MessageDeleteEvent.class, event -> {
-                        DiscordEvents.onMessageDelete(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> roleCreate = gateway.on(RoleCreateEvent.class, event -> {
+						return Mono.empty();
+					}).then();
+					Mono<Void> messageCreate = gateway.on(MessageCreateEvent.class, event -> {
+						DiscordEvents.onMessageCreate(event);
+						return Mono.empty();
+					}).then();
+					Mono<Void> messageUpdate = gateway.on(MessageUpdateEvent.class, event -> {
+						DiscordEvents.onMessageUpdate(event);
+						return Mono.empty();
+					}).then();
+					Mono<Void> messageDelete = gateway.on(MessageDeleteEvent.class, event -> {
+						DiscordEvents.onMessageDelete(event);
+						return Mono.empty();
+					}).then();
+					Mono<Void> roleCreate = gateway.on(RoleCreateEvent.class, event -> {
                         DiscordEvents.onRoleCreate(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> roleDelete = gateway.on(RoleDeleteEvent.class, event -> {
+						return Mono.empty();
+					}).then();
+					Mono<Void> roleDelete = gateway.on(RoleDeleteEvent.class, event -> {
                         DiscordEvents.onRoleDelete(event);
-                        return Mono.empty();
-                    }).then();
-                    Mono<Void> roleUpdate = gateway.on(RoleUpdateEvent.class, event -> {
+						return Mono.empty();
+					}).then();
+					Mono<Void> roleUpdate = gateway.on(RoleUpdateEvent.class, event -> {
                         DiscordEvents.onRoleUpdate(event);
-                        return Mono.empty();
-                    }).then();
-                    return Mono.when(connect, memberJoin, memberLeave, messageCreate,
-                            messageUpdate, messageDelete, roleCreate, roleDelete,
-                            roleUpdate);
-                })
-                .block();
-    }
+						return Mono.empty();
+					}).then();
+					return Mono.when(connect, memberJoin, memberLeave, messageCreate,
+							messageUpdate, messageDelete, roleCreate, roleDelete,
+							roleUpdate);
+				})
+				.block();
+	}
 }
