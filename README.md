@@ -1,10 +1,8 @@
-## somik-bot
-A Simple Discord Bot written in Java. Related project: [cosmetica](https://github.com/PinkGoosik/cosmetica)
-
-Contributions are welcomed
+## About
+A simple Discord Bot written in Java, designed to provide simple features for Minecraft Modding-themed servers.
 
 ## Features
-- Bad Words Filter
-- Simple Discord Actions Logger
-- Modrinth Mod's Changelog Publisher
-- Minecraft Updates Publisher
+- [Cosmetica](https://github.com/PinkGoosik/cosmetica) integration
+- Simple Discord user actions logger
+- Modrinth mod changelog publisher
+- Minecraft updates publisher

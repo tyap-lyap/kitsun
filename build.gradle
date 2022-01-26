@@ -1,6 +1,7 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.0.0"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
     id "java"
+    id "maven-publish"
 }
 
 group "ru.pinkgoosik"
@@ -28,7 +29,24 @@ shadowJar {
 
 jar{
     manifest {
-        attributes("Main-Class": "ru.pinkgoosik.somikbot.Bot")
+        attributes("Main-Class": "ru.pinkgoosik.kitsun.Bot")
     }
     finalizedBy("shadowJar")
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "https://maven.pinkgoosik.ru/"
+            credentials {
+                username System.getenv("MAVEN_USER")
+                password System.getenv("MAVEN_PASS")
+            }
+        }
+    }
 }

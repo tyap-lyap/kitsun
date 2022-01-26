@@ -1,13 +1,13 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="runBot" type="Application" factoryName="Application">
-    <option name="ALTERNATIVE_JRE_PATH" value="16" />
+    <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../Program Files/Eclipse Adoptium/jdk-17.0.1.12-hotspot" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="MAIN_CLASS_NAME" value="ru.pinkgoosik.somikbot.Bot" />
+    <option name="MAIN_CLASS_NAME" value="ru.pinkgoosik.kitsun.Bot" />
     <module name="somik-bot.main" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="ru.pinkgoosik.somikbot.config.entity.*" />
+        <option name="PATTERN" value="ru.pinkgoosik.kitsun.config.entity.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
