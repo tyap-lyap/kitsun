@@ -36,7 +36,10 @@ jar{
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        maven(MavenPublication) {
+            groupId = "ru.pinkgoosik"
+            artifactId = "kitsun"
+            version = "latest"
             from components.java
         }
     }
