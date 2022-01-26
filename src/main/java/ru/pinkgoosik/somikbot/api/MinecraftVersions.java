@@ -58,15 +58,15 @@ public class MinecraftVersions {
 
     private static String clearFormation(String string){
         String clean = string;
-        clean = clean.replaceAll("<p>", "");
-        clean = clean.replaceAll("#x26;", "");
-        clean = clean.replaceAll("<a href=\"", "");
-        clean = clean.replaceAll("target=\"_blank\" rel=\"noopener noreferrer\">", "");
-        clean = clean.replaceAll("</a>", "");
-        clean = clean.replaceAll("</p>", " ");
-        clean = clean.replaceAll("<strong>", "**");
-        clean = clean.replaceAll("</strong>", "**");
-        clean = clean.replaceAll("\"", "");
+        clean = clean.replace("<p>", "");
+        clean = clean.replace("#x26;", "");
+        clean = clean.replace("<a href=\"", "");
+        clean = clean.replace("target=\"_blank\" rel=\"noopener noreferrer\">", "");
+        clean = clean.replace("</a>", "");
+        clean = clean.replace("</p>", " ");
+        clean = clean.replace("<strong>", "**");
+        clean = clean.replace("</strong>", "**");
+        clean = clean.replace("\"", "");
         return clean;
     }
 

@@ -5,6 +5,7 @@ import discord4j.discordjson.json.EmbedData;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.somikbot.command.Command;
 import ru.pinkgoosik.somikbot.command.CommandUseContext;
+import ru.pinkgoosik.somikbot.config.Config;
 import ru.pinkgoosik.somikbot.permissons.AccessManager;
 import ru.pinkgoosik.somikbot.permissons.Permissions;
 import ru.pinkgoosik.somikbot.util.GlobalColors;
@@ -23,7 +24,7 @@ public class PermissionGrantCommand extends Command {
 
     @Override
     public String appendName() {
-        return "**!" + this.getName() + "** <role id> <permission>";
+        return "**" + Config.general.prefix + this.getName() + "** <role id> <permission>";
     }
 
     @Override
@@ -33,15 +34,15 @@ public class PermissionGrantCommand extends Command {
         String roleId = context.getFirstArgument();
         String permission = context.getSecondArgument();
 
-        if (!AccessManager.hasAccessTo(member, Permissions.PERMISSION_GRANT)){
+        if (!AccessManager.hasAccessTo(member, Permissions.PERMISSION_GRANT)) {
             channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
             return;
         }
-        if (!Permissions.LIST.contains(permission)){
+        if (!Permissions.LIST.contains(permission)) {
             channel.createMessage(createErrorEmbed("Such permission doesn't exist.")).block();
         }
 
-        AccessManager.grant(roleId, permission);
+        AccessManager.grant(roleId, true, permission);
         String text = roleId + " successfully granted with the " + permission + " permission.";
         channel.createMessage(createEmbed(text, member)).block();
     }

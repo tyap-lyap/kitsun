@@ -11,7 +11,7 @@ import java.net.URLConnection;
 import java.util.Optional;
 
 public class MojangAPI {
-    public static String URL_STRING = "https://api.mojang.com/users/profiles/minecraft/%nickname%";
+    public static final String URL_STRING = "https://api.mojang.com/users/profiles/minecraft/%nickname%";
 
     public static Optional<String> getUuid(String nickname){
         String uuid = null;

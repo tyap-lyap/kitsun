@@ -12,13 +12,15 @@ import java.util.List;
 
 public class General {
     public boolean cloaksEnabled;
-    public String memberRoleId;
-    public ArrayList<ConfiguredChangelogPublisher> publishers;
-    public static final General EMPTY = new General(true, "", new ArrayList<>(List.of(new ConfiguredChangelogPublisher("example", "123"))));
+    public final String memberRoleId;
+    public String prefix;
+    public final List<ConfiguredChangelogPublisher> publishers;
+    public static final General EMPTY = new General(true, "", "!", new ArrayList<>(List.of(new ConfiguredChangelogPublisher("example", "123"))));
 
-    public General(boolean cloaksEnabled, String memberRoleId, ArrayList<ConfiguredChangelogPublisher> publishers){
+    public General(boolean cloaksEnabled, String memberRoleId, String prefix, List<ConfiguredChangelogPublisher> publishers){
         this.cloaksEnabled = cloaksEnabled;
         this.memberRoleId = memberRoleId;
+        this.prefix = prefix;
         this.publishers = publishers;
     }
 
@@ -32,9 +34,9 @@ public class General {
             builder.setPrettyPrinting();
             Gson gson = builder.create();
             FileUtils.createDir("config");
-            FileWriter writer = new FileWriter("config/general.json");
-            writer.write(gson.toJson(EMPTY));
-            writer.close();
+            try (FileWriter writer = new FileWriter("config/general.json")) {
+                writer.write(gson.toJson(EMPTY));
+            }
         } catch (IOException e) {
             Bot.LOGGER.info("Failed to create empty general config due to an exception: " + e);
         }
@@ -52,16 +54,4 @@ public class General {
         }
     }
 
-    private static void saveGeneral(){
-        try{
-            GsonBuilder builder = new GsonBuilder();
-            builder.setPrettyPrinting();
-            Gson gson = builder.create();
-            FileWriter writer = new FileWriter("general.json");
-            writer.write(gson.toJson(Config.general));
-            writer.close();
-        } catch (IOException e) {
-            Bot.LOGGER.info("Failed to save general config due to an exception: " + e);
-        }
-    }
 }
