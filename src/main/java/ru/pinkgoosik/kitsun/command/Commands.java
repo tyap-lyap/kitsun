@@ -5,11 +5,14 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.entity.RestChannel;
+import ru.pinkgoosik.kitsun.command.cloak.*;
+import ru.pinkgoosik.kitsun.command.cosmetics.*;
 import ru.pinkgoosik.kitsun.command.everyone.*;
-import ru.pinkgoosik.kitsun.command.moderation.ConfigListCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionGrantCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionsCommand;
-import ru.pinkgoosik.kitsun.config.Config;
+import ru.pinkgoosik.kitsun.instance.ServerDataManager;
+import ru.pinkgoosik.kitsun.instance.config.Config;
+import ru.pinkgoosik.kitsun.permission.AccessManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,55 +20,79 @@ import java.util.List;
 public class Commands {
     public static final List<Command> COMMANDS = new ArrayList<>();
 
-    public static void initCommands(){
+    public static void init() {
         add(new HelpCommand());
-        if (Config.general.cloaksEnabled) {
-            add(new RegisterCommand());
+        add(new RegisterCommand());
 
-            add(new AvailableAttributesCommand());
-            add(new AvailableCloaksCommand());
-            add(new AvailableCosmeticsCommand());
+        add(new AvailableCloaksCommand());
 
-            add(new CloakChangeCommand());
-            add(new CloakGrantCommand());
-            add(new CloakInformationCommand());
-            add(new CloakRevokeCommand());
+        add(new CloakGrantCommand());
+        add(new CloakChangeCommand());
+        add(new CloakInformationCommand());
+        add(new CloakRevokeCommand());
 
-            add(new RedeemCommand());
-        }
+//        add(new AvailableAttributesCommand());
+        add(new AvailableCosmeticsCommand());
+//        add(new RedeemCommand());
+
         add(new PermissionsCommand());
         add(new PermissionGrantCommand());
-        add(new ConfigListCommand());
+//        add(new ConfigListCommand());
     }
 
-    private static void add(Command command){
+    private static void add(Command command) {
         COMMANDS.add(command);
     }
 
-    public static void onMessageCreate(MessageCreateEvent event){
-        if(event.getGuildId().isPresent()) {
-            Member member;
-            Message message = event.getMessage();
-            MessageChannel channel = message.getChannel().block();
-            String content = message.getContent();
-            RestChannel restChannel;
-            if(channel == null) return;
-            else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
-            if (event.getMember().isPresent()) member = event.getMember().get();
-            else return;
+    public static void onMessageCreate(MessageCreateEvent event) {
+        if(event.getGuildId().isEmpty()) {
+            event.getMessage().getRestChannel().createMessage("s- sussy").block();
+            return;
+        }
 
-            if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())){
-                for(Command command : Commands.COMMANDS){
-                    String name = Config.general.prefix + command.getName();
-                    if (content.startsWith(name)){
-                        content = content.replace(name, "");
-                        content = content + " empty empty empty";
-                        String[] args = content.split(" ");
-                        CommandUseContext context = new CommandUseContext(member, restChannel, args);
-                        command.respond(context);
-                    }
+        Member member;
+        Message message = event.getMessage();
+        MessageChannel channel = message.getChannel().block();
+        String content = message.getContent();
+        RestChannel restChannel;
+        String serverID = event.getGuildId().get().asString();
+        Config config = ServerDataManager.getConfig(serverID);
+        AccessManager accessManager = ServerDataManager.getAccessManager(serverID);
+        if(channel == null) return;
+        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+        if (event.getMember().isPresent()) member = event.getMember().get();
+        else return;
+
+        if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
+            for(Command command : Commands.COMMANDS) {
+                String commandPrefix = config.general.commandPrefix;
+                String name = getNameToClean(content, command, commandPrefix);
+
+                if (iterateAltNames(content, command, commandPrefix)) {
+                    content = content.replace(name, "");
+                    content = content + " empty empty empty";
+                    String[] args = content.split(" ");
+                    CommandUseContext context = new CommandUseContext(member, restChannel, args, config, accessManager);
+                    command.respond(context);
                 }
             }
         }
+    }
+
+    public static boolean iterateAltNames(String content, Command command, String commandPrefix) {
+        if (content.startsWith(commandPrefix + command.getName())) return true;
+        for (String altName : command.getAltNames()) {
+            String name = commandPrefix + altName;
+            if(content.startsWith(name)) return true;
+        }
+        return false;
+    }
+
+    public static String getNameToClean(String content, Command command, String commandPrefix) {
+        for (String altName : command.getAltNames()) {
+            String name = commandPrefix + altName;
+            if(content.startsWith(name)) return name;
+        }
+        return commandPrefix + command.getName();
     }
 }
