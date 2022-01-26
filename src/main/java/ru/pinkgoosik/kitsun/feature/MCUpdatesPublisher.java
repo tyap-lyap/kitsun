@@ -20,36 +20,36 @@ public class MCUpdatesPublisher {
     private String latestRelease;
     private String latestSnapshot;
 
-    public MCUpdatesPublisher(){
+    public MCUpdatesPublisher() {
         CachedData data = loadCachedData();
         this.latestRelease = data.latestRelease();
         this.latestSnapshot = data.latestSnapshot();
     }
 
-    public void check(){
+    public void check() {
         checkForReleaseUpdates();
         checkForSnapshotUpdates();
     }
 
-    private void checkForReleaseUpdates(){
+    private void checkForReleaseUpdates() {
         String version = MinecraftVersions.getLatestRelease();
-        if(!version.isEmpty() && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)){
+        if(!version.isEmpty() && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)) {
             Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
             latestRelease = version;
             saveCachedData();
         }
     }
 
-    private void checkForSnapshotUpdates(){
+    private void checkForSnapshotUpdates() {
         String version = MinecraftVersions.getLatestSnapshot();
-        if(!version.isEmpty() && !version.equals(latestSnapshot) && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)){
+        if(!version.isEmpty() && !version.equals(latestSnapshot) && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)) {
             Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
             latestSnapshot = version;
             saveCachedData();
         }
     }
 
-    private EmbedData createEmbed(MinecraftVersions.Version version){
+    private EmbedData createEmbed(MinecraftVersions.Version version) {
         return EmbedData.builder()
                 .title(version.title())
                 .description(version.description())
@@ -59,7 +59,7 @@ public class MCUpdatesPublisher {
                 .build();
     }
 
-    private void saveCachedData(){
+    private void saveCachedData() {
         try {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
@@ -74,7 +74,7 @@ public class MCUpdatesPublisher {
         }
     }
 
-    private CachedData loadCachedData(){
+    private CachedData loadCachedData() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("cache/minecraft_versions.json"));
             JsonObject object = JsonParser.parseReader(reader).getAsJsonObject();

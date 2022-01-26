@@ -1,19 +1,19 @@
-package ru.pinkgoosik.kitsun.command.everyone;
+package ru.pinkgoosik.kitsun.command.cosmetics;
 
 import discord4j.core.object.entity.Member;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
-import ru.pinkgoosik.kitsun.config.Config;
-import ru.pinkgoosik.kitsun.cosmetica.PlayerCloaks;
-import ru.pinkgoosik.kitsun.perms.AccessManager;
-import ru.pinkgoosik.kitsun.perms.Permissions;
+import ru.pinkgoosik.kitsun.cosmetica.Cosmetics;
+import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.permission.Permissions;
+import ru.pinkgoosik.kitsun.util.Embeds;
 
 public class AvailableCosmeticsCommand extends Command {
 
     @Override
     public String getName() {
-        return "available cosmetics";
+        return "cosmetics";
     }
 
     @Override
@@ -22,24 +22,20 @@ public class AvailableCosmeticsCommand extends Command {
     }
 
     @Override
-    public String appendName() {
-        return "**" + Config.general.prefix + this.getName() + "**";
-    }
-
-    @Override
     public void respond(CommandUseContext context) {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
+        AccessManager accessManager = context.getAccessManager();
 
-        if(!AccessManager.hasAccessTo(member, Permissions.AVAILABLE_COSMETICS)){
-            channel.createMessage(createErrorEmbed("Not enough permissions.")).block();
+        if(!accessManager.hasAccessTo(member, Permissions.AVAILABLE_COSMETICS)){
+            channel.createMessage(Embeds.error("Not enough permissions.")).block();
             return;
         }
         StringBuilder text = new StringBuilder();
-        for (String cloak : PlayerCloaks.COSMETICS){
+        for (String cloak : Cosmetics.COSMETICS) {
             text.append(cloak).append(", ");
         }
         String respond = text.deleteCharAt(text.length() - 1).deleteCharAt(text.length() - 1).append(".").toString();
-        channel.createMessage(createInfoEmbed("Available Cosmetics", respond)).block();
+        channel.createMessage(Embeds.info("Available Cosmetics", respond)).block();
     }
 }

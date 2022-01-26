@@ -12,8 +12,8 @@ public class Scheduler {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Bot.publishers.forEach(ModChangelogPublisher::check);
-                Bot.mcUpdatesPublisher.check();
+//                Bot.publishers.forEach(ModChangelogPublisher::check);
+//                Bot.mcUpdatesPublisher.check();
             }
         }, 0, 180 * 1000);
     }

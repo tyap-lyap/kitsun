@@ -16,10 +16,10 @@ public class DiscordLogger {
     Snowflake channel = Snowflake.of("854362907167686687");
     public static DiscordLogger INSTANCE;
 
-    public DiscordLogger(){
+    public DiscordLogger() {
     }
 
-    public void info(String text){
+    public void info(String text) {
         var embed = EmbedData.builder();
         embed.title("Info");
         embed.description(text);
@@ -27,7 +27,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void messageDeleted(Message message){
+    public void messageDeleted(Message message) {
         var embed = EmbedData.builder();
         embed.title("Message Deleted");
         embed.addField(EmbedFieldData.builder().name("Channel").value(Objects.requireNonNull(message.getRestChannel().getData().block()).name().get()).inline(true).build());
@@ -37,7 +37,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void messageUpdated(Message old, Message message){
+    public void messageUpdated(Message old, Message message) {
         if(!old.getContent().equals(message.getContent())){
             var embed = EmbedData.builder();
             embed.title("Message Updated");
@@ -52,7 +52,7 @@ public class DiscordLogger {
         }
     }
 
-    public void memberJoin(Member member){
+    public void memberJoin(Member member) {
         var embed = EmbedData.builder();
         embed.author(EmbedAuthorData.builder()
                 .name(member.getTag() + " joined")
@@ -61,7 +61,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void memberLeave(Member member){
+    public void memberLeave(Member member) {
         var embed = EmbedData.builder();
         embed.author(EmbedAuthorData.builder()
                 .name(member.getTag() + " left")
@@ -70,7 +70,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void roleCreated(Role role){
+    public void roleCreated(Role role) {
         var embed = EmbedData.builder();
         embed.title("Role Created");
         embed.addField(EmbedFieldData.builder().name("Name").value(role.getName()).inline(true).build());
@@ -82,7 +82,7 @@ public class DiscordLogger {
         Bot.client.getChannelById(channel).createMessage(embed.build()).block();
     }
 
-    public void roleDeleted(Role role){
+    public void roleDeleted(Role role) {
         var embed = EmbedData.builder();
         embed.title("Role Deleted");
         embed.addField(EmbedFieldData.builder().name("Name").value(role.getName()).inline(true).build());

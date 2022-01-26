@@ -16,81 +16,74 @@ import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 import ru.pinkgoosik.kitsun.command.Commands;
-import ru.pinkgoosik.kitsun.config.Config;
-import ru.pinkgoosik.kitsun.cosmetica.PlayerCloaks;
+import ru.pinkgoosik.kitsun.config.Secrets;
+import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
-import ru.pinkgoosik.kitsun.feature.BadWordsFilter;
 import ru.pinkgoosik.kitsun.feature.FtpConnection;
-import ru.pinkgoosik.kitsun.feature.MCUpdatesPublisher;
-import ru.pinkgoosik.kitsun.feature.ModChangelogPublisher;
-import ru.pinkgoosik.kitsun.perms.AccessManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Bot {
-	public static final Logger LOGGER = Loggers.getLogger("Bot");
-	public static RestClient client;
-	public static List<ModChangelogPublisher> publishers = new ArrayList<>();
-	public static MCUpdatesPublisher mcUpdatesPublisher = null;
+    public static Secrets secrets;
+    public static final Logger LOGGER = Loggers.getLogger("Kitsun");
+    public static RestClient client;
 
-	public static void main(String[] args) {
-		AccessManager.initPermissions();
-		BadWordsFilter.loadConfigs();
-		Config.initConfig();
-		FtpConnection.connect();
-		Commands.initCommands();
-		PlayerCloaks.fillFromUpstream();
+    public static void main(String[] args) {
+        secrets = Secrets.readSecrets();
+        FtpConnection.connect();
+        Commands.init();
+        CosmeticaData.fillFromUpstream();
+        initDiscordClient();
+    }
 
-		String token = Config.secrets.discordBotToken;
-		if (token.isBlank()) {
-			LOGGER.error("Token is blank");
-			System.exit(0);
-		}
-		DiscordClientBuilder.create(token)
-				.build().gateway()
-				.setEnabledIntents(IntentSet.all())
-				.withGateway(gateway -> {
-					Mono<Void> connect = gateway.on(ConnectEvent.class, event -> {
-						DiscordEvents.onConnect(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> memberJoin = gateway.on(MemberJoinEvent.class, event -> {
+    public static void initDiscordClient() {
+        String token = secrets.discordBotToken;
+        if (token.isBlank()) {
+            LOGGER.error("Token is blank");
+            System.exit(0);
+        }
+        DiscordClientBuilder.create(token)
+                .build().gateway()
+                .setEnabledIntents(IntentSet.all())
+                .withGateway(gateway -> {
+                    Mono<Void> connect = gateway.on(ConnectEvent.class, event -> {
+                        DiscordEvents.onConnect(event);
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> memberJoin = gateway.on(MemberJoinEvent.class, event -> {
                         DiscordEvents.onMemberJoin(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> memberLeave = gateway.on(MemberLeaveEvent.class, event -> {
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> memberLeave = gateway.on(MemberLeaveEvent.class, event -> {
                         DiscordEvents.onMemberLeave(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> messageCreate = gateway.on(MessageCreateEvent.class, event -> {
-						DiscordEvents.onMessageCreate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> messageUpdate = gateway.on(MessageUpdateEvent.class, event -> {
-						DiscordEvents.onMessageUpdate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> messageDelete = gateway.on(MessageDeleteEvent.class, event -> {
-						DiscordEvents.onMessageDelete(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> roleCreate = gateway.on(RoleCreateEvent.class, event -> {
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> messageCreate = gateway.on(MessageCreateEvent.class, event -> {
+                        DiscordEvents.onMessageCreate(event);
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> messageUpdate = gateway.on(MessageUpdateEvent.class, event -> {
+                        DiscordEvents.onMessageUpdate(event);
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> messageDelete = gateway.on(MessageDeleteEvent.class, event -> {
+                        DiscordEvents.onMessageDelete(event);
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> roleCreate = gateway.on(RoleCreateEvent.class, event -> {
                         DiscordEvents.onRoleCreate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> roleDelete = gateway.on(RoleDeleteEvent.class, event -> {
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> roleDelete = gateway.on(RoleDeleteEvent.class, event -> {
                         DiscordEvents.onRoleDelete(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> roleUpdate = gateway.on(RoleUpdateEvent.class, event -> {
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> roleUpdate = gateway.on(RoleUpdateEvent.class, event -> {
                         DiscordEvents.onRoleUpdate(event);
-						return Mono.empty();
-					}).then();
-					return Mono.when(connect, memberJoin, memberLeave, messageCreate,
-							messageUpdate, messageDelete, roleCreate, roleDelete,
-							roleUpdate);
-				})
-				.block();
-	}
+                        return Mono.empty();
+                    }).then();
+                    return Mono.when(connect, memberJoin, memberLeave, messageCreate,
+                            messageUpdate, messageDelete, roleCreate, roleDelete,
+                            roleUpdate);
+                })
+                .block();
+    }
 }

@@ -22,24 +22,24 @@ public class ModChangelogPublisher {
     public final String channel;
     private String latestVersionId;
 
-    public ModChangelogPublisher(String modSlug, String channel){
+    public ModChangelogPublisher(String modSlug, String channel) {
         this.modSlug = modSlug;
         this.channel = channel;
         this.latestVersionId = loadCachedData().latestVersionId();
     }
 
-    public void check(){
+    public void check() {
         if(updated()) publish();
     }
 
-    private boolean updated(){
+    private boolean updated() {
         Optional<ModrinthMod> mod = ModrinthAPI.getMod(modSlug);
         if(mod.isEmpty()) return false;
         String latest = mod.get().versions().get(0).id();
         return !latest.isEmpty() && !loadCachedData().latestVersionId().equals(latest);
     }
 
-    private void publish(){
+    private void publish() {
         Optional<ModrinthMod> mod = ModrinthAPI.getMod(modSlug);
         if(mod.isEmpty()) return;
         ModVersion modVersion = mod.get().versions().get(0);
@@ -49,7 +49,7 @@ public class ModChangelogPublisher {
         saveCachedData();
     }
 
-    private EmbedData createEmbed(ModrinthMod mod, ModVersion version, String latestChangelog){
+    private EmbedData createEmbed(ModrinthMod mod, ModVersion version, String latestChangelog) {
         return EmbedData.builder()
                 .author(EmbedAuthorData.builder().name(mod.title()).build())
                 .title(version.name())
@@ -60,7 +60,7 @@ public class ModChangelogPublisher {
                 .build();
     }
 
-    private void saveCachedData(){
+    private void saveCachedData() {
         try {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
@@ -75,7 +75,7 @@ public class ModChangelogPublisher {
         }
     }
 
-    private CachedData loadCachedData(){
+    private CachedData loadCachedData() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("cache/" + modSlug + "_cached.json"));
             String id = JsonParser.parseReader(reader).getAsJsonObject().get("latestVersionId").getAsString();

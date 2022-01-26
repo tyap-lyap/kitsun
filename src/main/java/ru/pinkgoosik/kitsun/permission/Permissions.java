@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.perms;
+package ru.pinkgoosik.kitsun.permission;
 
 import java.util.ArrayList;
 import java.util.List;
