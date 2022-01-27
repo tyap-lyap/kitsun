@@ -17,14 +17,16 @@ import ru.pinkgoosik.kitsun.util.FileUtils;
 import java.io.*;
 import java.util.Optional;
 
-public class ModChangelogPublisher {
+public class ChangelogPublisher {
     public final String modSlug;
     public final String channel;
     private String latestVersionId;
+    public final String serverID;
 
-    public ModChangelogPublisher(String modSlug, String channel) {
+    public ChangelogPublisher(String modSlug, String channel, String serverID) {
         this.modSlug = modSlug;
         this.channel = channel;
+        this.serverID = serverID;
         this.latestVersionId = loadCachedData().latestVersionId();
     }
 
@@ -65,9 +67,9 @@ public class ModChangelogPublisher {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
             Gson gson = builder.create();
-            FileUtils.createDir("cache");
+            FileUtils.createDir("cache/" + serverID + "/publishers/" + channel);
 
-            FileWriter writer = new FileWriter("cache/" + modSlug + "_cached.json");
+            FileWriter writer = new FileWriter("cache/" + serverID + "/publishers/" + channel + "/" + modSlug + "_cached.json");
             writer.write(gson.toJson(new CachedData(latestVersionId)));
             writer.close();
         } catch (IOException e) {
@@ -77,7 +79,7 @@ public class ModChangelogPublisher {
 
     private CachedData loadCachedData() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("cache/" + modSlug + "_cached.json"));
+            BufferedReader reader = new BufferedReader(new FileReader("cache/" + serverID + "/publishers/" + channel + "/" + modSlug + "_cached.json"));
             String id = JsonParser.parseReader(reader).getAsJsonObject().get("latestVersionId").getAsString();
             return new CachedData(id);
         } catch (FileNotFoundException ignored) {}

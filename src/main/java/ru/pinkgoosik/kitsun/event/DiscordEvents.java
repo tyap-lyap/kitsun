@@ -12,6 +12,7 @@ import discord4j.core.event.domain.role.RoleUpdateEvent;
 import discord4j.core.object.entity.Role;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.Commands;
+import ru.pinkgoosik.kitsun.schedule.Scheduler;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class DiscordEvents {
 //        Config.general.publishers.forEach(publisher -> Bot.publishers.add(new ModChangelogPublisher(publisher.mod, publisher.channel)));
 //        Bot.mcUpdatesPublisher = new MCUpdatesPublisher();
 //        DiscordLogger.INSTANCE = new DiscordLogger();
-//        Scheduler.start();
+        Scheduler.start();
     }
 
     public static void onMessageCreate(MessageCreateEvent event) {

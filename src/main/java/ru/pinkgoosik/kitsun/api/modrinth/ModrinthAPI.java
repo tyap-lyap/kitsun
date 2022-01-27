@@ -1,15 +1,11 @@
 package ru.pinkgoosik.kitsun.api.modrinth;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -45,7 +41,12 @@ public class ModrinthAPI {
             followers = object.get("followers").getAsInt();
 
             return Optional.of(new ModrinthMod(modUrl, iconUrl, modId, modSlug, title, shortDescription, downloads, followers, versions));
-        } catch (IOException ignored) {}
+        } catch (IOException
+                | JsonIOException
+                | IllegalStateException
+                | JsonSyntaxException
+                | ClassCastException
+                | NullPointerException ignored) {}
         return Optional.empty();
     }
 
@@ -68,7 +69,13 @@ public class ModrinthAPI {
                 versions.add(new ModVersion(id, name, changelog));
             });
             return Optional.of(versions);
-        } catch (IOException ignored) {}
+        } catch (IOException
+                | JsonIOException
+                | IllegalStateException
+                | JsonSyntaxException
+                | ClassCastException
+                | NullPointerException
+                | UnsupportedOperationException ignored) {}
         return Optional.empty();
     }
 }

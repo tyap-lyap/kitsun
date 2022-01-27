@@ -38,16 +38,17 @@ public class CloakInformationCommand extends Command {
         String discordId = member.getId().asString();
         AccessManager accessManager = context.getServerData().accessManager;
 
-        if (!accessManager.hasAccessTo(member, Permissions.CLOAK_INFORMATION)) {
+        if (!accessManager.hasAccessTo(member, Permissions.CLOAK_INFO)) {
             channel.createMessage(Embeds.error("Not enough permissions for this command.")).block();
             return;
         }
+
         Optional<Entry> entry = CosmeticaData.getEntry(discordId);
         if(entry.isPresent()) {
-            String text = "Your current cape is " + entry.get().cloak.name + ".";
+            String text = "Your current cloak is " + entry.get().cloak.name + ".";
             channel.createMessage(Embeds.success("Information", text, Cloaks.PREVIEW_CLOAK.replace("%cloak%", entry.get().cloak.name))).block();
         }else {
-            channel.createMessage(Embeds.error("User not found.")).block();
+            channel.createMessage(Embeds.error("You have not registered yet!")).block();
         }
     }
 }

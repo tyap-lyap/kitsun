@@ -23,7 +23,7 @@ public class AccessManager {
 
 
     private final ArrayList<RolePermissions> entries = new ArrayList<>();
-    public String serverID;
+    public final String serverID;
 
     public AccessManager(String serverID) {
         this.serverID = serverID;

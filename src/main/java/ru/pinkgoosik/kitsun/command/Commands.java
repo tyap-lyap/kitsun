@@ -6,8 +6,9 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.command.cloak.*;
-import ru.pinkgoosik.kitsun.command.cosmetics.*;
 import ru.pinkgoosik.kitsun.command.everyone.*;
+import ru.pinkgoosik.kitsun.command.moderation.ChangelogPublisherAddCommand;
+import ru.pinkgoosik.kitsun.command.moderation.ChangelogPublisherRemoveCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionGrantCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionsCommand;
 import ru.pinkgoosik.kitsun.instance.ServerData;
@@ -32,8 +33,11 @@ public class Commands {
         add(new UnregisterCommand());
 
 //        add(new AvailableAttributesCommand());
-        add(new AvailableCosmeticsCommand());
+//        add(new AvailableCosmeticsCommand());
 //        add(new RedeemCommand());
+
+        add(new ChangelogPublisherAddCommand());
+        add(new ChangelogPublisherRemoveCommand());
 
         add(new PermissionsCommand());
         add(new PermissionGrantCommand());

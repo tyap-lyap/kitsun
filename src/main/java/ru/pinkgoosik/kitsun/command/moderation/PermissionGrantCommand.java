@@ -38,8 +38,10 @@ public class PermissionGrantCommand extends Command {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();
             return;
         }
+
         if (!Permissions.LIST.contains(permission)) {
             channel.createMessage(Embeds.error("Such permission doesn't exist.")).block();
+            return;
         }
 
         accessManager.grant(roleId, true, permission);

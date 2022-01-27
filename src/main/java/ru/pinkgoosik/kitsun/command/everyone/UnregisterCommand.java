@@ -52,10 +52,9 @@ public class UnregisterCommand extends Command {
             return;
         }
 
-        if(CosmeticaData.getEntry(discordId).isPresent()) {
-            CosmeticaData.unregister(discordId);
-            FtpConnection.updateData();
-            channel.createMessage(Embeds.success("Player Unregistering", "Player " + username + " is successfully unregistered. \nHope to see you soon later!")).block();
-        }
+        CosmeticaData.unregister(discordId);
+        FtpConnection.updateData();
+        String text = "Player " + username + " is successfully unregistered. \nHope to see you soon later!";
+        channel.createMessage(Embeds.success("Player Unregistering", text)).block();
     }
 }
