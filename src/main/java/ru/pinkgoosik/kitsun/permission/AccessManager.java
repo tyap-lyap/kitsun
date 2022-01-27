@@ -12,14 +12,14 @@ import java.util.List;
 import static ru.pinkgoosik.kitsun.permission.Permissions.*;
 
 public class AccessManager {
-    private static final ArrayList<RolePermissions> EMPTY = new ArrayList<>(
+    private static final ArrayList<RolePermissions> DEFAULT = new ArrayList<>(
             List.of(
                     new RolePermissions("non-registered", false, new ArrayList<>(
                             List.of(HELP, REGISTER))),
                     new RolePermissions("registered", true, new ArrayList<>(
                             List.of(HELP, AVAILABLE_CLOAKS, AVAILABLE_ATTRIBUTES,
-                                    AVAILABLE_COSMETICS, REDEEM, CLOAK_CHANGE,
-                                    CLOAK_GRANT, CLOAK_REVOKE_SELF)))));
+                                    AVAILABLE_COSMETICS, REDEEM, CLOAK_SET,
+                                    CLOAK_REVOKE_SELF, UNREGISTER)))));
 
 
     private final ArrayList<RolePermissions> entries = new ArrayList<>();
@@ -91,7 +91,7 @@ public class AccessManager {
             Gson gson = builder.create();
             FileUtils.createDir("config/" + serverID);
             FileWriter writer = new FileWriter("config/" + serverID + "/permissions.json");
-            writer.write(gson.toJson(EMPTY));
+            writer.write(gson.toJson(DEFAULT));
             writer.close();
         } catch (IOException e) {
             Bot.LOGGER.info("Failed to create empty permissions config due to an exception: " + e);

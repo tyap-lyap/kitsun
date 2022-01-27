@@ -53,7 +53,7 @@ public class CloakRevokeCommand extends Command {
                 channel.createMessage(Embeds.error("Not enough permissions.")).block();
             }
         }else {
-            channel.createMessage(Embeds.error("User not found.")).block();
+            channel.createMessage(Embeds.error("You have not registered yet!")).block();
         }
     }
 }

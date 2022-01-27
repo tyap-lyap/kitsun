@@ -34,6 +34,10 @@ public class CosmeticaData {
         ENTRIES.add(entry);
     }
 
+    public static void unregister(String discord) {
+        ENTRIES.removeIf(entry -> entry.user.discord.equals(discord));
+    }
+
     public static Optional<Entry> getEntry(String discord) {
         for (var entry : CosmeticaData.ENTRIES) {
             if (entry.user.discord.equals(discord)) return Optional.of(entry);

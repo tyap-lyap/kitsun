@@ -8,11 +8,11 @@ public class Permissions {
 
     public static final String HELP = add("command.help");
     public static final String REGISTER = add("command.register");
+    public static final String UNREGISTER = add("command.unregister");
     public static final String AVAILABLE_CLOAKS = add("command.available.cloaks");
     public static final String AVAILABLE_COSMETICS = add("command.available.cosmetics");
     public static final String AVAILABLE_ATTRIBUTES = add("command.available.attributes");
-    public static final String CLOAK_GRANT = add("command.cloak.grant");
-    public static final String CLOAK_CHANGE = add("command.cloak.change");
+    public static final String CLOAK_SET = add("command.cloak.change");
     public static final String CLOAK_INFORMATION = add("command.information.cloak");
     public static final String COSMETICS_INFORMATION = add("command.information.cosmetics");
     public static final String ATTRIBUTES_INFORMATION = add("command.information.attributes");

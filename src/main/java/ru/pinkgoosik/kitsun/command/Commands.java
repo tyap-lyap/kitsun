@@ -25,10 +25,11 @@ public class Commands {
 
         add(new AvailableCloaksCommand());
 
-        add(new CloakGrantCommand());
-        add(new CloakChangeCommand());
+        add(new CloakSetCommand());
         add(new CloakInformationCommand());
         add(new CloakRevokeCommand());
+
+        add(new UnregisterCommand());
 
 //        add(new AvailableAttributesCommand());
         add(new AvailableCosmeticsCommand());

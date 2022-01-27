@@ -42,7 +42,7 @@ public class RegisterCommand extends Command {
         String discordId = member.getId().asString();
         AccessManager accessManager = context.getServerData().accessManager;
 
-        if(!accessManager.hasAccessTo(member, Permissions.CLOAK_GRANT)) {
+        if(!accessManager.hasAccessTo(member, Permissions.REGISTER)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();
             return;
         }
