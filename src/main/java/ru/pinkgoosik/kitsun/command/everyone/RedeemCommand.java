@@ -33,9 +33,9 @@ public class RedeemCommand extends Command {
     public void respond(CommandUseContext context) {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
-        String codeArg = context.getFirstArgument();
+        String codeArg = context.getFirstArg();
         String discordId = member.getId().asString();
-        AccessManager accessManager = context.getAccessManager();
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.REDEEM)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();

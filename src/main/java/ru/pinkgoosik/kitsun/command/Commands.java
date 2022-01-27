@@ -10,9 +10,8 @@ import ru.pinkgoosik.kitsun.command.cosmetics.*;
 import ru.pinkgoosik.kitsun.command.everyone.*;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionGrantCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionsCommand;
+import ru.pinkgoosik.kitsun.instance.ServerData;
 import ru.pinkgoosik.kitsun.instance.ServerDataManager;
-import ru.pinkgoosik.kitsun.instance.config.Config;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +55,7 @@ public class Commands {
         String content = message.getContent();
         RestChannel restChannel;
         String serverID = event.getGuildId().get().asString();
-        Config config = ServerDataManager.getConfig(serverID);
-        AccessManager accessManager = ServerDataManager.getAccessManager(serverID);
+        ServerData serverData = ServerDataManager.getData(serverID);
         if(channel == null) return;
         else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
         if (event.getMember().isPresent()) member = event.getMember().get();
@@ -65,14 +63,14 @@ public class Commands {
 
         if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
             for(Command command : Commands.COMMANDS) {
-                String commandPrefix = config.general.commandPrefix;
+                String commandPrefix = serverData.config.general.commandPrefix;
                 String name = getNameToClean(content, command, commandPrefix);
 
                 if (iterateAltNames(content, command, commandPrefix)) {
                     content = content.replace(name, "");
                     content = content + " empty empty empty";
                     String[] args = content.split(" ");
-                    CommandUseContext context = new CommandUseContext(member, restChannel, args, config, accessManager);
+                    CommandUseContext context = new CommandUseContext(member, restChannel, args, serverData);
                     command.respond(context);
                 }
             }

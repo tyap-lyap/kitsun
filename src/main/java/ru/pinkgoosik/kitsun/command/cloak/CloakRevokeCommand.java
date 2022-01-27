@@ -37,7 +37,7 @@ public class CloakRevokeCommand extends Command {
         RestChannel channel = context.getChannel();
         String discordId = member.getId().asString();
         Optional<Entry> entry = CosmeticaData.getEntry(discordId);
-        AccessManager accessManager = context.getAccessManager();
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if(entry.isPresent()) {
             if (accessManager.hasAccessTo(member, Permissions.CLOAK_REVOKE_SELF)) {

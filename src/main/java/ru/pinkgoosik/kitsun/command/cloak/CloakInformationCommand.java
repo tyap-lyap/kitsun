@@ -36,7 +36,7 @@ public class CloakInformationCommand extends Command {
         RestChannel channel = context.getChannel();
         Member member = context.getMember();
         String discordId = member.getId().asString();
-        AccessManager accessManager = context.getAccessManager();
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.CLOAK_INFORMATION)) {
             channel.createMessage(Embeds.error("Not enough permissions for this command.")).block();

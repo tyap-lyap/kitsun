@@ -30,9 +30,9 @@ public class PermissionGrantCommand extends Command {
     public void respond(CommandUseContext context) {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
-        String roleId = context.getFirstArgument();
-        String permission = context.getSecondArgument();
-        AccessManager accessManager = context.getAccessManager();
+        String roleId = context.getFirstArg();
+        String permission = context.getSecondArg();
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.PERMISSION_GRANT)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();

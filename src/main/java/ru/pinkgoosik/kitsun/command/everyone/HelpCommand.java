@@ -37,9 +37,9 @@ public class HelpCommand extends Command {
     public void respond(CommandUseContext context) {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
-        String page = context.getFirstArgument();
-        Config config = context.getConfig();
-        AccessManager accessManager = context.getAccessManager();
+        String page = context.getFirstArg();
+        Config config = context.getServerData().config;
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.HELP)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();

@@ -5,21 +5,21 @@ import ru.pinkgoosik.kitsun.instance.config.entity.ModChangelogPublisherConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-public class General {
+public class GeneralConfig {
     public boolean cosmeticaEnabled;
     public String memberRoleId;
     public String commandPrefix;
     public List<String> allowedCommandChannels;
     public List<ModChangelogPublisherConfig> publishers;
 
-    public static final General EMPTY = new General(
+    public static final GeneralConfig EMPTY = new GeneralConfig(
             true,
             "",
             "!",
             new ArrayList<>(),
             new ArrayList<>());
 
-    public General(
+    public GeneralConfig(
             boolean cosmeticaEnabled,
             String memberRoleId,
             String commandPrefix,

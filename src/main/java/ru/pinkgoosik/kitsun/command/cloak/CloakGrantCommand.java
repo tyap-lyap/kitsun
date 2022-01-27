@@ -43,9 +43,9 @@ public class CloakGrantCommand extends Command {
     public void respond(CommandUseContext context) {
         RestChannel channel = context.getChannel();
         Member member = context.getMember();
-        String cloak = context.getFirstArgument();
+        String cloak = context.getFirstArg();
         String discordId = member.getId().asString();
-        AccessManager accessManager = context.getAccessManager();
+        AccessManager accessManager = context.getServerData().accessManager;
         String username;
         Optional<Entry> entry = CosmeticaData.getEntry(member.getId().asString());
 

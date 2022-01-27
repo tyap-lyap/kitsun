@@ -38,9 +38,9 @@ public class RegisterCommand extends Command {
     public void respond(CommandUseContext context) {
         RestChannel channel = context.getChannel();
         Member member = context.getMember();
-        String username = context.getFirstArgument();
+        String username = context.getFirstArg();
         String discordId = member.getId().asString();
-        AccessManager accessManager = context.getAccessManager();
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if(!accessManager.hasAccessTo(member, Permissions.CLOAK_GRANT)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();

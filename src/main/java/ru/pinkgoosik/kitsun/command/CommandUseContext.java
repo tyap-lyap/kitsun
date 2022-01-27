@@ -2,22 +2,19 @@ package ru.pinkgoosik.kitsun.command;
 
 import discord4j.core.object.entity.Member;
 import discord4j.rest.entity.RestChannel;
-import ru.pinkgoosik.kitsun.instance.config.Config;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.instance.ServerData;
 
 public final class CommandUseContext {
     Member member;
     RestChannel channel;
     String[] args;
-    Config config;
-    AccessManager accessManager;
+    ServerData serverData;
 
-    public CommandUseContext(Member member, RestChannel channel, String[] args, Config config, AccessManager accessManager) {
+    public CommandUseContext(Member member, RestChannel channel, String[] args, ServerData serverData) {
         this.member = member;
         this.channel = channel;
         this.args = args;
-        this.config = config;
-        this.accessManager = accessManager;
+        this.serverData = serverData;
     }
 
     public Member getMember() {
@@ -28,23 +25,19 @@ public final class CommandUseContext {
         return channel;
     }
 
-    public Config getConfig() {
-        return config;
+    public ServerData getServerData() {
+        return serverData;
     }
 
-    public AccessManager getAccessManager() {
-        return accessManager;
-    }
-
-    public String getFirstArgument() {
+    public String getFirstArg() {
         return args[1];
     }
 
-    public String getSecondArgument() {
+    public String getSecondArg() {
         return args[2];
     }
 
-    public String getThirdArgument() {
+    public String getThirdArg() {
         return args[3];
     }
 }

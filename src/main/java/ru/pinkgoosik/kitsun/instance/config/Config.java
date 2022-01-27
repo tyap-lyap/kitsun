@@ -8,8 +8,8 @@ import ru.pinkgoosik.kitsun.util.FileUtils;
 import java.io.*;
 
 public class Config {
-    public String serverID;
-    public final General general;
+    public final String serverID;
+    public final GeneralConfig general;
 
     public Config(String serverID) {
         this.serverID = serverID;
@@ -30,15 +30,15 @@ public class Config {
         }
     }
 
-    private General readGeneral() {
+    private GeneralConfig readGeneral() {
         try {
             GsonBuilder builder = new GsonBuilder();
             Gson gson = builder.create();
             BufferedReader reader = new BufferedReader(new FileReader("config/" + serverID + "/general.json"));
-            return gson.fromJson(reader, General.class);
+            return gson.fromJson(reader, GeneralConfig.class);
         } catch (FileNotFoundException e) {
             createEmptyGeneral();
-            return General.EMPTY;
+            return GeneralConfig.EMPTY;
         }
     }
 
@@ -49,7 +49,7 @@ public class Config {
             Gson gson = builder.create();
             FileUtils.createDir("config/" + serverID);
             try (FileWriter writer = new FileWriter("config/" + serverID + "/general.json")) {
-                writer.write(gson.toJson(General.EMPTY));
+                writer.write(gson.toJson(GeneralConfig.EMPTY));
             }
         } catch (IOException e) {
             Bot.LOGGER.info("Failed to create empty general config due to an exception: " + e);

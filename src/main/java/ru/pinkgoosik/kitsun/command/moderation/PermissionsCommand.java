@@ -24,7 +24,7 @@ public class PermissionsCommand extends Command {
     public void respond(CommandUseContext context) {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
-        AccessManager accessManager = context.getAccessManager();
+        AccessManager accessManager = context.getServerData().accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.PERMISSIONS)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();
