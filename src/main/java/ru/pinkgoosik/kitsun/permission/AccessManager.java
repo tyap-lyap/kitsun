@@ -2,6 +2,8 @@ package ru.pinkgoosik.kitsun.permission;
 
 import com.google.gson.*;
 import discord4j.core.object.entity.Member;
+import discord4j.rest.util.Permission;
+import reactor.core.publisher.Mono;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.util.FileUtils;
 
@@ -14,10 +16,8 @@ import static ru.pinkgoosik.kitsun.permission.Permissions.*;
 public class AccessManager {
     private static final ArrayList<RolePermissions> DEFAULT = new ArrayList<>(
             List.of(
-                    new RolePermissions("non-registered", false, new ArrayList<>(
-                            List.of(HELP, REGISTER))),
-                    new RolePermissions("registered", true, new ArrayList<>(
-                            List.of(HELP, AVAILABLE_CLOAKS, AVAILABLE_ATTRIBUTES,
+                    new RolePermissions("default", new ArrayList<>(
+                            List.of(HELP, REGISTER, AVAILABLE_CLOAKS, AVAILABLE_ATTRIBUTES,
                                     AVAILABLE_COSMETICS, REDEEM, CLOAK_SET,
                                     CLOAK_REVOKE_SELF, UNREGISTER)))));
 
@@ -29,8 +29,13 @@ public class AccessManager {
         this.serverID = serverID;
     }
 
-    public boolean hasAccessTo(Member member, boolean registered, String permission) {
-        if (getDefaultPermissions(registered).contains(permission)) return true;
+    public boolean hasAccessTo(Member member, String permission) {
+        member.getBasePermissions().flatMap(permissions -> {
+            System.out.println("contains(Permission.ADMINISTRATOR): " + permissions.contains(Permission.ADMINISTRATOR));
+            return Mono.empty();
+        }).block();
+
+        if (getDefaultPermissions().contains(permission)) return true;
         ArrayList<String> roles = new ArrayList<>();
         member.getRoleIds().forEach(snowflake -> roles.add(snowflake.asString()));
         for (var entry : entries) {
@@ -39,11 +44,7 @@ public class AccessManager {
         return false;
     }
 
-    public boolean hasAccessTo(Member member, String permission) {
-        return hasAccessTo(member, true, permission);
-    }
-
-    public void grant(String role, boolean registered, String permission) {
+    public void grant(String role, String permission) {
         for (var entry : entries) {
             if (entry.role().equals(role)) {
                 if (!entry.permissions().contains(permission)) {
@@ -53,13 +54,13 @@ public class AccessManager {
                 }
             }
         }
-        entries.add(new RolePermissions(role, registered, new ArrayList<>(List.of(permission))));
+        entries.add(new RolePermissions(role, new ArrayList<>(List.of(permission))));
         saveData();
     }
 
-    public List<String> getDefaultPermissions(boolean registered) {
+    public List<String> getDefaultPermissions() {
         for (var entry : entries) {
-            if (registered ? entry.role().equals("registered") : entry.role().equals("non-registered")) {
+            if (entry.role().equals("default")) {
                 return entry.permissions();
             }
         }
@@ -73,18 +74,17 @@ public class AccessManager {
             array.forEach(element -> {
                 JsonObject object = element.getAsJsonObject();
                 String role = object.get("role").getAsString();
-                boolean registered = object.get("registered").getAsBoolean();
                 ArrayList<String> perms = new ArrayList<>();
                 object.get("permissions").getAsJsonArray().forEach(perm -> perms.add(perm.getAsString()));
-                entries.add(new RolePermissions(role, registered, perms));
+                entries.add(new RolePermissions(role, perms));
             });
         } catch (FileNotFoundException e) {
-            createEmpty();
+            createDefault();
             initPermissions();
         }
     }
 
-    private void createEmpty() {
+    private void createDefault() {
         try {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
@@ -94,7 +94,7 @@ public class AccessManager {
             writer.write(gson.toJson(DEFAULT));
             writer.close();
         } catch (IOException e) {
-            Bot.LOGGER.info("Failed to create empty permissions config due to an exception: " + e);
+            Bot.LOGGER.info("Failed to create default permissions config due to an exception: " + e);
         }
     }
 

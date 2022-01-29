@@ -44,7 +44,7 @@ public class PermissionGrantCommand extends Command {
             return;
         }
 
-        accessManager.grant(roleId, true, permission);
+        accessManager.grant(roleId, permission);
         String text = roleId + " successfully granted with the " + permission + " permission.";
         channel.createMessage(Embeds.success("Permission Grating", text)).block();
     }

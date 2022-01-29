@@ -20,16 +20,10 @@ public class CosmeticaData {
     public static void register(String discord, String name, String uuid) {
         Entry entry = new Entry();
         Entry.User user = new Entry.User();
-        user.discord = discord;
-        user.name = name;
-        user.uuid = uuid;
-        entry.user = user;
+        user.discord = discord; user.name = name; user.uuid = uuid; entry.user = user;
 
         Entry.Cloak cloak = new Entry.Cloak();
-        cloak.name = "";
-        cloak.color = "";
-        cloak.glint = false;
-        entry.cloak = cloak;
+        cloak.name = ""; cloak.color = ""; cloak.glint = false; entry.cloak = cloak;
 
         ENTRIES.add(entry);
     }
@@ -53,15 +47,15 @@ public class CosmeticaData {
     }
 
     public static void setCloak(String username, String cloak) {
-        ENTRIES.forEach(entry -> {
+        for(var entry : ENTRIES) {
             if (entry.user.name.equals(username)) {
                 entry.cloak.name = cloak;
             }
-        });
+        }
     }
 
     public static void clearCloak(String username) {
-        ENTRIES.forEach(entry -> {
+        for(var entry : ENTRIES) {
             if (entry.user.name.equals(username)) {
                 Entry.Cloak cloak = new Entry.Cloak();
                 cloak.name = "";
@@ -69,7 +63,7 @@ public class CosmeticaData {
                 cloak.glint = false;
                 entry.cloak = cloak;
             }
-        });
+        }
     }
 
     public static boolean hasCloak(String nickname) {
