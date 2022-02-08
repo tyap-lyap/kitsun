@@ -10,6 +10,7 @@ import ru.pinkgoosik.kitsun.util.FileUtils;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ru.pinkgoosik.kitsun.permission.Permissions.*;
 
@@ -30,11 +31,16 @@ public class AccessManager {
     }
 
     public boolean hasAccessTo(Member member, String permission) {
+        AtomicBoolean isAdmin = new AtomicBoolean(false);
+
         member.getBasePermissions().flatMap(permissions -> {
-            System.out.println("contains(Permission.ADMINISTRATOR): " + permissions.contains(Permission.ADMINISTRATOR));
+            if(permissions.contains(Permission.ADMINISTRATOR)) {
+                isAdmin.set(true);
+            }
             return Mono.empty();
         }).block();
 
+        if (isAdmin.get()) return true;
         if (getDefaultPermissions().contains(permission)) return true;
         ArrayList<String> roles = new ArrayList<>();
         member.getRoleIds().forEach(snowflake -> roles.add(snowflake.asString()));
@@ -78,7 +84,7 @@ public class AccessManager {
                 object.get("permissions").getAsJsonArray().forEach(perm -> perms.add(perm.getAsString()));
                 entries.add(new RolePermissions(role, perms));
             });
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             createDefault();
             initPermissions();
         }
@@ -93,7 +99,7 @@ public class AccessManager {
             FileWriter writer = new FileWriter("config/" + serverID + "/permissions.json");
             writer.write(gson.toJson(DEFAULT));
             writer.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             Bot.LOGGER.info("Failed to create default permissions config due to an exception: " + e);
         }
     }
@@ -106,7 +112,7 @@ public class AccessManager {
             FileWriter writer = new FileWriter("config/" + serverID + "/permissions.json");
             writer.write(gson.toJson(entries));
             writer.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             Bot.LOGGER.info("Failed to save permissions due to an exception: " + e);
         }
     }

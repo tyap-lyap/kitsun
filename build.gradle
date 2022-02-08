@@ -13,9 +13,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.discord4j:discord4j-core:3.2.1'
-    implementation 'com.discord4j:discord-json:1.7.0'
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation "com.discord4j:discord4j-core:3.2.1"
+    implementation "com.google.code.gson:gson:2.8.9"
     implementation "com.jcraft:jsch:0.1.55"
 }
 
@@ -27,7 +26,7 @@ shadowJar {
     archiveClassifier.set("")
 }
 
-jar{
+jar {
     manifest {
         attributes("Main-Class": "ru.pinkgoosik.kitsun.Bot")
     }

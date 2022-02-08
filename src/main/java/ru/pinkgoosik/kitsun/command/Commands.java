@@ -50,7 +50,6 @@ public class Commands {
 
     public static void onMessageCreate(MessageCreateEvent event) {
         if(event.getGuildId().isEmpty()) {
-            event.getMessage().getRestChannel().createMessage("s- sussy").block();
             return;
         }
 
@@ -69,10 +68,19 @@ public class Commands {
         if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
             for(Command command : Commands.COMMANDS) {
                 String commandPrefix = serverData.config.general.commandPrefix;
-                String name = getNameToClean(content, command, commandPrefix);
+                String botPing = "<@!935826731925913630> ";
 
                 if (iterateAltNames(content, command, commandPrefix)) {
-                    content = content.replace(name, "");
+                    String clean = getNameToClean(content, command, commandPrefix);
+                    content = content.replace(clean, "");
+                    content = content + " empty empty empty";
+                    String[] args = content.split(" ");
+                    CommandUseContext context = new CommandUseContext(member, restChannel, args, serverData);
+                    command.respond(context);
+                }
+                else if(iterateAltNames(content, command, botPing)) {
+                    String clean = getNameToClean(content, command, botPing);
+                    content = content.replace(clean, "");
                     content = content + " empty empty empty";
                     String[] args = content.split(" ");
                     CommandUseContext context = new CommandUseContext(member, restChannel, args, serverData);
@@ -85,16 +93,17 @@ public class Commands {
     public static boolean iterateAltNames(String content, Command command, String commandPrefix) {
         if (content.startsWith(commandPrefix + command.getName())) return true;
         for (String altName : command.getAltNames()) {
-            String name = commandPrefix + altName;
-            if(content.startsWith(name)) return true;
+            String start = commandPrefix + altName;
+            if(content.startsWith(start)) return true;
         }
         return false;
     }
 
     public static String getNameToClean(String content, Command command, String commandPrefix) {
+        if(content.startsWith(commandPrefix + command.getName())) return commandPrefix + command.getName();
         for (String altName : command.getAltNames()) {
-            String name = commandPrefix + altName;
-            if(content.startsWith(name)) return name;
+            String start = commandPrefix + altName;
+            if(content.startsWith(start)) return start;
         }
         return commandPrefix + command.getName();
     }

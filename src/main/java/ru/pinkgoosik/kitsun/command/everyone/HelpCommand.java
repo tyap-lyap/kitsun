@@ -19,8 +19,7 @@ public class HelpCommand extends Command {
 
     @Override
     public String[] getAltNames() {
-        return new String[]{"hel", "hep", "hlp", "commands", "comands", "commans", "comans", "commas",
-                "comas", "held", "помощь", "помощ", "помочь", "команды", "комады"};
+        return new String[]{"commands", "command"};
     }
 
     @Override
@@ -30,7 +29,8 @@ public class HelpCommand extends Command {
 
     @Override
     public String appendName(Config config) {
-        return super.appendName(config) + " <page>";
+        String name = "**" + config.general.commandPrefix + this.getName() + "**";
+        return name + " <page> or **" + config.general.commandPrefix + "commands** <page>";
     }
 
     @Override

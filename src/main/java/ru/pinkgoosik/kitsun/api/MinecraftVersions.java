@@ -9,51 +9,56 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Optional;
 
 public class MinecraftVersions {
     private static final String MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
     private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
     
     public static boolean hasPatchNote(String name) {
-        String title = getTitle(name);
-        return !(title.isEmpty());
+        return getTitle(name).isPresent();
     }
 
-    public static Version getVersion(String name) {
-        String title = getTitle(name);
-        String description = getDescription(name);
-        String previewUrl = getPreviewUrl(name);
-        return new Version(name, title, description, previewUrl);
+    public static Optional<Version> getVersion(String name) {
+        var title = getTitle(name);
+        var description = getDescription(name);
+        var previewUrl = getPreviewUrl(name);
+        if(title.isPresent() && description.isPresent() && previewUrl.isPresent()) {
+            return Optional.of(new Version(name, title.get(), description.get(), previewUrl.get()));
+        }
+        return Optional.empty();
     }
 
-    public static String getLatestRelease() {
+    public static Optional<String> getLatestRelease() {
         return parseVersion("release");
     }
 
-    public static String getLatestSnapshot() {
+    public static Optional<String> getLatestSnapshot() {
         return parseVersion("snapshot");
     }
 
-    private static String parseVersion(String memberName) {
+    private static Optional<String> parseVersion(String memberName) {
         try {
             URL url = new URL(MANIFEST);
             URLConnection request = url.openConnection();
             request.connect();
             JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
-            return jsonElement.getAsJsonObject().get("latest").getAsJsonObject().get(memberName).getAsString();
+            return Optional.of(jsonElement.getAsJsonObject().get("latest").getAsJsonObject().get(memberName).getAsString());
         } catch (IOException ignored) {}
-        return "";
+        return Optional.empty();
     }
 
     public record Version(String name, String title, String description, String previewUrl) {}
 
-    private static String getDescription(String versionName) {
-        String body = getBody(versionName);
-        String[] firstParagraph = body.split("<h1>");
-        String description = firstParagraph[0];
-        description = clearFormation(description);
-        description = removeUrls(description);
-        return description;
+    private static Optional<String> getDescription(String versionName) {
+        var body = getBody(versionName);
+        if(body.isPresent()) {
+            String[] firstParagraph = body.get().split("<h1>");
+            String description = firstParagraph[0];
+            description = clearFormation(description);
+            return Optional.of(removeUrls(description));
+        }
+        return Optional.empty();
     }
 
     private static String clearFormation(String string) {
@@ -82,7 +87,7 @@ public class MinecraftVersions {
         return newString.toString();
     }
 
-    private static String getBody(String versionName) {
+    private static Optional<String> getBody(String versionName) {
         try {
             URL url = new URL(LAUNCHER_CONTENT);
             URLConnection request = url.openConnection();
@@ -91,14 +96,14 @@ public class MinecraftVersions {
             JsonArray entries = jsonElement.getAsJsonObject().get("entries").getAsJsonArray();
             for (JsonElement element : entries) {
                 if(element.getAsJsonObject().get("version").getAsString().equals(versionName)) {
-                    return element.getAsJsonObject().get("body").getAsString();
+                    return Optional.of(element.getAsJsonObject().get("body").getAsString());
                 }
             }
-        } catch (IOException ignored) {}
-        return "";
+        } catch (Exception ignored) {}
+        return Optional.empty();
     }
 
-    private static String getTitle(String versionName) {
+    private static Optional<String> getTitle(String versionName) {
         try {
             URL url = new URL(LAUNCHER_CONTENT);
             URLConnection request = url.openConnection();
@@ -107,14 +112,14 @@ public class MinecraftVersions {
             JsonArray entries = jsonElement.getAsJsonObject().get("entries").getAsJsonArray();
             for (JsonElement element : entries) {
                 if(element.getAsJsonObject().get("version").getAsString().equals(versionName)) {
-                    return element.getAsJsonObject().get("title").getAsString();
+                    return Optional.of(element.getAsJsonObject().get("title").getAsString());
                 }
             }
-        } catch (IOException ignored) {}
-        return "";
+        } catch (Exception ignored) {}
+        return Optional.empty();
     }
 
-    private static String getPreviewUrl(String versionName) {
+    private static Optional<String> getPreviewUrl(String versionName) {
         try {
             URL url = new URL(LAUNCHER_CONTENT);
             URLConnection request = url.openConnection();
@@ -125,10 +130,10 @@ public class MinecraftVersions {
                 if(element.getAsJsonObject().get("version").getAsString().equals(versionName)) {
                     String firstPart = "https://launchercontent.mojang.com";
                     String secondPart = element.getAsJsonObject().get("image").getAsJsonObject().get("url").getAsString();
-                    return firstPart + secondPart;
+                    return Optional.of(firstPart + secondPart);
                 }
             }
-        } catch (IOException ignored) {}
-        return "";
+        } catch (Exception ignored) {}
+        return Optional.empty();
     }
 }

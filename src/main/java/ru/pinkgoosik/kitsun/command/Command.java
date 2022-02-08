@@ -6,13 +6,18 @@ public abstract class Command {
     public abstract String getName();
 
     public String[] getAltNames() {
-        return new String[]{};
+        return new String[]{""};
     }
 
     public abstract String getDescription();
 
     public String appendName(Config config) {
-        return "**" + config.general.commandPrefix + this.getName() + "**";
+        String name = "**" + config.general.commandPrefix + this.getName() + "**";
+
+        if(!getAltNames()[0].isBlank()) {
+            name = name + " or **" + config.general.commandPrefix + getAltNames()[0] + "**";
+        }
+        return name;
     }
 
     public void respond(CommandUseContext context) {}

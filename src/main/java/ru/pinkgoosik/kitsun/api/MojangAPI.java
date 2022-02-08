@@ -17,7 +17,7 @@ public class MojangAPI {
         String uuid = null;
         try {
             uuid = tryToParse(nickname);
-        } catch (IOException ignored) {}
+        } catch (Exception ignored) {}
         if(uuid != null) {
             return Optional.of(fromTrimmed(uuid));
         }

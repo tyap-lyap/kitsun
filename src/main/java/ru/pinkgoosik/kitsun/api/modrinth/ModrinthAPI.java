@@ -1,81 +1,74 @@
 package ru.pinkgoosik.kitsun.api.modrinth;
 
 import com.google.gson.*;
+import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
+import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
+import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class ModrinthAPI {
-    public static final String MODRINTH_MOD_URL = "https://modrinth.com/mod/%slug%";
-    public static final String MODRINTH_API_MOD_URL = "https://api.modrinth.com/api/v1/mod/%slug%";
-    public static final String MODRINTH_MOD_VERSIONS_URL = "https://api.modrinth.com/api/v1/mod/%mod_id%/version";
+    public static final String MOD_URL = "https://modrinth.com/mod/%slug%";
+    public static final String API_PROJECT_URL = "https://api.modrinth.com/v2/project/%slug%";
+    public static final String API_PROJECT_VERSIONS_URL = "https://api.modrinth.com/v2/project/%slug%/version";
+    public static final String API_USER_URL = "https://api.modrinth.com/v2/user/%id%";
 
-    public static Optional<ModrinthMod> getMod(String slug) {
-        return tryToParse(slug);
+    public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
+
+    public static Optional<ModrinthProject> getProject(String slug) {
+        return parseProject(slug);
     }
 
-    private static Optional<ModrinthMod> tryToParse(String slug) {
+    public static Optional<ArrayList<ProjectVersion>> getVersions(String slug) {
+        return parseVersions(slug);
+    }
+
+    public static Optional<ModrinthUser> getUser(String id) {
+        return parseUser(id);
+    }
+
+    private static Optional<ModrinthProject> parseProject(String slug) {
         try {
-            URL url = new URL(MODRINTH_API_MOD_URL.replace("%slug%", slug));
+            URL url = new URL(API_PROJECT_URL.replace("%slug%", slug));
             URLConnection request = url.openConnection();
             request.connect();
-            JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
-            JsonObject object = jsonElement.getAsJsonObject();
-
-            String modUrl, iconUrl, modId, modSlug, title, shortDescription;
-            int downloads, followers;
-            ArrayList<ModVersion> versions;
-
-            iconUrl = object.get("icon_url").getAsString();
-            modId = object.get("id").getAsString();
-            modSlug = object.get("slug").getAsString();
-            title = object.get("title").getAsString();
-            shortDescription = object.get("description").getAsString();
-            modUrl = MODRINTH_MOD_URL.replace("%slug%", modSlug);
-            versions = tryToGetVersions(modId).orElseGet(ArrayList::new);
-            downloads = object.get("downloads").getAsInt();
-            followers = object.get("followers").getAsInt();
-
-            return Optional.of(new ModrinthMod(modUrl, iconUrl, modId, modSlug, title, shortDescription, downloads, followers, versions));
-        } catch (IOException
-                | JsonIOException
-                | IllegalStateException
-                | JsonSyntaxException
-                | ClassCastException
-                | NullPointerException ignored) {}
+            InputStream stream = request.getInputStream();
+            InputStreamReader reader = new InputStreamReader(stream);
+            ModrinthProject project = GSON.fromJson(reader, ModrinthProject.class);
+            return Optional.of(project);
+        } catch (Exception ignored) {}
         return Optional.empty();
     }
 
-    private static Optional<ArrayList<ModVersion>> tryToGetVersions(String modId) {
+    private static Optional<ArrayList<ProjectVersion>> parseVersions(String slug) {
         try {
-            URL url = new URL(MODRINTH_MOD_VERSIONS_URL.replace("%mod_id%", modId));
+            URL url = new URL(API_PROJECT_VERSIONS_URL.replace("%slug%", slug));
             URLConnection request = url.openConnection();
             request.connect();
-            JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader((InputStream)request.getContent()));
-            JsonArray array = jsonElement.getAsJsonArray();
+            InputStream stream = request.getInputStream();
+            InputStreamReader reader = new InputStreamReader(stream);
+            ProjectVersion[] versions = GSON.fromJson(reader, ProjectVersion[].class);
+            ArrayList<ProjectVersion> versionsArray = new ArrayList<>(Arrays.asList(versions));
+            return Optional.of(versionsArray);
+        } catch (Exception ignored) {}
+        return Optional.empty();
+    }
 
-            ArrayList<ModVersion> versions = new ArrayList<>();
-
-            array.forEach(element -> {
-                JsonObject object = element.getAsJsonObject();
-                String id, name, changelog;
-                id = object.get("id").getAsString();
-                name = object.get("name").getAsString();
-                changelog = object.get("changelog").getAsString();
-                versions.add(new ModVersion(id, name, changelog));
-            });
-            return Optional.of(versions);
-        } catch (IOException
-                | JsonIOException
-                | IllegalStateException
-                | JsonSyntaxException
-                | ClassCastException
-                | NullPointerException
-                | UnsupportedOperationException ignored) {}
+    private static Optional<ModrinthUser> parseUser(String id) {
+        try {
+            URL url = new URL(API_USER_URL.replace("%id%", id));
+            URLConnection request = url.openConnection();
+            request.connect();
+            InputStream stream = request.getInputStream();
+            InputStreamReader reader = new InputStreamReader(stream);
+            ModrinthUser user = GSON.fromJson(reader, ModrinthUser.class);
+            return Optional.of(user);
+        } catch (Exception ignored) {}
         return Optional.empty();
     }
 }

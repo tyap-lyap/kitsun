@@ -3,7 +3,6 @@ package ru.pinkgoosik.kitsun.cosmetica;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -84,7 +83,7 @@ public class CosmeticaData {
             Gson gson = new GsonBuilder().setLenient().setPrettyPrinting().create();
             Entry[] entries = gson.fromJson(new InputStreamReader(stream), Entry[].class);
             ENTRIES.addAll(Arrays.asList(entries));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

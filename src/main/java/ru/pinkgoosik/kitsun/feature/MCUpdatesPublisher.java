@@ -32,20 +32,27 @@ public class MCUpdatesPublisher {
     }
 
     private void checkForReleaseUpdates() {
-        String version = MinecraftVersions.getLatestRelease();
-        if(!version.isEmpty() && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)) {
-            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
-            latestRelease = version;
-            saveCachedData();
+        var optional = MinecraftVersions.getLatestRelease();
+        if(optional.isPresent()) {
+            var version = optional.get();
+            if(!version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)) {
+                MinecraftVersions.getVersion(version).ifPresent(v -> Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(v)).block());
+                latestRelease = version;
+                saveCachedData();
+            }
         }
+
     }
 
     private void checkForSnapshotUpdates() {
-        String version = MinecraftVersions.getLatestSnapshot();
-        if(!version.isEmpty() && !version.equals(latestSnapshot) && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)) {
-            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(MinecraftVersions.getVersion(version))).block();
-            latestSnapshot = version;
-            saveCachedData();
+        var optional = MinecraftVersions.getLatestSnapshot();
+        if(optional.isPresent()) {
+            var version = optional.get();
+            if(!version.equals(latestSnapshot) && !version.equals(latestRelease) && MinecraftVersions.hasPatchNote(version)) {
+                MinecraftVersions.getVersion(version).ifPresent(v -> Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(v)).block());
+                latestSnapshot = version;
+                saveCachedData();
+            }
         }
     }
 

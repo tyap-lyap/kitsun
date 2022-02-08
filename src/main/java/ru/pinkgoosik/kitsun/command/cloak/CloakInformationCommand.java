@@ -45,7 +45,7 @@ public class CloakInformationCommand extends Command {
 
         Optional<Entry> entry = CosmeticaData.getEntry(discordId);
         if(entry.isPresent()) {
-            String text = "Your current cloak is " + entry.get().cloak.name + ".";
+            String text = "Your current cloak is `" + entry.get().cloak.name + "`.";
             channel.createMessage(Embeds.success("Information", text, Cloaks.PREVIEW_CLOAK.replace("%cloak%", entry.get().cloak.name))).block();
         }else {
             channel.createMessage(Embeds.error("You have not registered yet!")).block();

@@ -31,7 +31,8 @@ public class RegisterCommand extends Command {
 
     @Override
     public String appendName(Config config) {
-        return super.appendName(config) + " <nickname>";
+        String name = "**" + config.general.commandPrefix + this.getName() + "**";
+        return name + " <nickname> or **" + config.general.commandPrefix + "reg** <nickname>";
     }
 
     @Override
@@ -58,14 +59,14 @@ public class RegisterCommand extends Command {
         }
 
         if(CosmeticaData.getEntryByName(username).isPresent()) {
-            channel.createMessage(Embeds.error("Player " + username + " is already registered!")).block();
+            channel.createMessage(Embeds.error("Player `" + username + "` is already registered!")).block();
             return;
         }
 
         if(MojangAPI.getUuid(username).isPresent()) {
             CosmeticaData.register(discordId, username, MojangAPI.getUuid(username).get());
             FtpConnection.updateData();
-            channel.createMessage(Embeds.success("Player Registering", "Player " + username + " is now registered! \nPlease checkout `!help` for more commands.")).block();
-        }else channel.createMessage(Embeds.error("Player " + username + " is not found. Write down your Minecraft username.")).block();
+            channel.createMessage(Embeds.success("Player Registering", "Player `" + username + "` is now registered! \nPlease checkout `!help` for more commands.")).block();
+        }else channel.createMessage(Embeds.error("Player `" + username + "` is not found. Write down your Minecraft username.")).block();
     }
 }

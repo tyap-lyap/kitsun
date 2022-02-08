@@ -22,8 +22,8 @@ public class CloakRevokeCommand extends Command {
 
     @Override
     public String[] getAltNames() {
-        return new String[]{"cape revoke", "clock revoke", "cloack revoke", "cock revoke", "cloak revok",
-                "cape revok", "clock revok", "cloack revok", "cock revok"};
+        return new String[]{"cape clear", "cape revoke", "cloak clear", "clock revoke", "cloack revoke",
+                "cock revoke", "cloak revok", "cape revok", "clock revok", "cloack revok", "cock revok"};
     }
 
     @Override
@@ -36,24 +36,32 @@ public class CloakRevokeCommand extends Command {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
         String discordId = member.getId().asString();
-        Optional<Entry> entry = CosmeticaData.getEntry(discordId);
         AccessManager accessManager = context.getServerData().accessManager;
 
+        String username;
+        Optional<Entry> entry = CosmeticaData.getEntry(discordId);
+
         if(entry.isPresent()) {
-            if (accessManager.hasAccessTo(member, Permissions.CLOAK_REVOKE_SELF)) {
-                if(entry.get().cloak.name.isBlank()) {
-                    channel.createMessage(Embeds.error("You can't revoke your cloak when you don't have one!")).block();
-                }else {
-                    CosmeticaData.clearCloak(entry.get().user.name);
-                    FtpConnection.updateData();
-                    String text = "Successfully revoked your cloak.";
-                    channel.createMessage(Embeds.success("Cloak Revoking", text)).block();
-                }
-            } else {
-                channel.createMessage(Embeds.error("Not enough permissions.")).block();
-            }
+            username = entry.get().user.name;
         }else {
             channel.createMessage(Embeds.error("You have not registered yet!")).block();
+            return;
         }
+
+        if (!accessManager.hasAccessTo(member, Permissions.CLOAK_REVOKE_SELF)) {
+            channel.createMessage(Embeds.error("Not enough permissions.")).block();
+            return;
+        }
+
+        if(!CosmeticaData.hasCloak(username)) {
+            String text = "You can't revoke your cloak when you don't have one!";
+            channel.createMessage(Embeds.error(text)).block();
+            return;
+        }
+
+        CosmeticaData.clearCloak(username);
+        FtpConnection.updateData();
+        String text = "Successfully revoked your cloak.";
+        channel.createMessage(Embeds.success("Cloak Revoking", text)).block();
     }
 }

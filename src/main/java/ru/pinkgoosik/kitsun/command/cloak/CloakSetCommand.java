@@ -24,11 +24,11 @@ public class CloakSetCommand extends Command {
 
     @Override
     public String[] getAltNames() {
-        return new String[]{"cape change", "clock change", "cloack change", "cock change", "cloak chang",
+        return new String[]{"cape set", "cape change", "clock change", "cloack change", "cock change", "cloak chang",
                 "cape chang", "clock chang", "cloack chang", "cock chang", "cape charge", "clock charge",
                 "cloack charge", "cock charge", "cape grant", "clock grant", "cloack grant", "cock grant",
                 "cloak gran", "cape gran", "clock gran", "cloack gran", "cock gran", "cape grand", "clock grand",
-                "cloack grand", "cock grand", "cape set", "clock set", "cloack set", "cock set",
+                "cloack grand", "cock grand", "clock set", "cloack set", "cock set",
                 "cloak st", "cape st", "clock st", "cloack st", "cock st", "cape ste", "clock ste",
                 "cloack ste", "cock ste"};
     }
@@ -40,15 +40,17 @@ public class CloakSetCommand extends Command {
 
     @Override
     public String appendName(Config config) {
-        return super.appendName(config) + " <cloak>";
+        String name = "**" + config.general.commandPrefix + this.getName() + "**";
+        return name + " <cloak> or **" + config.general.commandPrefix + "cape set** <cloak>";
     }
 
     @Override
     public void respond(CommandUseContext context) {
         RestChannel channel = context.getChannel();
         Member member = context.getMember();
-        String cloak = context.getFirstArg();
+        String cloak = context.getFirstArg().toLowerCase();
         AccessManager accessManager = context.getServerData().accessManager;
+
         String username;
         Optional<Entry> entry = CosmeticaData.getEntry(member.getId().asString());
 
@@ -70,13 +72,13 @@ public class CloakSetCommand extends Command {
         }
 
         if (!Cloaks.COLORED_CLOAKS.contains(cloak) && !Cloaks.PATTERNED_CLOAKS.contains(cloak) && !Cloaks.PRIDE_CLOAKS.contains(cloak) && !Cloaks.FANCY_CLOAKS.contains(cloak)) {
-            channel.createMessage(Embeds.error("Cloak " + cloak + " is not found. Use `!cloaks` to see available cloaks.")).block();
+            channel.createMessage(Embeds.error("Cloak `" + cloak + "` is not found. Use `!cloaks` to see available cloaks.")).block();
             return;
         }
 
         CosmeticaData.setCloak(username, cloak);
         FtpConnection.updateData();
-        String text = "You successfully changed your cloak to " + cloak + "." + "\nPlease rejoin the world to see changes.";
+        String text = "You successfully changed your cloak to `" + cloak + "`." + "\nPlease rejoin the world to see changes.";
         channel.createMessage(Embeds.success("Cloak Change", text, Cloaks.PREVIEW_CLOAK.replace("%cloak%", cloak))).block();
     }
 }

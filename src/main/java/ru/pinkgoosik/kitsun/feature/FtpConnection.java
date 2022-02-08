@@ -39,7 +39,7 @@ public class FtpConnection {
             File file = new File(System.getProperty("user.dir") + "/cosmetica/entries.json");
             channelSftp.put(new FileInputStream(file), "entries.json");
             Bot.LOGGER.info("Remote Cosmetica Data successfully updated.");
-        } catch (SftpException | FileNotFoundException e) {
+        } catch (Exception e) {
             Bot.LOGGER.info("Failed to update Remote Cosmetica Data due to an exception: " + e);
         }
     }
@@ -54,7 +54,7 @@ public class FtpConnection {
             try (FileWriter writer = new FileWriter("cosmetica/entries.json")) {
                 writer.write(gson.toJson(CosmeticaData.ENTRIES));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Bot.LOGGER.info("Failed to create Cosmetica Data Json due to an exception: " + e);
         }
     }

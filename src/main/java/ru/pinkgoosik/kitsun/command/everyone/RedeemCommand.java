@@ -50,7 +50,7 @@ public class RedeemCommand extends Command {
         CosmeticaData.getEntry(discordId).ifPresent(entry -> Codes.getCode(codeArg).ifPresent(code -> {
             String username = entry.user.name;
             String text = "";
-            if (code.type.equals("cloak")) {
+            if (code.type.equals("preview/cloak")) {
                 entry.cloak.name = code.cloak.name;
                 text = String.format("%s have successfully redeemed a cloak", username);
             }
