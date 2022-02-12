@@ -3,22 +3,20 @@ package ru.pinkgoosik.kitsun.command.moderation;
 import discord4j.core.object.entity.Member;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
-import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
-import ru.pinkgoosik.kitsun.instance.config.Config;
-import ru.pinkgoosik.kitsun.instance.config.entity.ChangelogPublisherConfig;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
+import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
-
-import java.util.Optional;
 
 public class ChangelogPublisherAddCommand extends Command {
 
     @Override
     public String getName() {
-        return "changelog publisher add";
+        return "publisher add";
     }
 
     @Override
@@ -27,8 +25,8 @@ public class ChangelogPublisherAddCommand extends Command {
     }
 
     @Override
-    public String appendName(Config config) {
-        return super.appendName(config) + " <slug> <channel id>";
+    public String appendName(ServerConfig config) {
+        return "**`" + config.general.commandPrefix + this.getName() + " <slug> <channel id>`**";
     }
 
     @Override
@@ -37,8 +35,8 @@ public class ChangelogPublisherAddCommand extends Command {
         RestChannel channel = context.getChannel();
         String slug = context.getFirstArg();
         String channelID = context.getSecondArg();
-        AccessManager accessManager = context.getServerData().accessManager;
-        Config config = context.getServerData().config;
+        ServerData serverData = context.getServerData();
+        AccessManager accessManager = serverData.accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.CHANGELOG_PUBLISHER_ADD)) {
             channel.createMessage(Embeds.error("Not enough permissions.")).block();
@@ -55,25 +53,26 @@ public class ChangelogPublisherAddCommand extends Command {
             return;
         }
 
-        for (var publisher : config.general.changelogPublishers) {
-            if(publisher.channel.equals(channelID) && publisher.mod.equals(slug)) {
+        var project = ModrinthAPI.getProject(slug);
+
+        if(project.isEmpty()) {
+            channel.createMessage(Embeds.error("Project `" + slug + "` is not found.")).block();
+            return;
+        }
+
+        for (var publisher : serverData.publishers) {
+            if(publisher.channel.equals(channelID) && publisher.project.equals(project.get().id)) {
                 channel.createMessage(Embeds.error("This channel already has a publisher of the `" + slug + "` project.")).block();
                 return;
             }
         }
 
-        Optional<ModrinthProject> project = ModrinthAPI.getProject(slug);
+        ChangelogPublisher publisher = new ChangelogPublisher(project.get().id, channelID, serverData.serverId);
 
-        if(project.isPresent()) {
-            ChangelogPublisherConfig publisherConfig = new ChangelogPublisherConfig(slug, channelID);
+        serverData.publishers.add(publisher);
+        serverData.saveData();
 
-            config.general.changelogPublishers.add(publisherConfig);
-            config.saveConfig();
-
-            String text = "Changelog publisher for the project `" + slug + "` got successfully created!";
-            channel.createMessage(Embeds.success("Creating Changelog Publisher", text)).block();
-        }else {
-            channel.createMessage(Embeds.error("Project `" + slug + "` is not found.")).block();
-        }
+        String text = "Changelog publisher for the project `" + slug + "` got successfully created!";
+        channel.createMessage(Embeds.success("Creating Changelog Publisher", text)).block();
     }
 }

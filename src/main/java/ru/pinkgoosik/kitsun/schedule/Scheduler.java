@@ -9,7 +9,7 @@ public class Scheduler {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Publishers.schedule();
+                PublishersSchedule.schedule();
             }
         }, 0, 60 * 1000);
     }

@@ -12,7 +12,6 @@ import ru.pinkgoosik.kitsun.command.moderation.ChangelogPublisherRemoveCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionGrantCommand;
 import ru.pinkgoosik.kitsun.command.moderation.PermissionsCommand;
 import ru.pinkgoosik.kitsun.instance.ServerData;
-import ru.pinkgoosik.kitsun.instance.ServerDataManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ public class Commands {
         add(new RegisterCommand());
 
         add(new AvailableCloaksCommand());
-
         add(new CloakSetCommand());
         add(new CloakInformationCommand());
         add(new CloakRevokeCommand());
@@ -41,7 +39,6 @@ public class Commands {
 
         add(new PermissionsCommand());
         add(new PermissionGrantCommand());
-//        add(new ConfigListCommand());
     }
 
     private static void add(Command command) {
@@ -49,62 +46,54 @@ public class Commands {
     }
 
     public static void onMessageCreate(MessageCreateEvent event) {
-        if(event.getGuildId().isEmpty()) {
-            return;
+        try {
+            if(event.getGuildId().isEmpty()) return;
+            Member member;
+            Message message = event.getMessage();
+            MessageChannel channel = message.getChannel().block();
+            String content = message.getContent();
+            RestChannel restChannel;
+            String serverID = event.getGuildId().get().asString();
+            ServerData serverData = ServerData.getData(serverID);
+            if(channel == null) return;
+            else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
+            if (event.getMember().isPresent()) member = event.getMember().get();
+            else return;
+
+            if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
+                proceed(content, member, restChannel, serverData);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        Member member;
-        Message message = event.getMessage();
-        MessageChannel channel = message.getChannel().block();
-        String content = message.getContent();
-        RestChannel restChannel;
-        String serverID = event.getGuildId().get().asString();
-        ServerData serverData = ServerDataManager.getData(serverID);
-        if(channel == null) return;
-        else restChannel = event.getClient().getRestClient().getChannelById(channel.getId());
-        if (event.getMember().isPresent()) member = event.getMember().get();
-        else return;
-
-        if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
-            for(Command command : Commands.COMMANDS) {
-                String commandPrefix = serverData.config.general.commandPrefix;
-                String botPing = "<@!935826731925913630> ";
-
-                if (iterateAltNames(content, command, commandPrefix)) {
-                    String clean = getNameToClean(content, command, commandPrefix);
-                    content = content.replace(clean, "");
-                    content = content + " empty empty empty";
-                    String[] args = content.split(" ");
-                    CommandUseContext context = new CommandUseContext(member, restChannel, args, serverData);
-                    command.respond(context);
-                }
-                else if(iterateAltNames(content, command, botPing)) {
-                    String clean = getNameToClean(content, command, botPing);
-                    content = content.replace(clean, "");
-                    content = content + " empty empty empty";
-                    String[] args = content.split(" ");
-                    CommandUseContext context = new CommandUseContext(member, restChannel, args, serverData);
-                    command.respond(context);
-                }
+    private static void proceed(String content, Member member, RestChannel restChannel, ServerData serverData) {
+        for(Command command : Commands.COMMANDS) {
+            String commandPrefix = serverData.config.general.commandPrefix;
+            String botPing = "<@935826731925913630> ";
+            String replace = iterate(content, command, commandPrefix, botPing);
+            if(!replace.isBlank()) {
+                String split = content.replace(replace, "");
+                split = split + " empty empty empty";
+                String[] args = split.split(" ");
+                CommandUseContext context = new CommandUseContext(member, restChannel, args, serverData);
+                command.respond(context);
+                return;
             }
         }
     }
 
-    public static boolean iterateAltNames(String content, Command command, String commandPrefix) {
-        if (content.startsWith(commandPrefix + command.getName())) return true;
-        for (String altName : command.getAltNames()) {
-            String start = commandPrefix + altName;
-            if(content.startsWith(start)) return true;
+    private static String iterate(String content, Command command, String... prefixes) {
+        for(String prefix : prefixes) {
+            if (content.startsWith(prefix + command.getName())) return prefix + command.getName();
+            for (String altName : command.getAltNames()) {
+                if(!altName.isBlank()) {
+                    String start = prefix + altName;
+                    if(content.startsWith(start)) return start;
+                }
+            }
         }
-        return false;
-    }
-
-    public static String getNameToClean(String content, Command command, String commandPrefix) {
-        if(content.startsWith(commandPrefix + command.getName())) return commandPrefix + command.getName();
-        for (String altName : command.getAltNames()) {
-            String start = commandPrefix + altName;
-            if(content.startsWith(start)) return start;
-        }
-        return commandPrefix + command.getName();
+        return "";
     }
 }

@@ -15,6 +15,7 @@ import discord4j.rest.RestClient;
 import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
+import ru.pinkgoosik.kitsun.cache.CachedData;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
@@ -23,11 +24,13 @@ import ru.pinkgoosik.kitsun.feature.FtpConnection;
 
 public class Bot {
     public static Secrets secrets;
+    public static CachedData<Secrets> secretsCache;
     public static final Logger LOGGER = Loggers.getLogger("Kitsun");
     public static RestClient client;
 
     public static void main(String[] args) {
-        secrets = Secrets.readSecrets();
+        secretsCache = new CachedData<>("", "secrets.json", () -> Secrets.DEFAULT);
+        secrets = secretsCache.read(Secrets.class);
         FtpConnection.connect();
         Commands.init();
         CosmeticaData.fillFromUpstream();

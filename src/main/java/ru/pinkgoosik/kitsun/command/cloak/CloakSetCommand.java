@@ -7,9 +7,9 @@ import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.cosmetica.Entry;
 import ru.pinkgoosik.kitsun.feature.FtpConnection;
-import ru.pinkgoosik.kitsun.instance.config.Config;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
 import ru.pinkgoosik.kitsun.cosmetica.Cloaks;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
@@ -24,13 +24,9 @@ public class CloakSetCommand extends Command {
 
     @Override
     public String[] getAltNames() {
-        return new String[]{"cape set", "cape change", "clock change", "cloack change", "cock change", "cloak chang",
-                "cape chang", "clock chang", "cloack chang", "cock chang", "cape charge", "clock charge",
-                "cloack charge", "cock charge", "cape grant", "clock grant", "cloack grant", "cock grant",
-                "cloak gran", "cape gran", "clock gran", "cloack gran", "cock gran", "cape grand", "clock grand",
-                "cloack grand", "cock grand", "clock set", "cloack set", "cock set",
-                "cloak st", "cape st", "clock st", "cloack st", "cock st", "cape ste", "clock ste",
-                "cloack ste", "cock ste"};
+        return new String[]{"cape set", "cape grant", "clock grant", "cloack grant", "cock grant",
+                "cape grand", "clock grand", "cloack grand", "cock grand", "clock set",
+                "cloack set", "cock set"};
     }
 
     @Override
@@ -39,9 +35,9 @@ public class CloakSetCommand extends Command {
     }
 
     @Override
-    public String appendName(Config config) {
-        String name = "**" + config.general.commandPrefix + this.getName() + "**";
-        return name + " <cloak> or **" + config.general.commandPrefix + "cape set** <cloak>";
+    public String appendName(ServerConfig config) {
+        String name = "**`" + config.general.commandPrefix + this.getName();
+        return name + " <cloak>`** or **`" + config.general.commandPrefix + "cape set <cloak>`**";
     }
 
     @Override

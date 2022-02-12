@@ -1,8 +1,5 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.EmbedAuthorData;
 import discord4j.discordjson.json.EmbedData;
@@ -13,29 +10,28 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
-import ru.pinkgoosik.kitsun.util.FileUtils;
+import ru.pinkgoosik.kitsun.instance.ServerData;
 
-import java.io.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 
 public class ChangelogPublisher {
-    public final String modSlug;
+    public final String project;
     public final String channel;
     private String latestVersionId;
-    public final String serverID;
+    public final String serverId;
 
-    public ChangelogPublisher(String modSlug, String channel, String serverID) {
-        this.modSlug = modSlug;
+    public ChangelogPublisher(String project, String channel, String serverId) {
+        this.project = project;
         this.channel = channel;
-        this.serverID = serverID;
-        this.latestVersionId = loadCachedData().latestVersionId();
+        this.serverId = serverId;
+        this.latestVersionId = "";
     }
 
     public void check() {
-        Optional<ModrinthProject> mod = ModrinthAPI.getProject(modSlug);
-        Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(modSlug);
+        Optional<ModrinthProject> mod = ModrinthAPI.getProject(project);
+        Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(project);
         if(mod.isPresent() && versions.isPresent()) {
             if(updated(versions.get())) publish(mod.get(), versions.get());
         }
@@ -43,7 +39,7 @@ public class ChangelogPublisher {
 
     private boolean updated(ArrayList<ProjectVersion> versions) {
         String latest = versions.get(0).id;
-        return !latest.isEmpty() && !loadCachedData().latestVersionId().equals(latest);
+        return !latest.isEmpty() && !latestVersionId.equals(latest);
     }
 
     private void publish(ModrinthProject mod, ArrayList<ProjectVersion> versions) {
@@ -51,15 +47,20 @@ public class ChangelogPublisher {
         String changelog = modVersion.changelog;
         Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod, modVersion, changelog)).block();
         latestVersionId = modVersion.id;
-        saveCachedData();
+        ServerData.getData(serverId).saveData();
     }
 
     private EmbedData createEmbed(ModrinthProject mod, ProjectVersion version, String latestChangelog) {
-        String changelogPart = "**Changelog**\n" + latestChangelog;
+        String changelogPart = "";
+
+        if(!version.changelog.isBlank()) {
+            changelogPart = changelogPart + "**Changelog**\n" + latestChangelog;
+        }
 
         var publisher = ModrinthAPI.getUser(version.author_id);
         if(publisher.isPresent()) {
-            String publisherPart = "\n**Published by** [" + publisher.get().username + "](https://modrinth.com/user/" + publisher.get().id + ")";
+            if (!changelogPart.isBlank()) changelogPart = changelogPart + "\n";
+            String publisherPart = "**Published by** [" + publisher.get().username + "](https://modrinth.com/user/" + publisher.get().id + ")";
             changelogPart = changelogPart + publisherPart;
         }
 
@@ -69,43 +70,30 @@ public class ChangelogPublisher {
         }
         if (mod.issues_url != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
+            else linksPart = linksPart + "\n";
             linksPart = linksPart + "[Issue Tracker](" + mod.issues_url + ")";
         }
+        if (mod.wiki_url != null) {
+            if (!linksPart.isBlank()) linksPart = linksPart + " | ";
+            else linksPart = linksPart + "\n";
+            linksPart = linksPart + "[Wiki](" + mod.wiki_url + ")";
+        }
+        String versionType = version.version_type.substring(0, 1).toUpperCase() + version.version_type.substring(1);
+        String minecraftVersions = " for " + version.game_versions.get(0);
+
+        if(version.game_versions.size() > 1) {
+            minecraftVersions = minecraftVersions + " - " + version.game_versions.get(version.game_versions.size() - 1);
+        }
+
         return EmbedData.builder()
                 .author(EmbedAuthorData.builder().name(mod.title).build())
-                .title(version.name)
+                .title(version.version_number + " " + versionType + minecraftVersions)
                 .url(ModrinthAPI.MOD_URL.replace("%slug%", mod.slug))
                 .description(changelogPart + linksPart)
                 .color(Color.of(48,178,123).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(mod.icon_url).build())
-                .footer(EmbedFooterData.builder().text("Modrinth Project | " + mod.license.name).build())
+                .footer(EmbedFooterData.builder().text("Modrinth Project | " + mod.license.name).iconUrl("https://raw.githubusercontent.com/PinkGoosik/kitsun/master/img/modrinth_logo.png").build())
                 .timestamp(Instant.parse(version.date_published).toString())
                 .build();
     }
-
-    private void saveCachedData() {
-        try {
-            GsonBuilder builder = new GsonBuilder();
-            builder.setPrettyPrinting();
-            Gson gson = builder.create();
-            FileUtils.createDir("cache/" + serverID + "/publishers/" + channel);
-
-            FileWriter writer = new FileWriter("cache/" + serverID + "/publishers/" + channel + "/" + modSlug + "_cached.json");
-            writer.write(gson.toJson(new CachedData(latestVersionId)));
-            writer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private CachedData loadCachedData() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("cache/" + serverID + "/publishers/" + channel + "/" + modSlug + "_cached.json"));
-            String id = JsonParser.parseReader(reader).getAsJsonObject().get("latestVersionId").getAsString();
-            return new CachedData(id);
-        } catch (Exception ignored) {}
-        return new CachedData("");
-    }
-
-    private record CachedData(String latestVersionId){}
 }

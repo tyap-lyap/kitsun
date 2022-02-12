@@ -5,8 +5,8 @@ import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.command.Commands;
-import ru.pinkgoosik.kitsun.instance.config.Config;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
@@ -19,7 +19,7 @@ public class HelpCommand extends Command {
 
     @Override
     public String[] getAltNames() {
-        return new String[]{"commands", "command"};
+        return new String[]{"commands"};
     }
 
     @Override
@@ -28,9 +28,9 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public String appendName(Config config) {
-        String name = "**" + config.general.commandPrefix + this.getName() + "**";
-        return name + " <page> or **" + config.general.commandPrefix + "commands** <page>";
+    public String appendName(ServerConfig config) {
+        String name = "**`" + config.general.commandPrefix + this.getName();
+        return name + " <page>`** or **`" + config.general.commandPrefix + "commands <page>`**";
     }
 
     @Override
@@ -38,7 +38,7 @@ public class HelpCommand extends Command {
         Member member = context.getMember();
         RestChannel channel = context.getChannel();
         String page = context.getFirstArg();
-        Config config = context.getServerData().config;
+        ServerConfig config = context.getServerData().config;
         AccessManager accessManager = context.getServerData().accessManager;
 
         if (!accessManager.hasAccessTo(member, Permissions.HELP)) {
@@ -48,7 +48,7 @@ public class HelpCommand extends Command {
         channel.createMessage(Embeds.info("Available Commands", getTextForPage(page, config))).block();
     }
 
-    private String getTextForPage(String arg, Config config) {
+    private String getTextForPage(String arg, ServerConfig config) {
         int page = stringToInt(arg);
         int size = Commands.COMMANDS.size();
         int first = ((3 * page) - 3) + (page - 1);

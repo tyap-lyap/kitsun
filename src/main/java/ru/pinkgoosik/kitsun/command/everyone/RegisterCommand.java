@@ -7,8 +7,8 @@ import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.feature.FtpConnection;
-import ru.pinkgoosik.kitsun.instance.config.Config;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
@@ -30,9 +30,9 @@ public class RegisterCommand extends Command {
     }
 
     @Override
-    public String appendName(Config config) {
-        String name = "**" + config.general.commandPrefix + this.getName() + "**";
-        return name + " <nickname> or **" + config.general.commandPrefix + "reg** <nickname>";
+    public String appendName(ServerConfig config) {
+        String name = "**`" + config.general.commandPrefix + this.getName();
+        return name + " <nickname>`** or **`" + config.general.commandPrefix + "reg <nickname>`**";
     }
 
     @Override

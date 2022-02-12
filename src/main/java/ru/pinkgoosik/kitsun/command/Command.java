@@ -1,6 +1,6 @@
 package ru.pinkgoosik.kitsun.command;
 
-import ru.pinkgoosik.kitsun.instance.config.Config;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
 
 public abstract class Command {
     public abstract String getName();
@@ -11,11 +11,11 @@ public abstract class Command {
 
     public abstract String getDescription();
 
-    public String appendName(Config config) {
-        String name = "**" + config.general.commandPrefix + this.getName() + "**";
+    public String appendName(ServerConfig config) {
+        String name = "**`" + config.general.commandPrefix + this.getName() + "`**";
 
         if(!getAltNames()[0].isBlank()) {
-            name = name + " or **" + config.general.commandPrefix + getAltNames()[0] + "**";
+            name = name + " or **`" + config.general.commandPrefix + getAltNames()[0] + "`**";
         }
         return name;
     }

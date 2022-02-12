@@ -6,9 +6,9 @@ import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.cosmetica.Codes;
 import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
-import ru.pinkgoosik.kitsun.instance.config.Config;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
 import ru.pinkgoosik.kitsun.feature.FtpConnection;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
@@ -25,7 +25,7 @@ public class RedeemCommand extends Command {
     }
 
     @Override
-    public String appendName(Config config) {
+    public String appendName(ServerConfig config) {
         return super.appendName(config) + " <code>";
     }
 

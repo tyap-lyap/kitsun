@@ -4,8 +4,8 @@ import discord4j.core.object.entity.Member;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
-import ru.pinkgoosik.kitsun.instance.config.Config;
-import ru.pinkgoosik.kitsun.permission.AccessManager;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
@@ -22,8 +22,8 @@ public class PermissionGrantCommand extends Command {
     }
 
     @Override
-    public String appendName(Config config) {
-        return super.appendName(config) + " <role id> <permission>";
+    public String appendName(ServerConfig config) {
+        return "**`" + config.general.commandPrefix + this.getName() + " <role id> <permission>`**";
     }
 
     @Override
