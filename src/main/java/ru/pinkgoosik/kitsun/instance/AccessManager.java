@@ -41,16 +41,16 @@ public class AccessManager {
         ArrayList<String> roles = new ArrayList<>();
         member.getRoleIds().forEach(snowflake -> roles.add(snowflake.asString()));
         for (var entry : entries) {
-            if(roles.contains(entry.role()) && entry.permissions().contains(permission)) return true;
+            if(roles.contains(entry.role) && entry.permissions.contains(permission)) return true;
         }
         return false;
     }
 
     public void grant(String role, String permission) {
         for (var entry : entries) {
-            if (entry.role().equals(role)) {
-                if (!entry.permissions().contains(permission)) {
-                    entry.permissions().add(permission);
+            if (entry.role.equals(role)) {
+                if (!entry.permissions.contains(permission)) {
+                    entry.permissions.add(permission);
                     ServerData.getData(serverId).saveData();
                     return;
                 }
@@ -62,8 +62,8 @@ public class AccessManager {
 
     public List<String> getPermissionsForEveryone() {
         for (var entry : entries) {
-            if (entry.role().equals("default")) {
-                return entry.permissions();
+            if (entry.role.equals("default")) {
+                return entry.permissions;
             }
         }
         return new ArrayList<>();

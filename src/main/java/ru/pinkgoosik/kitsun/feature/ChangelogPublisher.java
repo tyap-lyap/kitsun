@@ -17,10 +17,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class ChangelogPublisher {
-    public final String project;
-    public final String channel;
-    private String latestVersionId;
-    public final String serverId;
+    //Modrinth project id
+    public String project;
+    //Discord channel id
+    public String channel;
+    //Modrinth project's latest version id
+    public String latestVersionId;
+    //Discord server id
+    public String serverId;
 
     public ChangelogPublisher(String project, String channel, String serverId) {
         this.project = project;
@@ -30,10 +34,10 @@ public class ChangelogPublisher {
     }
 
     public void check() {
-        Optional<ModrinthProject> mod = ModrinthAPI.getProject(project);
-        Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(project);
-        if(mod.isPresent() && versions.isPresent()) {
-            if(updated(versions.get())) publish(mod.get(), versions.get());
+        Optional<ModrinthProject> project = ModrinthAPI.getProject(this.project);
+        Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(this.project);
+        if(project.isPresent() && versions.isPresent()) {
+            if(updated(versions.get())) publish(project.get(), versions.get());
         }
     }
 
@@ -42,19 +46,18 @@ public class ChangelogPublisher {
         return !latest.isEmpty() && !latestVersionId.equals(latest);
     }
 
-    private void publish(ModrinthProject mod, ArrayList<ProjectVersion> versions) {
+    private void publish(ModrinthProject project, ArrayList<ProjectVersion> versions) {
         ProjectVersion modVersion = versions.get(0);
-        String changelog = modVersion.changelog;
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(mod, modVersion, changelog)).block();
+        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(project, modVersion)).block();
         latestVersionId = modVersion.id;
         ServerData.getData(serverId).saveData();
     }
 
-    private EmbedData createEmbed(ModrinthProject mod, ProjectVersion version, String latestChangelog) {
+    private EmbedData createEmbed(ModrinthProject project, ProjectVersion version) {
         String changelogPart = "";
 
         if(!version.changelog.isBlank()) {
-            changelogPart = changelogPart + "**Changelog**\n" + latestChangelog;
+            changelogPart = changelogPart + "**Changelog**\n" + version.changelog.trim() + "\n ";
         }
 
         var publisher = ModrinthAPI.getUser(version.author_id);
@@ -65,18 +68,18 @@ public class ChangelogPublisher {
         }
 
         String linksPart = "";
-        if (mod.source_url != null) {
-            linksPart = linksPart + "\n[Source Code](" + mod.source_url + ")";
+        if (project.source_url != null) {
+            linksPart = linksPart + "\n[Source Code](" + project.source_url + ")";
         }
-        if (mod.issues_url != null) {
+        if (project.issues_url != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
             else linksPart = linksPart + "\n";
-            linksPart = linksPart + "[Issue Tracker](" + mod.issues_url + ")";
+            linksPart = linksPart + "[Issue Tracker](" + project.issues_url + ")";
         }
-        if (mod.wiki_url != null) {
+        if (project.wiki_url != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
             else linksPart = linksPart + "\n";
-            linksPart = linksPart + "[Wiki](" + mod.wiki_url + ")";
+            linksPart = linksPart + "[Wiki](" + project.wiki_url + ")";
         }
         String versionType = version.version_type.substring(0, 1).toUpperCase() + version.version_type.substring(1);
         String minecraftVersions = " for " + version.game_versions.get(0);
@@ -84,15 +87,18 @@ public class ChangelogPublisher {
         if(version.game_versions.size() > 1) {
             minecraftVersions = minecraftVersions + " - " + version.game_versions.get(version.game_versions.size() - 1);
         }
+        String iconUrl;
+        if(project.icon_url != null) iconUrl = project.icon_url;
+        else iconUrl = "https://raw.githubusercontent.com/PinkGoosik/kitsun/master/img/placeholder_icon.png";
 
         return EmbedData.builder()
-                .author(EmbedAuthorData.builder().name(mod.title).build())
+                .author(EmbedAuthorData.builder().name(project.title).build())
                 .title(version.version_number + " " + versionType + minecraftVersions)
-                .url(ModrinthAPI.MOD_URL.replace("%slug%", mod.slug))
+                .url(ModrinthAPI.MOD_URL.replace("%slug%", project.slug))
                 .description(changelogPart + linksPart)
                 .color(Color.of(48,178,123).getRGB())
-                .thumbnail(EmbedThumbnailData.builder().url(mod.icon_url).build())
-                .footer(EmbedFooterData.builder().text("Modrinth Project | " + mod.license.name).iconUrl("https://raw.githubusercontent.com/PinkGoosik/kitsun/master/img/modrinth_logo.png").build())
+                .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
+                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://raw.githubusercontent.com/PinkGoosik/kitsun/master/img/modrinth_logo.png").build())
                 .timestamp(Instant.parse(version.date_published).toString())
                 .build();
     }

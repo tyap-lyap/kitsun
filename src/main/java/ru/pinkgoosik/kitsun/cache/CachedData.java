@@ -8,13 +8,13 @@ import ru.pinkgoosik.kitsun.util.FileUtils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 
 public class CachedData<T> {
     public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
     public Defaulter<T> defaulter;
     public String path;
     public String file;
+    public int cachedHashCode = 0;
 
     public CachedData(String path, String file, Defaulter<T> defaulter) {
         this.defaulter = defaulter;
@@ -35,14 +35,17 @@ public class CachedData<T> {
     }
 
     public void save(T object) {
-        try {
-            FileUtils.createDir(path);
-            try (FileWriter writer = new FileWriter(path + "/" + file)) {
-                writer.write(GSON.toJson(object));
+        if (cachedHashCode != object.hashCode()) {
+            try {
+                this.cachedHashCode = object.hashCode();
+                FileUtils.createDir(path);
+                try (FileWriter writer = new FileWriter(path + "/" + file)) {
+                    writer.write(GSON.toJson(object));
+                }
+            } catch (Exception e) {
+                Bot.LOGGER.info("Failed to save cached data due to an exception: " + e);
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            Bot.LOGGER.info("Failed to save cached data due to an exception: " + e);
-            e.printStackTrace();
         }
     }
 

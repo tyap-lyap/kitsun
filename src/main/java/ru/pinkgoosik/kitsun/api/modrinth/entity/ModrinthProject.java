@@ -1,5 +1,7 @@
 package ru.pinkgoosik.kitsun.api.modrinth.entity;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.util.ArrayList;
 
 @SuppressWarnings("unused")
@@ -23,12 +25,17 @@ public class ModrinthProject {
     public int followers = 0;
     public ArrayList<String> categories = new ArrayList<>();
     public ArrayList<String> versions = new ArrayList<>();
+    @Nullable
     public String icon_url = "";
+    @Nullable
     public String issues_url = "";
+    @Nullable
     public String source_url = "";
+    @Nullable
     public String wiki_url = "";
+    @Nullable
     public String discord_url = "";
-    public ArrayList<String> donation_urls = new ArrayList<>();
+    public ArrayList<DonationLink> donation_urls = new ArrayList<>();
     public ArrayList<GalleryEntry> gallery = new ArrayList<>();
 
     public static class ModeratorMessage {
