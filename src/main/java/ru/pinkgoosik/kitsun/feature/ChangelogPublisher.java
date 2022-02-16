@@ -88,7 +88,7 @@ public class ChangelogPublisher {
         }
         String iconUrl;
         if(project.icon_url != null) iconUrl = project.icon_url;
-        else iconUrl = "https://raw.githubusercontent.com/PinkGoosik/kitsun/master/img/placeholder_icon.png";
+        else iconUrl = "https://github.com/PinkGoosik/kitsun/blob/master/img/placeholder_icon.png?raw=true";
 
         return EmbedData.builder()
                 .author(EmbedAuthorData.builder().name(project.title).build())
@@ -97,7 +97,7 @@ public class ChangelogPublisher {
                 .description(changelogPart + linksPart)
                 .color(Color.of(48,178,123).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://raw.githubusercontent.com/PinkGoosik/kitsun/master/img/modrinth_logo.png").build())
+                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://github.com/PinkGoosik/kitsun/blob/master/img/modrinth_logo.png?raw=true").build())
                 .timestamp(Instant.parse(version.date_published).toString())
                 .build();
     }

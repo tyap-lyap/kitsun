@@ -49,7 +49,7 @@ public class CloakSet extends Command {
             CosmeticaData.setCloak(entry.user.name, cloak);
             FtpConnection.updateData();
             String text = "You successfully changed your cloak to `" + cloak + "`." + "\nPlease rejoin the world to see changes.";
-            ctx.channel.createMessage(Embeds.success("Cloak Change", text, Cloaks.PREVIEW_CLOAK.replace("%cloak%", cloak))).block();
+            ctx.channel.createMessage(Embeds.success("Cloak Changing", text, Cloaks.PREVIEW_CLOAK.replace("%cloak%", cloak))).block();
 
         }, () -> ctx.channel.createMessage(Embeds.error("You have not registered yet!")).block());
     }
