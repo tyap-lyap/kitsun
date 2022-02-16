@@ -2,42 +2,28 @@ package ru.pinkgoosik.kitsun.command;
 
 import discord4j.core.object.entity.Member;
 import discord4j.rest.entity.RestChannel;
+import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+
+import java.util.ArrayList;
 
 public final class CommandUseContext {
-    Member member;
-    RestChannel channel;
-    String[] args;
-    ServerData serverData;
+    public Member member;
+    public RestChannel channel;
+    public ArrayList<String> args;
+    public ServerData serverData;
+    public ServerConfig config;
+    public AccessManager accessManager;
+    public String memberId;
 
-    public CommandUseContext(Member member, RestChannel channel, String[] args, ServerData serverData) {
+    public CommandUseContext(Member member, RestChannel channel, ArrayList<String> args, ServerData serverData) {
         this.member = member;
         this.channel = channel;
         this.args = args;
         this.serverData = serverData;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public RestChannel getChannel() {
-        return channel;
-    }
-
-    public ServerData getServerData() {
-        return serverData;
-    }
-
-    public String getFirstArg() {
-        return args[1];
-    }
-
-    public String getSecondArg() {
-        return args[2];
-    }
-
-    public String getThirdArg() {
-        return args[3];
+        this.config = serverData.config;
+        this.accessManager = serverData.accessManager;
+        this.memberId = member.getId().asString();
     }
 }

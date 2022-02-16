@@ -20,18 +20,15 @@ import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
-import ru.pinkgoosik.kitsun.feature.FtpConnection;
 
 public class Bot {
     public static Secrets secrets;
-    public static CachedData<Secrets> secretsCache;
+    public static CachedData<Secrets> secretsCache = new CachedData<>("", "secrets.json", () -> Secrets.DEFAULT);
     public static final Logger LOGGER = Loggers.getLogger("Kitsun");
     public static RestClient client;
 
     public static void main(String[] args) {
-        secretsCache = new CachedData<>("", "secrets.json", () -> Secrets.DEFAULT);
         secrets = secretsCache.read(Secrets.class);
-        FtpConnection.connect();
         Commands.init();
         CosmeticaData.fillFromUpstream();
         initDiscordClient();

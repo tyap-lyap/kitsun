@@ -10,6 +10,7 @@ public class Scheduler {
             @Override
             public void run() {
                 PublishersSchedule.schedule();
+                MCUpdatesSchedule.schedule();
             }
         }, 0, 60 * 1000);
     }

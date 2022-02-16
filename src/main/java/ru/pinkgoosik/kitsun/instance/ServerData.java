@@ -2,6 +2,7 @@ package ru.pinkgoosik.kitsun.instance;
 
 import ru.pinkgoosik.kitsun.cache.CachedData;
 import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
+import ru.pinkgoosik.kitsun.feature.MCUpdatesPublisher;
 import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
 
 import java.util.ArrayList;
@@ -12,13 +13,19 @@ public class ServerData {
     public String serverId;
 
     public ServerConfig config;
-    public CachedData<ServerConfig> configCache;
+    CachedData<ServerConfig> configCache;
 
     public AccessManager accessManager;
-    public CachedData<AccessManager> accessManagerCache;
+    CachedData<AccessManager> accessManagerCache;
 
     public ArrayList<ChangelogPublisher> publishers;
-    public CachedData<ChangelogPublisher[]> publishersCache;
+    CachedData<ChangelogPublisher[]> publishersCache;
+
+    public ServerLogger logger;
+    CachedData<ServerLogger> loggerCache;
+
+    public MCUpdatesPublisher mcUpdatesPublisher;
+    CachedData<MCUpdatesPublisher> mcUpdatesPublisherCache;
 
     public ServerData(String serverId) {
         this.serverId = serverId;
@@ -31,15 +38,23 @@ public class ServerData {
 
         this.publishersCache = new CachedData<>("data/" + serverId, "publishers.json", () -> new ChangelogPublisher[]{});
         publishers = new ArrayList<>(List.of(publishersCache.read(ChangelogPublisher[].class)));
+
+        this.loggerCache = new CachedData<>("data/" + serverId, "logger.json", () -> new ServerLogger(serverId));
+        this.logger = loggerCache.read(ServerLogger.class);
+
+        this.mcUpdatesPublisherCache = new CachedData<>("data/" + serverId, "mcupdates.json", () -> new MCUpdatesPublisher(serverId));
+        this.mcUpdatesPublisher = mcUpdatesPublisherCache.read(MCUpdatesPublisher.class);
     }
 
     public void saveData() {
         configCache.save(config);
         accessManagerCache.save(accessManager);
         publishersCache.save(publishers.toArray(ChangelogPublisher[]::new));
+        loggerCache.save(logger);
+        mcUpdatesPublisherCache.save(mcUpdatesPublisher);
     }
 
-    public static ServerData getData(String serverId) {
+    public static ServerData get(String serverId) {
         for (ServerData data : DATA_CACHE) {
             if(data.serverId.equals(serverId)) return data;
         }

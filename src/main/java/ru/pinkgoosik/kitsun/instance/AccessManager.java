@@ -2,12 +2,10 @@ package ru.pinkgoosik.kitsun.instance;
 
 import discord4j.core.object.entity.Member;
 import discord4j.rest.util.Permission;
-import reactor.core.publisher.Mono;
 import ru.pinkgoosik.kitsun.permission.RolePermissions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ru.pinkgoosik.kitsun.permission.Permissions.*;
 
@@ -17,7 +15,7 @@ public class AccessManager {
                     new RolePermissions("default", new ArrayList<>(
                             List.of(HELP, REGISTER, AVAILABLE_CLOAKS, AVAILABLE_ATTRIBUTES,
                                     AVAILABLE_COSMETICS, REDEEM, CLOAK_SET,
-                                    CLOAK_REVOKE_SELF, UNREGISTER)))));
+                                    CLOAK_REVOKE, UNREGISTER)))));
 
     public ArrayList<RolePermissions> entries = DEFAULT;
     public String serverId;
@@ -27,17 +25,13 @@ public class AccessManager {
     }
 
     public boolean hasAccessTo(Member member, String permission) {
-        AtomicBoolean isAdmin = new AtomicBoolean(false);
+        boolean isAdmin = false;
+        var permissionSet = member.getBasePermissions().blockOptional();
+        if(permissionSet.isPresent()) isAdmin = permissionSet.get().contains(Permission.ADMINISTRATOR);
 
-        member.getBasePermissions().flatMap(permissions -> {
-            if(permissions.contains(Permission.ADMINISTRATOR)) {
-                isAdmin.set(true);
-            }
-            return Mono.empty();
-        }).block();
-
-        if (isAdmin.get()) return true;
+        if (isAdmin) return true;
         if (getPermissionsForEveryone().contains(permission)) return true;
+
         ArrayList<String> roles = new ArrayList<>();
         member.getRoleIds().forEach(snowflake -> roles.add(snowflake.asString()));
         for (var entry : entries) {
@@ -51,13 +45,13 @@ public class AccessManager {
             if (entry.role.equals(role)) {
                 if (!entry.permissions.contains(permission)) {
                     entry.permissions.add(permission);
-                    ServerData.getData(serverId).saveData();
+                    ServerData.get(serverId).saveData();
                     return;
                 }
             }
         }
         entries.add(new RolePermissions(role, new ArrayList<>(List.of(permission))));
-        ServerData.getData(serverId).saveData();
+        ServerData.get(serverId).saveData();
     }
 
     public List<String> getPermissionsForEveryone() {

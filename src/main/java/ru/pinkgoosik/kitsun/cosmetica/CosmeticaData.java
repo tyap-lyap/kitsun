@@ -14,14 +14,14 @@ import java.util.Optional;
 
 public class CosmeticaData {
     private static final String URL_STRING = "https://pinkgoosik.ru/cosmetica/entries.json";
-    public static final List<Entry> ENTRIES = new ArrayList<>();
+    public static final List<EntryData> ENTRIES = new ArrayList<>();
 
     public static void register(String discord, String name, String uuid) {
-        Entry entry = new Entry();
-        Entry.User user = new Entry.User();
+        EntryData entry = new EntryData();
+        EntryData.UserData user = new EntryData.UserData();
         user.discord = discord; user.name = name; user.uuid = uuid; entry.user = user;
 
-        Entry.Cloak cloak = new Entry.Cloak();
+        EntryData.CloakData cloak = new EntryData.CloakData();
         cloak.name = ""; cloak.color = ""; cloak.glint = false; entry.cloak = cloak;
 
         ENTRIES.add(entry);
@@ -31,14 +31,14 @@ public class CosmeticaData {
         ENTRIES.removeIf(entry -> entry.user.discord.equals(discord));
     }
 
-    public static Optional<Entry> getEntry(String discord) {
+    public static Optional<EntryData> getEntry(String discord) {
         for (var entry : CosmeticaData.ENTRIES) {
             if (entry.user.discord.equals(discord)) return Optional.of(entry);
         }
         return Optional.empty();
     }
 
-    public static Optional<Entry> getEntryByName(String name) {
+    public static Optional<EntryData> getEntryByName(String name) {
         for (var entry : CosmeticaData.ENTRIES) {
             if (entry.user.name.equals(name)) return Optional.of(entry);
         }
@@ -56,7 +56,7 @@ public class CosmeticaData {
     public static void clearCloak(String username) {
         for(var entry : ENTRIES) {
             if (entry.user.name.equals(username)) {
-                Entry.Cloak cloak = new Entry.Cloak();
+                EntryData.CloakData cloak = new EntryData.CloakData();
                 cloak.name = "";
                 cloak.color = "";
                 cloak.glint = false;
@@ -81,7 +81,7 @@ public class CosmeticaData {
             request.connect();
             InputStream stream = request.getInputStream();
             Gson gson = new GsonBuilder().setLenient().setPrettyPrinting().create();
-            Entry[] entries = gson.fromJson(new InputStreamReader(stream), Entry[].class);
+            EntryData[] entries = gson.fromJson(new InputStreamReader(stream), EntryData[].class);
             ENTRIES.addAll(Arrays.asList(entries));
         } catch (Exception e) {
             e.printStackTrace();

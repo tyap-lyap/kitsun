@@ -1,16 +1,13 @@
 package ru.pinkgoosik.kitsun.command.everyone;
 
-import discord4j.core.object.entity.Member;
-import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
-import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
-public class HelpCommand extends Command {
+public class Help extends Command {
 
     @Override
     public String getName() {
@@ -34,21 +31,13 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public void respond(CommandUseContext context) {
-        Member member = context.getMember();
-        RestChannel channel = context.getChannel();
-        String page = context.getFirstArg();
-        ServerConfig config = context.getServerData().config;
-        AccessManager accessManager = context.getServerData().accessManager;
-
-        if (!accessManager.hasAccessTo(member, Permissions.HELP)) {
-            channel.createMessage(Embeds.error("Not enough permissions.")).block();
-            return;
-        }
-        channel.createMessage(Embeds.info("Available Commands", getTextForPage(page, config))).block();
+    public void respond(CommandUseContext ctx) {
+        if (disallowed(ctx, Permissions.HELP)) return;
+        String page = ctx.args.get(0);
+        ctx.channel.createMessage(Embeds.info("Available Commands", build(page, ctx.config))).block();
     }
 
-    private String getTextForPage(String arg, ServerConfig config) {
+    private String build(String arg, ServerConfig config) {
         int page = stringToInt(arg);
         int size = Commands.COMMANDS.size();
         int first = ((3 * page) - 3) + (page - 1);

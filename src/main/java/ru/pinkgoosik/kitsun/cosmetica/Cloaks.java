@@ -16,4 +16,8 @@ public class Cloaks {
 
     public static final List<String> FANCY_CLOAKS = new ArrayList<>(List.of("uni", "jeb", "enchanted-jeb", "cosmic", "swirly"));
 
+    public static boolean exist(String cloak) {
+        return Cloaks.COLORED_CLOAKS.contains(cloak) || Cloaks.PATTERNED_CLOAKS.contains(cloak) || Cloaks.PRIDE_CLOAKS.contains(cloak) || Cloaks.FANCY_CLOAKS.contains(cloak);
+    }
+
 }

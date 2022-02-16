@@ -1,11 +1,11 @@
 package ru.pinkgoosik.kitsun.api.modrinth;
 
 import com.google.gson.*;
+import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.ArrayList;
@@ -37,11 +37,12 @@ public class ModrinthAPI {
             URL url = new URL(API_PROJECT_URL.replace("%slug%", slug));
             URLConnection request = url.openConnection();
             request.connect();
-            InputStream stream = request.getInputStream();
-            InputStreamReader reader = new InputStreamReader(stream);
+            InputStreamReader reader = new InputStreamReader(request.getInputStream());
             ModrinthProject project = GSON.fromJson(reader, ModrinthProject.class);
             return Optional.of(project);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Bot.LOGGER.error("Failed to parse modrinth project " + slug + " due to an exception:\n" + e);
+        }
         return Optional.empty();
     }
 
@@ -50,12 +51,13 @@ public class ModrinthAPI {
             URL url = new URL(API_PROJECT_VERSIONS_URL.replace("%slug%", slug));
             URLConnection request = url.openConnection();
             request.connect();
-            InputStream stream = request.getInputStream();
-            InputStreamReader reader = new InputStreamReader(stream);
+            InputStreamReader reader = new InputStreamReader(request.getInputStream());
             ProjectVersion[] versions = GSON.fromJson(reader, ProjectVersion[].class);
             ArrayList<ProjectVersion> versionsArray = new ArrayList<>(Arrays.asList(versions));
             return Optional.of(versionsArray);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Bot.LOGGER.error("Failed to parse modrinth project " + slug + " versions due to an exception:\n" + e);
+        }
         return Optional.empty();
     }
 
@@ -64,11 +66,12 @@ public class ModrinthAPI {
             URL url = new URL(API_USER_URL.replace("%id%", id));
             URLConnection request = url.openConnection();
             request.connect();
-            InputStream stream = request.getInputStream();
-            InputStreamReader reader = new InputStreamReader(stream);
+            InputStreamReader reader = new InputStreamReader(request.getInputStream());
             ModrinthUser user = GSON.fromJson(reader, ModrinthUser.class);
             return Optional.of(user);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Bot.LOGGER.error("Failed to parse modrinth user " + id + " due to an exception:\n" + e);
+        }
         return Optional.empty();
     }
 }

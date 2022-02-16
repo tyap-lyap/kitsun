@@ -17,20 +17,19 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class ChangelogPublisher {
-    //Modrinth project id
-    public String project;
-    //Discord channel id
-    public String channel;
-    //Modrinth project's latest version id
-    public String latestVersionId;
     //Discord server id
     public String serverId;
+    //Discord channel id
+    public String channel;
+    //Modrinth project id
+    public String project;
+    //Modrinth project's latest version id
+    public String latestVersionId = "";
 
-    public ChangelogPublisher(String project, String channel, String serverId) {
-        this.project = project;
-        this.channel = channel;
+    public ChangelogPublisher(String serverId, String channel, String project) {
         this.serverId = serverId;
-        this.latestVersionId = "";
+        this.channel = channel;
+        this.project = project;
     }
 
     public void check() {
@@ -50,13 +49,13 @@ public class ChangelogPublisher {
         ProjectVersion modVersion = versions.get(0);
         Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(project, modVersion)).block();
         latestVersionId = modVersion.id;
-        ServerData.getData(serverId).saveData();
+        ServerData.get(serverId).saveData();
     }
 
     private EmbedData createEmbed(ModrinthProject project, ProjectVersion version) {
         String changelogPart = "";
 
-        if(!version.changelog.isBlank()) {
+        if(!version.changelog.isBlank() && version.changelog.length() < 5000) {
             changelogPart = changelogPart + "**Changelog**\n" + version.changelog.trim() + "\n ";
         }
 

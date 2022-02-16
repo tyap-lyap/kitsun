@@ -1,15 +1,12 @@
 package ru.pinkgoosik.kitsun.command.cloak;
 
-import discord4j.core.object.entity.Member;
-import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.cosmetica.Cloaks;
-import ru.pinkgoosik.kitsun.instance.AccessManager;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
-public class AvailableCloaksCommand extends Command {
+public class CloaksList extends Command {
 
     @Override
     public String getName() {
@@ -27,16 +24,12 @@ public class AvailableCloaksCommand extends Command {
     }
 
     @Override
-    public void respond(CommandUseContext context) {
-        Member member = context.getMember();
-        RestChannel channel = context.getChannel();
-        AccessManager accessManager = context.getServerData().accessManager;
+    public void respond(CommandUseContext ctx) {
+        if(disallowed(ctx, Permissions.AVAILABLE_CLOAKS)) return;
+        ctx.channel.createMessage(Embeds.info("Available Cloaks", build())).block();
+    }
 
-        if(!accessManager.hasAccessTo(member, Permissions.AVAILABLE_CLOAKS)) {
-            channel.createMessage(Embeds.error("Not enough permissions.")).block();
-            return;
-        }
-
+    private String build() {
         String respond = "";
 
         StringBuilder textColored = new StringBuilder();
@@ -75,6 +68,6 @@ public class AvailableCloaksCommand extends Command {
         String respondPatterned = textPatterned.deleteCharAt(textPatterned.length() - 1).deleteCharAt(textPatterned.length() - 1).append(".").toString();
         respond = respond + respondPatterned;
 
-        channel.createMessage(Embeds.info("Available Cloaks", respond)).block();
+        return respond;
     }
 }

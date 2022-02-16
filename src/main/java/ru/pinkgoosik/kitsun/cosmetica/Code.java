@@ -6,7 +6,7 @@ import java.util.List;
 public class Code {
     public String code;
     public String type;
-    public Entry.Cloak cloak;
+    public EntryData.CloakData cloak;
     public List<String> attributes = new ArrayList<>();
-    public List<Entry.CosmeticElement> cosmetics = new ArrayList<>();
+    public List<EntryData.CosmeticElement> cosmetics = new ArrayList<>();
 }
