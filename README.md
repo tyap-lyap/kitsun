@@ -1,8 +1,16 @@
+<div align="center">
+<img alt="Icon" src="src/main/resources/kitsun_icon.png" width="150">
+
+[Discord](https://discord.gg/DcemWeskeZ)
+# Kitsun
+</div>
+
 ## About
-A simple Discord Bot written in Java, designed to provide simple features for Minecraft Modding-themed servers.
+A simple Discord Bot written in Java and built around [Discord4J](https://github.com/Discord4J/Discord4J), designed to provide simple features for Minecraft Modding-themed servers.
 
 ## Features
-- [Cosmetica](https://github.com/PinkGoosik/cosmetica) integration
+- Modrinth integration
 - Simple Discord user actions logger
 - Modrinth Project changelog publisher
 - Minecraft updates publisher
+- [Cosmetica](https://github.com/PinkGoosik/cosmetica) integration

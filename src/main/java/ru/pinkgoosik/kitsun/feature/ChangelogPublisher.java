@@ -7,6 +7,7 @@ import discord4j.discordjson.json.EmbedFooterData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
@@ -59,10 +60,10 @@ public class ChangelogPublisher {
             changelogPart = changelogPart + "**Changelog**\n" + version.changelog.trim() + "\n ";
         }
 
-        var publisher = ModrinthAPI.getUser(version.author_id);
-        if(publisher.isPresent()) {
+        Optional<ModrinthUser> user = ModrinthAPI.getUser(version.author_id);
+        if(user.isPresent()) {
             if (!changelogPart.isBlank()) changelogPart = changelogPart + "\n";
-            String publisherPart = "**Published by** [" + publisher.get().username + "](https://modrinth.com/user/" + publisher.get().id + ")";
+            String publisherPart = "**Published by** [" + user.get().username + "](https://modrinth.com/user/" + user.get().id + ")";
             changelogPart = changelogPart + publisherPart;
         }
 
@@ -86,9 +87,7 @@ public class ChangelogPublisher {
         if(version.game_versions.size() > 1) {
             minecraftVersions = minecraftVersions + " - " + version.game_versions.get(version.game_versions.size() - 1);
         }
-        String iconUrl;
-        if(project.icon_url != null) iconUrl = project.icon_url;
-        else iconUrl = "https://github.com/PinkGoosik/kitsun/blob/master/img/placeholder_icon.png?raw=true";
+        String iconUrl = project.icon_url != null ? project.icon_url : "https://github.com/PinkGoosik/kitsun/blob/master/img/placeholder_icon.png?raw=true";
 
         return EmbedData.builder()
                 .author(EmbedAuthorData.builder().name(project.title).build())
@@ -97,7 +96,7 @@ public class ChangelogPublisher {
                 .description(changelogPart + linksPart)
                 .color(Color.of(48,178,123).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://github.com/PinkGoosik/kitsun/blob/master/img/modrinth_logo.png?raw=true").build())
+                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://github.com/PinkGoosik/kitsun/blob/master/img/small_modrinth_logo.png?raw=true").build())
                 .timestamp(Instant.parse(version.date_published).toString())
                 .build();
     }
