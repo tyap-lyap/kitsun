@@ -5,6 +5,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
+import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 
 import java.io.InputStreamReader;
 import java.net.*;
@@ -42,7 +43,9 @@ public class ModrinthAPI {
             return Optional.of(project);
         }
         catch (Exception e) {
-            Bot.LOGGER.error("Failed to parse modrinth project " + slug + " due to an exception:\n" + e);
+            String msg = "Failed to parse modrinth project " + slug + " due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
         }
         return Optional.empty();
     }
@@ -58,7 +61,9 @@ public class ModrinthAPI {
             return Optional.of(versionsArray);
         }
         catch (Exception e) {
-            Bot.LOGGER.error("Failed to parse modrinth project " + slug + " versions due to an exception:\n" + e);
+            String msg = "Failed to parse modrinth project " + slug + " versions due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
         }
         return Optional.empty();
     }
@@ -73,7 +78,9 @@ public class ModrinthAPI {
             return Optional.of(user);
         }
         catch (Exception e) {
-            Bot.LOGGER.error("Failed to parse modrinth user " + id + " due to an exception:\n" + e);
+            String msg = "Failed to parse modrinth user " + id + " due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
         }
         return Optional.empty();
     }

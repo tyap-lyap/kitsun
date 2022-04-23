@@ -3,6 +3,7 @@ package ru.pinkgoosik.kitsun.cache;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 import ru.pinkgoosik.kitsun.util.FileUtils;
 
 import java.io.BufferedReader;
@@ -35,7 +36,9 @@ public class CachedData<T> {
             return defaultBuilder.create();
         }
         catch (Exception e) {
-            Bot.LOGGER.info("Failed to read cached data due to an exception:\n" + e + "\n Setting to default.");
+            String msg = "Failed to read cached data due to an exception:\n" + e + "\n Setting to default.";
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
             return defaultBuilder.create();
         }
     }
@@ -48,7 +51,9 @@ public class CachedData<T> {
             }
         }
         catch (Exception e) {
-            Bot.LOGGER.error("Failed to save cached data due to an exception:\n" + e);
+            String msg = "Failed to save cached data due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
             e.printStackTrace();
         }
     }
@@ -57,4 +62,5 @@ public class CachedData<T> {
     public interface DefaultBuilder<T> {
         T create();
     }
+
 }

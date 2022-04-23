@@ -1,6 +1,7 @@
 package ru.pinkgoosik.kitsun.schedule;
 
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 public class QuiltUpdatesSchedule {
@@ -14,7 +15,9 @@ public class QuiltUpdatesSchedule {
             });
         }
         catch (Exception e) {
-            Bot.LOGGER.error("Failed to schedule quilt updates publishers duo to an exception:\n" + e);
+            String msg = "Failed to schedule quilt updates publishers duo to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
         }
     }
 }

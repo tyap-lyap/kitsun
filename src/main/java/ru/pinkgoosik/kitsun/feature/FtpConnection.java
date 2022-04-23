@@ -28,7 +28,9 @@ public class FtpConnection {
 
         }
         catch (Exception e) {
-            Bot.LOGGER.info("Failed to update Remote Cosmetica Data due to an exception:\n" + e);
+            String msg = "Failed to update Remote Cosmetica Data due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
             e.printStackTrace();
         }
     }
@@ -47,7 +49,10 @@ public class FtpConnection {
             return Optional.of(channel);
         }
         catch (Exception e) {
-            Bot.LOGGER.info("Failed connection to Sftp due to an exception:\n" + e);
+            String msg = "Failed connection to Sftp due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
+
             e.printStackTrace();
             return Optional.empty();
         }
@@ -61,7 +66,9 @@ public class FtpConnection {
             }
         }
         catch (Exception e) {
-            Bot.LOGGER.info("Failed to create Cosmetica Data Json due to an exception:\n" + e);
+            String msg = "Failed to create Cosmetica Data Json due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
         }
     }
 

@@ -8,6 +8,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.cloak.*;
 import ru.pinkgoosik.kitsun.command.everyone.*;
 import ru.pinkgoosik.kitsun.command.moderation.*;
+import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 import ru.pinkgoosik.kitsun.instance.ServerData;
 import ru.pinkgoosik.kitsun.util.SelfUtils;
 
@@ -63,9 +64,11 @@ public class Commands {
                     proceed(message.getContent(), member, channel, serverData);
                 }
             }));
-
-        }catch (Exception e) {
-            Bot.LOGGER.error("Failed to proceed commands event duo to an exception:\n" + e);
+        }
+        catch (Exception e) {
+            String msg = "Failed to proceed commands event duo to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
         }
     }
 

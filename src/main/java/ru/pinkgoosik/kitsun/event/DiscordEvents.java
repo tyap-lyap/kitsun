@@ -41,8 +41,11 @@ public class DiscordEvents {
                     }
                 });
             }
-        }catch (Exception e) {
-            Bot.LOGGER.error("Failed to proceed message update event due to an exception:\n" + e);
+        }
+        catch (Exception e) {
+            String msg = "Failed to proceed message update event due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
         }
     }
 
@@ -60,10 +63,12 @@ public class DiscordEvents {
                     });
                 }
             }
-        }catch (Exception e) {
-            Bot.LOGGER.error("Failed to proceed message delete event due to an exception:\n" + e);
         }
-
+        catch (Exception e) {
+            String msg = "Failed to proceed message delete event due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
+        }
     }
 
     public static void onMemberJoin(MemberJoinEvent event) {
@@ -76,8 +81,11 @@ public class DiscordEvents {
                     event.getMember().addRole(Snowflake.of(serverData.config.general.memberRoleId)).block();
                 }
             });
-        }catch (Exception e) {
-            Bot.LOGGER.error("Failed to proceed member join event due to an exception:\n" + e);
+        }
+        catch (Exception e) {
+            String msg = "Failed to proceed member join event due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
         }
     }
 
@@ -88,9 +96,11 @@ public class DiscordEvents {
                     serverData.logger.onMemberLeave(member);
                 }
             }));
-
-        }catch (Exception e) {
-            Bot.LOGGER.error("Failed to proceed member leave event due to an exception:\n" + e);
+        }
+        catch (Exception e) {
+            String msg = "Failed to proceed member leave event due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
         }
     }
 

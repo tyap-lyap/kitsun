@@ -2,6 +2,7 @@ package ru.pinkgoosik.kitsun.schedule;
 
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
+import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 import ru.pinkgoosik.kitsun.instance.ServerData;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
@@ -15,8 +16,11 @@ public class PublishersSchedule {
     public static void schedule() {
         try {
             ServerUtils.forEach(PublishersSchedule::proceed);
-        }catch (Exception e) {
-            Bot.LOGGER.error("Failed to schedule publishers duo to an exception:\n" + e);
+        }
+        catch (Exception e) {
+            String msg = "Failed to schedule publishers duo to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, true);
         }
     }
 
@@ -28,7 +32,8 @@ public class PublishersSchedule {
             CACHE.remove(serverId);
             CACHE.put(serverId, new ArrayList<>(publishers));
             publishers.forEach(ChangelogPublisher::check);
-        }else {
+        }
+        else {
             CACHE.get(serverId).forEach(ChangelogPublisher::check);
         }
     }
