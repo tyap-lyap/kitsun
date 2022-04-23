@@ -29,7 +29,8 @@ public class MojangAPI {
             InputStreamReader reader = new InputStreamReader(request.getInputStream());
             VersionManifest manifest = GSON.fromJson(reader, VersionManifest.class);
             return Optional.of(manifest);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to parse minecraft versions manifest due to an exception:\n" + e);
         }
         return Optional.empty();
@@ -50,7 +51,8 @@ public class MojangAPI {
             request.connect();
             JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader(request.getInputStream()));
             return Optional.of(jsonElement.getAsJsonObject().get("id").getAsString());
-        }catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to parse " + nickname + " uuid due to an exception:\n" + e);
             return Optional.empty();
         }
@@ -64,9 +66,11 @@ public class MojangAPI {
             builder.insert(12, "-");
             builder.insert(8, "-");
             return Optional.of(builder.toString());
-        }catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
         }
     }
+
 }

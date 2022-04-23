@@ -21,4 +21,5 @@ public class VersionManifest {
         public String sha1 = "";
         public Integer complianceLevel = 0;
     }
+
 }

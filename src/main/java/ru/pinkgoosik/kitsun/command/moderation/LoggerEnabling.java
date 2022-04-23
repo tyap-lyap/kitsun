@@ -23,9 +23,9 @@ public class LoggerEnabling {
                         ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
                         return;
                     }
-                    if (ServerUtils.hasChannel(ctx.serverData.serverId, channelIdArg)) {
+                    if (ServerUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
                         ctx.serverData.logger.enable(channelIdArg);
-                        ctx.serverData.saveData();
+                        ctx.serverData.save();
                         ctx.channel.createMessage(Embeds.success("Logger Enabling", "The logger is now enabled!")).block();
                     }
                     else ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
@@ -41,7 +41,7 @@ public class LoggerEnabling {
                         ctx.channel.createMessage(Embeds.error("The logger is already disabled!")).block();
                     }else {
                         ctx.serverData.logger.disable();
-                        ctx.serverData.saveData();
+                        ctx.serverData.save();
                         ctx.channel.createMessage(Embeds.success("Logger Disabling", "The logger is now disabled!")).block();
                     }
                 }).build();

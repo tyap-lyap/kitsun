@@ -11,7 +11,9 @@ public class Scheduler {
             public void run() {
                 PublishersSchedule.schedule();
                 MCUpdatesSchedule.schedule();
+                QuiltUpdatesSchedule.schedule();
             }
         }, 0, 60 * 1000);
     }
+
 }

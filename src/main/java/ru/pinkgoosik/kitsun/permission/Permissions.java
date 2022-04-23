@@ -26,8 +26,8 @@ public class Permissions {
     public static final String CHANGELOG_PUBLISHER_ADD = add("command.publisher.add");
     public static final String CHANGELOG_PUBLISHER_REMOVE = add("command.publisher.remove");
 
-    public static final String MCUPDATES_ENABLE = add("command.mcupdates.enable");
-    public static final String MCUPDATES_DISABLE = add("command.mcupdates.disable");
+    public static final String MC_UPDATES_ENABLE = add("command.mc_updates.enable");
+    public static final String MC_UPDATES_DISABLE = add("command.mc_updates.disable");
 
     public static final String LOGGER_ENABLE = add("command.logger.enable");
     public static final String LOGGER_DISABLE = add("command.logger.disable");
@@ -36,9 +36,13 @@ public class Permissions {
     public static final String PERMISSION_GRANT = add("command.permission.grant");
     public static final String PERMISSION_REVOKE = add("command.permission.revoke");
 
+    public static final String QUILT_UPDATES_ENABLE = add("command.quilt_updates.enable");
+    public static final String QUILT_UPDATES_DISABLE = add("command.quilt_updates.disable");
+
 
     private static String add(String permission) {
         LIST.add(permission);
         return permission;
     }
+
 }

@@ -13,17 +13,17 @@ import java.time.Instant;
 import java.util.Objects;
 
 public class ServerLogger {
-    public String serverId;
+    public String server;
     public boolean enabled = false;
     public String channel = "";
 
-    public ServerLogger(String serverId) {
-        this.serverId = serverId;
+    public ServerLogger(String serverID) {
+        this.server = serverID;
     }
 
-    public void enable(String channelId) {
+    public void enable(String channelID) {
         this.enabled = true;
-        this.channel = channelId;
+        this.channel = channelID;
     }
 
     public void disable() {

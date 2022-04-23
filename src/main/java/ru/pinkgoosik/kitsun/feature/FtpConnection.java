@@ -26,7 +26,8 @@ public class FtpConnection {
                 Bot.LOGGER.info("Remote Cosmetica Data successfully updated.");
             }
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.info("Failed to update Remote Cosmetica Data due to an exception:\n" + e);
             e.printStackTrace();
         }
@@ -44,7 +45,8 @@ public class FtpConnection {
             channel.connect();
             Bot.LOGGER.info("Sftp channel opened and connected.");
             return Optional.of(channel);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.info("Failed connection to Sftp due to an exception:\n" + e);
             e.printStackTrace();
             return Optional.empty();
@@ -57,8 +59,10 @@ public class FtpConnection {
             try (FileWriter writer = new FileWriter("cosmetica/entries.json")) {
                 writer.write(GSON.toJson(CosmeticaData.ENTRIES));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.info("Failed to create Cosmetica Data Json due to an exception:\n" + e);
         }
     }
+
 }

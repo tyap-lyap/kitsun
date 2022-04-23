@@ -27,7 +27,8 @@ public class PatchNotes {
             for (var entry : entries) {
                 if (entry.version.equals(version)) return Optional.of(entry);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to parse patch note entry due to an exception:\n" + e);
         }
         return Optional.empty();
@@ -82,4 +83,5 @@ public class PatchNotes {
             return "https://launchercontent.mojang.com" + url;
         }
     }
+
 }

@@ -29,10 +29,12 @@ public class CachedData<T> {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             return GSON.fromJson(reader, tClass);
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             Bot.LOGGER.info("File " + filePath + " is not found! Setting to default.");
             return defaultBuilder.create();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.info("Failed to read cached data due to an exception:\n" + e + "\n Setting to default.");
             return defaultBuilder.create();
         }
@@ -44,7 +46,8 @@ public class CachedData<T> {
             try (FileWriter writer = new FileWriter(path + "/" + file)) {
                 writer.write(GSON.toJson(object));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to save cached data due to an exception:\n" + e);
             e.printStackTrace();
         }

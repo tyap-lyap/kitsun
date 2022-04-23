@@ -15,21 +15,36 @@ public class MCUpdatesPublisher {
     private static final String QUILT_MC_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
 
     public boolean enabled = false;
-    //Discord server id
-    public String serverId;
-    //Discord channel id
+    /**
+     * Discord server ID that this MCUpdatesPublisher belongs to
+     */
+    public String server;
+    /**
+     * Discord server's channel ID for this MCUpdatesPublisher publish to
+     */
     public String channel = "";
+    /**
+     * Cached Minecraft latest release name
+     */
     public String latestRelease = "";
+    /**
+     * Cached Minecraft latest snapshot name
+     */
     public String latestSnapshot = "";
+    /**
+     * Minecraft version name that patch notes wasn't published,
+     * the main reason for this is that the version, and it's
+     * patch note is not publishes at the same time.
+     */
     public String debtor = "";
 
-    public MCUpdatesPublisher(String serverId) {
-        this.serverId = serverId;
+    public MCUpdatesPublisher(String serverID) {
+        this.server = serverID;
     }
 
-    public void enable(String channelId) {
+    public void enable(String channelID) {
         this.enabled = true;
-        this.channel = channelId;
+        this.channel = channelID;
     }
 
     public void disable() {
@@ -50,14 +65,14 @@ public class MCUpdatesPublisher {
                 PatchNotes.getEntry(debtor).ifPresent(entry -> {
                     publishPatchNotesEntry(entry);
                     this.debtor = "";
-                    ServerData.get(serverId).saveData();
+                    ServerData.get(server).save();
                 });
             }
         });
     }
 
     private void publish(String version, String type) {
-        ServerData.get(serverId).saveData();
+        ServerData.get(server).save();
         Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version, type)).block();
         tryToPublishPatchNotes(version);
     }
@@ -73,7 +88,7 @@ public class MCUpdatesPublisher {
     private void tryToPublishPatchNotes(String version) {
         PatchNotes.getEntry(version).ifPresentOrElse(this::publishPatchNotesEntry, () -> {
             this.debtor = version;
-            ServerData.get(serverId).saveData();
+            ServerData.get(server).save();
         });
     }
 

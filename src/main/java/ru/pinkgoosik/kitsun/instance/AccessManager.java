@@ -15,13 +15,17 @@ public class AccessManager {
                     new RolePermissions("default", new ArrayList<>(
                             List.of(HELP, REGISTER, AVAILABLE_CLOAKS, AVAILABLE_ATTRIBUTES,
                                     AVAILABLE_COSMETICS, REDEEM, CLOAK_SET,
-                                    CLOAK_REVOKE, UNREGISTER)))));
+                                    CLOAK_REVOKE, CLOAK_INFO, UNREGISTER
+                            )
+                    ))
+            )
+    );
 
+    public String server;
     public ArrayList<RolePermissions> entries = DEFAULT;
-    public String serverId;
 
-    public AccessManager(String serverId) {
-        this.serverId = serverId;
+    public AccessManager(String serverID) {
+        this.server = serverID;
     }
 
     public boolean hasAccessTo(Member member, String permission) {
@@ -45,13 +49,13 @@ public class AccessManager {
             if (entry.role.equals(role)) {
                 if (!entry.permissions.contains(permission)) {
                     entry.permissions.add(permission);
-                    ServerData.get(serverId).saveData();
+                    ServerData.get(server).save();
                     return;
                 }
             }
         }
         entries.add(new RolePermissions(role, new ArrayList<>(List.of(permission))));
-        ServerData.get(serverId).saveData();
+        ServerData.get(server).save();
     }
 
     public List<String> getPermissionsForEveryone() {
@@ -62,4 +66,5 @@ public class AccessManager {
         }
         return new ArrayList<>();
     }
+
 }

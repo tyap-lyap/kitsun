@@ -39,7 +39,7 @@ public class PublisherAdd extends Command {
             ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
             return;
         }
-        if (!ServerUtils.hasChannel(ctx.serverData.serverId, channelIdArg)) {
+        if (!ServerUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
             ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
             return;
         }
@@ -50,8 +50,8 @@ public class PublisherAdd extends Command {
                     return;
                 }
             }
-            ctx.serverData.publishers.add(new ChangelogPublisher(ctx.serverData.serverId, channelIdArg, project.id));
-            ctx.serverData.saveData();
+            ctx.serverData.publishers.add(new ChangelogPublisher(ctx.serverData.server, channelIdArg, project.id));
+            ctx.serverData.save();
 
             String text = "Changelog publisher for the project `" + slug + "` got successfully created!";
             ctx.channel.createMessage(Embeds.success("Creating Changelog Publisher", text)).block();

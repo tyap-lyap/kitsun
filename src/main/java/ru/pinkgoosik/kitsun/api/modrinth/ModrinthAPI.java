@@ -40,7 +40,8 @@ public class ModrinthAPI {
             InputStreamReader reader = new InputStreamReader(request.getInputStream());
             ModrinthProject project = GSON.fromJson(reader, ModrinthProject.class);
             return Optional.of(project);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to parse modrinth project " + slug + " due to an exception:\n" + e);
         }
         return Optional.empty();
@@ -55,7 +56,8 @@ public class ModrinthAPI {
             ProjectVersion[] versions = GSON.fromJson(reader, ProjectVersion[].class);
             ArrayList<ProjectVersion> versionsArray = new ArrayList<>(Arrays.asList(versions));
             return Optional.of(versionsArray);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to parse modrinth project " + slug + " versions due to an exception:\n" + e);
         }
         return Optional.empty();
@@ -69,9 +71,11 @@ public class ModrinthAPI {
             InputStreamReader reader = new InputStreamReader(request.getInputStream());
             ModrinthUser user = GSON.fromJson(reader, ModrinthUser.class);
             return Optional.of(user);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Bot.LOGGER.error("Failed to parse modrinth user " + id + " due to an exception:\n" + e);
         }
         return Optional.empty();
     }
+
 }

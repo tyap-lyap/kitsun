@@ -41,6 +41,9 @@ public class Commands {
         add(LoggerEnabling.enable());
         add(LoggerEnabling.disable());
 
+        add(QuiltUpdatesEnabling.enable());
+        add(QuiltUpdatesEnabling.disable());
+
         add(new PermissionsList());
         add(new PermissionGrant());
     }
@@ -102,4 +105,5 @@ public class Commands {
         }
         return filtered;
     }
+
 }

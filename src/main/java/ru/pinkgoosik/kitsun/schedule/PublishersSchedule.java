@@ -22,7 +22,7 @@ public class PublishersSchedule {
 
     private static void proceed(ServerData serverData) {
         ArrayList<ChangelogPublisher> publishers = serverData.publishers;
-        String serverId = serverData.serverId;
+        String serverId = serverData.server;
 
         if(CACHE.get(serverId) == null || CACHE.get(serverId).size() != publishers.size()) {
             CACHE.remove(serverId);
@@ -32,4 +32,5 @@ public class PublishersSchedule {
             CACHE.get(serverId).forEach(ChangelogPublisher::check);
         }
     }
+
 }

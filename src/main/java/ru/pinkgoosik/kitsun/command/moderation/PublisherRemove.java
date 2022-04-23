@@ -36,7 +36,7 @@ public class PublisherRemove extends Command {
         ModrinthAPI.getProject(slugArg).ifPresentOrElse(project -> {
             if (hasPublishers(project.id, ctx.serverData)) {
                 ctx.serverData.publishers.removeIf(publisher -> publisher.project.equals(project.id));
-                ctx.serverData.saveData();
+                ctx.serverData.save();
                 String text = "All publisher of the `" + slugArg + "` project got removed.";
                 ctx.channel.createMessage(Embeds.success("Removing Changelog Publisher", text)).block();
             }else {

@@ -10,7 +10,7 @@ public class MCUpdatesEnable extends Command {
 
     @Override
     public String getName() {
-        return "mcupdates enable";
+        return "mc-updates enable";
     }
 
     @Override
@@ -25,7 +25,7 @@ public class MCUpdatesEnable extends Command {
 
     @Override
     public void respond(CommandUseContext ctx) {
-        if (disallowed(ctx, Permissions.MCUPDATES_ENABLE)) return;
+        if (disallowed(ctx, Permissions.MC_UPDATES_ENABLE)) return;
 
         String channelIdArg = ctx.args.get(0);
 
@@ -37,9 +37,9 @@ public class MCUpdatesEnable extends Command {
             ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
             return;
         }
-        if (ServerUtils.hasChannel(ctx.serverData.serverId, channelIdArg)) {
+        if (ServerUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
             ctx.serverData.mcUpdatesPublisher.enable(channelIdArg);
-            ctx.serverData.saveData();
+            ctx.serverData.save();
             ctx.channel.createMessage(Embeds.success("Minecraft Updates Enabling", "The Minecraft Updates publishing is now enabled!")).block();
         }
         else ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();

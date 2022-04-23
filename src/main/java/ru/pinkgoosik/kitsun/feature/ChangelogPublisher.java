@@ -18,19 +18,27 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class ChangelogPublisher {
-    //Discord server id
-    public String serverId;
-    //Discord channel id
+    /**
+     * Discord server ID that this ChangelogPublisher belongs to
+     */
+    public String server;
+    /**
+     * Discord server's channel ID for this ChangelogPublisher publish to
+     */
     public String channel;
-    //Modrinth project id
+    /**
+     * Modrinth project ID for this ChangelogPublisher publish for
+     */
     public String project;
-    //Modrinth project's latest version id
-    public String latestVersionId = "";
+    /**
+     * Cached Modrinth project's latest version ID
+     */
+    public String latestVersion = "";
 
-    public ChangelogPublisher(String serverId, String channel, String project) {
-        this.serverId = serverId;
-        this.channel = channel;
-        this.project = project;
+    public ChangelogPublisher(String serverID, String channelID, String projectID) {
+        this.server = serverID;
+        this.channel = channelID;
+        this.project = projectID;
     }
 
     public void check() {
@@ -43,14 +51,14 @@ public class ChangelogPublisher {
 
     private boolean updated(ArrayList<ProjectVersion> versions) {
         String latest = versions.get(0).id;
-        return !latest.isEmpty() && !latestVersionId.equals(latest);
+        return !latest.isEmpty() && !latestVersion.equals(latest);
     }
 
     private void publish(ModrinthProject project, ArrayList<ProjectVersion> versions) {
         ProjectVersion modVersion = versions.get(0);
         Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(project, modVersion)).block();
-        latestVersionId = modVersion.id;
-        ServerData.get(serverId).saveData();
+        latestVersion = modVersion.id;
+        ServerData.get(server).save();
     }
 
     private EmbedData createEmbed(ModrinthProject project, ProjectVersion version) {
@@ -89,6 +97,10 @@ public class ChangelogPublisher {
         }
         String iconUrl = project.icon_url != null ? project.icon_url : "https://github.com/PinkGoosik/kitsun/blob/master/img/placeholder_icon.png?raw=true";
 
+        //I hate qsl icon lmao
+        if(project.id.equals("qsl")) {
+            iconUrl = "https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_mini_icon_dark.png?raw=true";
+        }
         return EmbedData.builder()
                 .author(EmbedAuthorData.builder().name(project.title).build())
                 .title(version.version_number + " " + versionType + minecraftVersions)
