@@ -20,7 +20,6 @@ import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
-import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 
 public class Bot {
     public static Secrets secrets;
@@ -33,7 +32,6 @@ public class Bot {
         Commands.init();
         CosmeticaData.fillFromUpstream();
         initDiscordClient();
-        KitsunDebug.info("Kitsun is now running!");
     }
 
     public static void initDiscordClient() {

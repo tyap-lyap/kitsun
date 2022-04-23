@@ -12,6 +12,7 @@ import discord4j.core.event.domain.role.RoleDeleteEvent;
 import discord4j.core.event.domain.role.RoleUpdateEvent;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.Commands;
+import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
@@ -19,6 +20,7 @@ public class DiscordEvents {
 
     public static void onConnect(ConnectEvent event) {
         Bot.client = event.getClient().getRestClient();
+        KitsunDebug.info("Kitsun is now running!");
         Scheduler.start();
     }
 

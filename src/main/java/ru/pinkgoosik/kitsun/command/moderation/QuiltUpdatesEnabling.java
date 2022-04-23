@@ -41,6 +41,7 @@ public class QuiltUpdatesEnabling {
                         ctx.channel.createMessage(Embeds.error("Quilt Loader updates publishing is already disabled!")).block();
                     }else {
                         ctx.serverData.quiltUpdatesPublisher.disable();
+                        ctx.serverData.quiltUpdatesPublisher.latestVersion = "";
                         ctx.serverData.save();
                         ctx.channel.createMessage(Embeds.success("Quilt Loader Updates", "Quilt Loader updates publishing is now disabled!")).block();
                     }

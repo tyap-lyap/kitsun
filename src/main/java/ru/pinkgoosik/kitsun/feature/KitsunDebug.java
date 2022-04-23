@@ -6,8 +6,8 @@ import ru.pinkgoosik.kitsun.Bot;
 public class KitsunDebug {
     private static final String channel = "967506328190877726";
 
-    public static void report(Exception e) {
-
+    public static void report(String message, Exception e) {
+        String pinkgoosik = "<@287598520268095488>";
     }
 
     public static void info(String text) {
