@@ -20,7 +20,7 @@ public class FtpConnection {
         try {
             ChannelSftp channelSftp = (ChannelSftp)channel;
             channelSftp.cd(Bot.secrets.saveDir);
-            File file = new File(System.getProperty("user.dir") + "/cache/entries.json");
+            File file = new File(System.getProperty("user.dir") + "/cosmetica/entries.json");
             channelSftp.put(new FileInputStream(file), "entries.json");
             Bot.LOGGER.info("Remote Cosmetica Data successfully updated.");
         }

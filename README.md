@@ -9,8 +9,11 @@
 A simple Discord Bot written in Java and built around [Discord4J](https://github.com/Discord4J/Discord4J), designed to provide simple features for Minecraft Modding-themed servers.
 
 ## Features
-- Modrinth integration
-- Simple Discord user actions logger
+- [Modrinth](https://modrinth.com) Integration
+- Simple Discord server logger
 - Modrinth Project changelog publisher
-- Minecraft updates publisher
-- [Cosmetica](https://github.com/PinkGoosik/cosmetica) integration
+- [Quilt Loader](https://quiltmc.org) Updates publisher
+- Minecraft Updates publisher
+
+## Usage
+You need to setup VPS with java 17 or above, download the latest Kitsun build [here](https://maven.pinkgoosik.ru/ru/pinkgoosik/kitsun/latest), and run **nohup java -jar kitsun-latest.jar &** command, then put bot token into secrets.json and run the command again.
