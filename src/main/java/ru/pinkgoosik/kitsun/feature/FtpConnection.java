@@ -8,24 +8,21 @@ import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.util.FileUtils;
 
 import java.io.*;
-import java.util.Optional;
 import java.util.Properties;
 
 public class FtpConnection {
     private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
-    private static final JSch J_SCH = new JSch();
+    private static Channel channel;
 
     public static void updateData() {
+        connect();
+        createJson();
         try {
-            var channel = openChannel();
-            if(channel.isPresent()) {
-                createJson();
-                channel.get().cd(Bot.secrets.saveDir);
-                File file = new File(System.getProperty("user.dir") + "/cosmetica/entries.json");
-                channel.get().put(new FileInputStream(file), "entries.json");
-                Bot.LOGGER.info("Remote Cosmetica Data successfully updated.");
-            }
-
+            ChannelSftp channelSftp = (ChannelSftp)channel;
+            channelSftp.cd(Bot.secrets.saveDir);
+            File file = new File(System.getProperty("user.dir") + "/cache/entries.json");
+            channelSftp.put(new FileInputStream(file), "entries.json");
+            Bot.LOGGER.info("Remote Cosmetica Data successfully updated.");
         }
         catch (Exception e) {
             String msg = "Failed to update Remote Cosmetica Data due to an exception:\n" + e;
@@ -35,26 +32,24 @@ public class FtpConnection {
         }
     }
 
-    private static Optional<ChannelSftp> openChannel() {
+    private static void connect() {
         try {
-            Session session = J_SCH.getSession(Bot.secrets.ftpUserName, Bot.secrets.ftpHostIp, 22);
+            JSch jSch = new JSch();
+            Session session = jSch.getSession(Bot.secrets.ftpUserName, Bot.secrets.ftpHostIp, 22);
             session.setPassword(Bot.secrets.ftpPassword);
             Properties props = new Properties();
             props.put("StrictHostKeyChecking", "no");
             session.setConfig(props);
             session.connect();
-            ChannelSftp channel = (ChannelSftp)session.openChannel("sftp");
+            channel = session.openChannel("sftp");
             channel.connect();
             Bot.LOGGER.info("Sftp channel opened and connected.");
-            return Optional.of(channel);
         }
         catch (Exception e) {
             String msg = "Failed connection to Sftp due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
             KitsunDebug.report(msg, e, true);
-
             e.printStackTrace();
-            return Optional.empty();
         }
     }
 
