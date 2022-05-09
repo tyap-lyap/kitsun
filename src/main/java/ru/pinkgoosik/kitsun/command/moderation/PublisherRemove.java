@@ -11,7 +11,7 @@ public class PublisherRemove extends Command {
 
     @Override
     public String getName() {
-        return "mod-updates-publisher remove";
+        return "mod-updates remove";
     }
 
     @Override

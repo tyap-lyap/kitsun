@@ -98,7 +98,7 @@ public class ChangelogPublisher {
         String iconUrl = project.icon_url != null ? project.icon_url : "https://github.com/PinkGoosik/kitsun/blob/master/img/placeholder_icon.png?raw=true";
 
         //I hate qsl icon lmao
-        if(project.id.equals("qsl")) {
+        if(project.slug.equals("qsl")) {
             iconUrl = "https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_mini_icon_dark.png?raw=true";
         }
         return EmbedData.builder()
