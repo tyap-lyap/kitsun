@@ -23,8 +23,8 @@ public class Permissions {
     public static final String INFO = add("command.info");
     public static final String REDEEM = add("command.redeem");
 
-    public static final String CHANGELOG_PUBLISHER_ADD = add("command.publisher.add");
-    public static final String CHANGELOG_PUBLISHER_REMOVE = add("command.publisher.remove");
+    public static final String CHANGELOG_PUBLISHER_ADD = add("command.mod_updates_publisher.add");
+    public static final String CHANGELOG_PUBLISHER_REMOVE = add("command.mod_updates_publisher.remove");
 
     public static final String MC_UPDATES_ENABLE = add("command.mc_updates.enable");
     public static final String MC_UPDATES_DISABLE = add("command.mc_updates.disable");
@@ -38,6 +38,8 @@ public class Permissions {
 
     public static final String QUILT_UPDATES_ENABLE = add("command.quilt_updates.enable");
     public static final String QUILT_UPDATES_DISABLE = add("command.quilt_updates.disable");
+
+    public static final String KITSUN_CMD_PREFIX = add("command.kitsun_cmd_prefix");
 
 
     private static String add(String permission) {

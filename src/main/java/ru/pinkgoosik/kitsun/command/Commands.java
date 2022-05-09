@@ -20,18 +20,20 @@ public class Commands {
 
     public static void init() {
         add(new Help());
-        add(new Register());
-
-        add(new CloaksList());
-        add(new CloakSet());
-        add(new CloakInfo());
-        add(new CloakRevoke());
-
-        add(new Unregister());
+//        add(new Register());
+//
+//        add(new CloaksList());
+//        add(new CloakSet());
+//        add(new CloakInfo());
+//        add(new CloakRevoke());
+//
+//        add(new Unregister());
 
 //        add(new AvailableAttributesCommand());
 //        add(new AvailableCosmeticsCommand());
 //        add(new RedeemCommand());
+
+        add(KitsunCmdPrefix.build());
 
         add(new PublisherAdd());
         add(new PublisherRemove());
@@ -45,8 +47,8 @@ public class Commands {
         add(QuiltUpdatesEnabling.enable());
         add(QuiltUpdatesEnabling.disable());
 
-        add(new PermissionsList());
-        add(new PermissionGrant());
+//        add(new PermissionsList());
+//        add(new PermissionGrant());
     }
 
     private static void add(Command command) {

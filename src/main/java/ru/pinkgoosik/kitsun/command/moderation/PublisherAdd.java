@@ -12,7 +12,7 @@ public class PublisherAdd extends Command {
 
     @Override
     public String getName() {
-        return "publisher add";
+        return "mod-updates-publisher add";
     }
 
     @Override
