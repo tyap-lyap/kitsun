@@ -95,7 +95,7 @@ public class ChangelogPublisher {
         if(version.game_versions.size() > 1) {
             minecraftVersions = minecraftVersions + " - " + version.game_versions.get(version.game_versions.size() - 1);
         }
-        String iconUrl = project.icon_url != null ? project.icon_url : "https://github.com/PinkGoosik/kitsun/blob/master/img/placeholder_icon.png?raw=true";
+        String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
 
         //I hate qsl icon lmao
         if(project.slug.equals("qsl")) {
@@ -108,7 +108,7 @@ public class ChangelogPublisher {
                 .description(changelogPart + linksPart)
                 .color(Color.of(48,178,123).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://github.com/PinkGoosik/kitsun/blob/master/img/small_modrinth_logo.png?raw=true").build())
+                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
                 .timestamp(Instant.parse(version.date_published).toString())
                 .build();
     }

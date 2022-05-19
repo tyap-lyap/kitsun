@@ -6,6 +6,7 @@ public class ProjectFile {
     public String url = "";
     public String filename = "";
     public boolean primary = false;
+    public int size = 0;
 
     public static class Hashes {
         public String sha1 = "";
