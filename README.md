@@ -1,12 +1,12 @@
 <div align="center">
 <img alt="Icon" src="src/main/resources/kitsun_icon.png" width="150">
 
-[Discord](https://discord.gg/DcemWeskeZ)
+[Discord Server](https://discord.gg/DcemWeskeZ)
 # Kitsun
 </div>
 
 ## About
-A simple Discord Bot written in Java and built around [Discord4J](https://github.com/Discord4J/Discord4J), designed to provide simple features for Minecraft Modding-themed servers.
+Kitsun is a Discord bot. This simple bot is written in Java and built around [Discord4J](https://github.com/Discord4J/Discord4J) library, designed to provide tiny quality of life features for Minecraft modding themed servers.
 
 ## Features
 - [Modrinth](https://modrinth.com) Integration
