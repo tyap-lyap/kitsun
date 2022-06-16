@@ -5,6 +5,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
+import ru.pinkgoosik.kitsun.api.modrinth.entity.SearchResult;
 import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 
 import java.io.InputStreamReader;
@@ -15,22 +16,15 @@ import java.util.Optional;
 
 public class ModrinthAPI {
     public static final String MOD_URL = "https://modrinth.com/mod/%slug%";
-    public static final String API_PROJECT_URL = "https://api.modrinth.com/v2/project/%slug%";
-    public static final String API_PROJECT_VERSIONS_URL = "https://api.modrinth.com/v2/project/%slug%/version";
-    public static final String API_USER_URL = "https://api.modrinth.com/v2/user/%id%";
+    public static final String API_URL = "https://api.modrinth.com/v2";
+    public static final String API_PROJECT_URL = API_URL + "/project/%slug%";
+    public static final String API_PROJECT_VERSIONS_URL = API_URL + "/project/%slug%/version";
+    public static final String API_USER_URL = API_URL + "/user/%id%";
 
-    public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
 
     public static Optional<ModrinthProject> getProject(String slug) {
         return parseProject(slug);
-    }
-
-    public static Optional<ArrayList<ProjectVersion>> getVersions(String slug) {
-        return parseVersions(slug);
-    }
-
-    public static Optional<ModrinthUser> getUser(String id) {
-        return parseUser(id);
     }
 
     private static Optional<ModrinthProject> parseProject(String slug) {
@@ -48,6 +42,10 @@ public class ModrinthAPI {
             KitsunDebug.report(msg, e, false);
         }
         return Optional.empty();
+    }
+
+    public static Optional<ArrayList<ProjectVersion>> getVersions(String slug) {
+        return parseVersions(slug);
     }
 
     private static Optional<ArrayList<ProjectVersion>> parseVersions(String slug) {
@@ -68,6 +66,10 @@ public class ModrinthAPI {
         return Optional.empty();
     }
 
+    public static Optional<ModrinthUser> getUser(String id) {
+        return parseUser(id);
+    }
+
     private static Optional<ModrinthUser> parseUser(String id) {
         try {
             URL url = new URL(API_USER_URL.replace("%id%", id));
@@ -79,6 +81,27 @@ public class ModrinthAPI {
         }
         catch (Exception e) {
             String msg = "Failed to parse modrinth user " + id + " due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<SearchResult> search(SearchRequest request) {
+        return parseSearchResult(request);
+    }
+
+    private static Optional<SearchResult> parseSearchResult(SearchRequest request) {
+        try {
+            URL url = new URL(request.getUrl());
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+            SearchResult result = GSON.fromJson(reader, SearchResult.class);
+            return Optional.of(result);
+        }
+        catch (Exception e) {
+            String msg = "Failed to parse modrinth search result of \"" + request.getUrl() + "\" due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
             KitsunDebug.report(msg, e, false);
         }
