@@ -18,7 +18,6 @@ import reactor.util.Loggers;
 import ru.pinkgoosik.kitsun.cache.CachedData;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
-import ru.pinkgoosik.kitsun.cosmetica.CosmeticaData;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
 
 public class Bot {
@@ -30,7 +29,6 @@ public class Bot {
     public static void main(String[] args) {
         secrets = secretsCache.read(Secrets.class);
         Commands.init();
-        CosmeticaData.fillFromUpstream();
         initDiscordClient();
     }
 

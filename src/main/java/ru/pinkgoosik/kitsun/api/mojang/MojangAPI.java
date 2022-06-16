@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class MojangAPI {
     private static final String URL_STRING = "https://api.mojang.com/users/profiles/minecraft/%nickname%";
-    private static final String MANIFEST = "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
+    private static final String MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
     private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
 
