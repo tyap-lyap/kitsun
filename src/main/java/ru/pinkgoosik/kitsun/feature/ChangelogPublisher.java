@@ -56,7 +56,7 @@ public class ChangelogPublisher {
 
     private void publish(ModrinthProject project, ArrayList<ProjectVersion> versions) {
         ProjectVersion modVersion = versions.get(0);
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(project, modVersion)).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(project, modVersion)).block();
         latestVersion = modVersion.id;
         ServerData.get(server).save();
     }

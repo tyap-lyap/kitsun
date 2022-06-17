@@ -5,8 +5,8 @@ import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.api.mojang.PatchNotes;
+import ru.pinkgoosik.kitsun.api.mojang.VersionManifest;
 import ru.pinkgoosik.kitsun.instance.ServerData;
 
 import java.time.Instant;
@@ -51,29 +51,27 @@ public class MCUpdatesPublisher {
         this.enabled = false;
     }
 
-    public void check() {
-        MojangAPI.getManifest().ifPresent(manifest -> {
-            if(!manifest.latest.release.equals(latestRelease)) {
-                this.latestRelease = manifest.latest.release;
-                publish(manifest.latest.release, "Release");
-            }
-            if(!manifest.latest.snapshot.equals(latestSnapshot)) {
-                this.latestSnapshot = manifest.latest.snapshot;
-                publish(manifest.latest.snapshot, "Snapshot");
-            }
-            if (!debtor.isBlank()) {
-                PatchNotes.getEntry(debtor).ifPresent(entry -> {
-                    publishPatchNotesEntry(entry);
-                    this.debtor = "";
-                    ServerData.get(server).save();
-                });
-            }
-        });
+    public void check(VersionManifest manifest) {
+        if(!manifest.latest.release.equals(latestRelease)) {
+            this.latestRelease = manifest.latest.release;
+            publish(manifest.latest.release, "Release");
+        }
+        if(!manifest.latest.snapshot.equals(latestSnapshot)) {
+            this.latestSnapshot = manifest.latest.snapshot;
+            publish(manifest.latest.snapshot, "Snapshot");
+        }
+        if (!debtor.isBlank()) {
+            PatchNotes.getEntry(debtor).ifPresent(entry -> {
+                publishPatchNotesEntry(entry);
+                this.debtor = "";
+                ServerData.get(server).save();
+            });
+        }
     }
 
     private void publish(String version, String type) {
         ServerData.get(server).save();
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version, type)).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version, type)).block();
         tryToPublishPatchNotes(version);
     }
 
@@ -93,7 +91,7 @@ public class MCUpdatesPublisher {
     }
 
     private void publishPatchNotesEntry(PatchNotes.PatchNotesEntry entry) {
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createPatchNotesEmbed(entry)).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createPatchNotesEmbed(entry)).block();
     }
 
     private EmbedData createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {

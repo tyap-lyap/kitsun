@@ -11,7 +11,7 @@ public class ServerUtils {
     public static boolean hasChannel(String serverId, String channelId) {
         AtomicBoolean channelExist = new AtomicBoolean(false);
 
-        Bot.client.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
+        Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
             if(channelData.id().asString().equals(channelId)) {
                 channelExist.set(true);
             }
@@ -21,8 +21,21 @@ public class ServerUtils {
         return channelExist.get();
     }
 
+    public static boolean isVoiceChannel(String serverId, String channelId) {
+        AtomicBoolean isVoiceChannel = new AtomicBoolean(false);
+
+        Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
+            if(channelData.id().asString().equals(channelId) && !channelData.bitrate().isAbsent()) {
+                isVoiceChannel.set(true);
+            }
+            return true;
+        }).block();
+
+        return isVoiceChannel.get();
+    }
+
     public static void forEach(ServerRunnable runnable) {
-        Bot.client.getGuilds().all(userGuildData -> {
+        Bot.rest.getGuilds().all(userGuildData -> {
             String serverId = userGuildData.id().asString();
             runnable.run(ServerData.get(serverId));
             return true;
@@ -30,7 +43,7 @@ public class ServerUtils {
     }
 
     public static void runFor(String serverId, ServerRunnable runnable) {
-        Bot.client.getGuilds().all(userGuildData -> {
+        Bot.rest.getGuilds().all(userGuildData -> {
             if(userGuildData.id().asString().equals(serverId)) {
                 runnable.run(ServerData.get(serverId));
             }
@@ -39,7 +52,7 @@ public class ServerUtils {
     }
 
     public static void runFor(Snowflake serverId, ServerRunnable runnable) {
-        Bot.client.getGuilds().all(userGuildData -> {
+        Bot.rest.getGuilds().all(userGuildData -> {
             if(userGuildData.id().asString().equals(serverId.asString())) {
                 runnable.run(ServerData.get(serverId.asString()));
             }

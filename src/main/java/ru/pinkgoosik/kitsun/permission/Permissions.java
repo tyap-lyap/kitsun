@@ -41,6 +41,9 @@ public class Permissions {
 
     public static final String KITSUN_CMD_PREFIX = add("command.kitsun_cmd_prefix");
 
+    public static final String AUTO_CHANNELS_ENABLE = add("command.auto_channels.enable");
+    public static final String AUTO_CHANNELS_DISABLE = add("command.auto_channels.disable");
+
 
     private static String add(String permission) {
         LIST.add(permission);

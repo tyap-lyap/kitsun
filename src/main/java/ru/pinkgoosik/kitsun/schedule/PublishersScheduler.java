@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PublishersSchedule {
+public class PublishersScheduler {
     public static final Map<String, ArrayList<ChangelogPublisher>> CACHE = new LinkedHashMap<>();
 
     public static void schedule() {
         try {
-            ServerUtils.forEach(PublishersSchedule::proceed);
+            ServerUtils.forEach(PublishersScheduler::proceed);
         }
         catch (Exception e) {
             String msg = "Failed to schedule publishers duo to an exception:\n" + e;

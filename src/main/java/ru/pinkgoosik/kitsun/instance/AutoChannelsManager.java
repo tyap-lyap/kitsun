@@ -1,0 +1,90 @@
+package ru.pinkgoosik.kitsun.instance;
+
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.PermissionOverwrite;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.core.spec.GuildMemberEditSpec;
+import discord4j.core.spec.VoiceChannelCreateSpec;
+import discord4j.discordjson.json.ChannelData;
+import discord4j.rest.util.Permission;
+import discord4j.rest.util.PermissionSet;
+import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.util.ServerUtils;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+public class AutoChannelsManager {
+    public String server;
+    public boolean enabled = false;
+    public String parentChannel;
+    public ArrayList<Session> sessions = new ArrayList<>();
+
+    public AutoChannelsManager(String serverID) {
+        this.server = serverID;
+    }
+
+    public void enable(String parentChannelID) {
+        this.enabled = true;
+        this.parentChannel = parentChannelID;
+    }
+
+    public void disable() {
+        this.enabled = false;
+    }
+
+    public void createSession(Guild guild, Member member) {
+        ChannelData channelData = Bot.rest.getChannelById(Snowflake.of(parentChannel)).getData().block();
+        String memberName = member.getDisplayName();
+        if(channelData != null) {
+            if(!channelData.parentId().isAbsent() && channelData.parentId().get().isPresent()) {
+                String category = channelData.parentId().get().get().asString();
+                VoiceChannel channel = guild.createVoiceChannel(VoiceChannelCreateSpec.builder().name(memberName + "'s lounge").parentId(Snowflake.of(category)).build()).block();
+                if(channel != null) {
+                    Snowflake memberId = member.getId();
+                    channel.addMemberOverwrite(memberId, PermissionOverwrite.forMember(memberId, PermissionSet.of(Permission.MANAGE_CHANNELS), PermissionSet.none())).block();
+                    member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
+                    sessions.add(new Session(member.getId().asString(), channel.getId().asString()));
+                    ServerData serverData = ServerData.get(server);
+                    if(serverData.logger.enabled) {
+                        serverData.logger.onAutoChannelCreate(member, channel);
+                    }
+                    ServerData.get(server).save();
+                }
+            }
+        }
+    }
+
+    public Optional<Session> getSession(String channelID) {
+        for(Session session : sessions) {
+            if(session.channel.equals(channelID)) return Optional.of(session);
+        }
+        return Optional.empty();
+    }
+
+    public boolean hasSession(String channelID) {
+        for(Session session : sessions) {
+            if(session.channel.equals(channelID)) return true;
+        }
+        return false;
+    }
+
+    public void refresh() {
+        sessions.removeIf(session -> !ServerUtils.hasChannel(server, session.channel));
+        ServerData.get(server).save();
+    }
+
+    public static class Session {
+        public String owner;
+        public String channel;
+        public int members;
+
+        public Session(String owner, String channel) {
+            this.owner = owner;
+            this.channel = channel;
+            this.members = 1;
+        }
+    }
+}

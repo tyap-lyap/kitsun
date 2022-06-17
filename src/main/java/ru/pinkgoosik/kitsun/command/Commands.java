@@ -5,7 +5,6 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.command.cloak.*;
 import ru.pinkgoosik.kitsun.command.everyone.*;
 import ru.pinkgoosik.kitsun.command.moderation.*;
 import ru.pinkgoosik.kitsun.feature.KitsunDebug;
@@ -43,6 +42,9 @@ public class Commands {
 
         add(LoggerEnabling.enable());
         add(LoggerEnabling.disable());
+
+        add(AutoChannelsEnabling.enable());
+        add(AutoChannelsEnabling.disable());
 
         add(QuiltUpdatesEnabling.enable());
         add(QuiltUpdatesEnabling.disable());

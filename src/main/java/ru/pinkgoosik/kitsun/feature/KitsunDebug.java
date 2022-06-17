@@ -24,7 +24,7 @@ public class KitsunDebug {
 
     private static void trySendMessage(String text) {
         try {
-            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(text).block();
+            Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(text).block();
         }
         catch (Exception e) {
             Bot.LOGGER.error("Failed to send debug message due to an exception:\n" + e);

@@ -33,6 +33,9 @@ abstract class CachedServerData {
     public QuiltUpdatesPublisher quiltUpdatesPublisher;
     CachedData<QuiltUpdatesPublisher> quiltUpdatesPublisherCache;
 
+    public AutoChannelsManager autoChannelsManager;
+    CachedData<AutoChannelsManager> autoChannelsManagerCache;
+
     public CachedServerData(String serverId) {
         this.server = serverId;
 
@@ -53,6 +56,9 @@ abstract class CachedServerData {
 
         this.quiltUpdatesPublisherCache = new CachedData<>("data/" + serverId, "quilt_updates.json", () -> new QuiltUpdatesPublisher(serverId));
         this.quiltUpdatesPublisher = quiltUpdatesPublisherCache.read(QuiltUpdatesPublisher.class);
+
+        this.autoChannelsManagerCache = new CachedData<>("data/" + serverId, "auto_channels.json", () -> new AutoChannelsManager(serverId));
+        this.autoChannelsManager = autoChannelsManagerCache.read(AutoChannelsManager.class);
     }
 
     /**
@@ -65,6 +71,7 @@ abstract class CachedServerData {
         loggerCache.save(logger);
         mcUpdatesPublisherCache.save(mcUpdatesPublisher);
         quiltUpdatesPublisherCache.save(quiltUpdatesPublisher);
+        autoChannelsManagerCache.save(autoChannelsManager);
     }
 
 }

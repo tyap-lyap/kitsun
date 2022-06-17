@@ -7,6 +7,7 @@ Kitsun is a Discord bot. This simple bot is written in Java and built around [Di
 #### [Our Discord Server](https://discord.gg/DcemWeskeZ)
 
 ### Features
+- Auto voice channels
 - [Modrinth](https://modrinth.com) integration
 - Simple Discord server logger
 - Modrinth project changelog publisher

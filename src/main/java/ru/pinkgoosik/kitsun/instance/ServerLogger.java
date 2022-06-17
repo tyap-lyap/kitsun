@@ -3,9 +3,11 @@ package ru.pinkgoosik.kitsun.instance;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.VoiceChannel;
 import discord4j.discordjson.json.EmbedAuthorData;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedFieldData;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.util.GlobalColors;
 
@@ -35,7 +37,7 @@ public class ServerLogger {
         embed.author(EmbedAuthorData.builder().name(member.getTag() + " joined").iconUrl(member.getAvatarUrl()).build());
         embed.color(GlobalColors.GREEN.getRGB());
         embed.timestamp(Instant.now().toString());
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
     }
 
     public void onMemberLeave(Member member) {
@@ -43,7 +45,7 @@ public class ServerLogger {
         embed.author(EmbedAuthorData.builder().name(member.getTag() + " left").iconUrl(member.getAvatarUrl()).build());
         embed.color(GlobalColors.RED.getRGB());
         embed.timestamp(Instant.now().toString());
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
     }
 
     public void onMessageUpdate(Message old, Message message) {
@@ -57,7 +59,7 @@ public class ServerLogger {
             embed.addField(EmbedFieldData.builder().name("After").value(message.getContent()).inline(false).build());
             embed.color(GlobalColors.BLUE.getRGB());
             embed.timestamp(Instant.now().toString());
-            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
+            Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
         }
     }
 
@@ -70,8 +72,42 @@ public class ServerLogger {
             embed.addField(EmbedFieldData.builder().name("Message").value(message.getContent()).inline(false).build());
             embed.color(GlobalColors.BLUE.getRGB());
             embed.timestamp(Instant.now().toString());
-            Bot.client.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
+            Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
         }
+    }
 
+    public void onVoiceChannelNameUpdate(VoiceChannel old, VoiceChannel current) {
+        var embed = EmbedData.builder();
+        embed.title("Voice Channel Updated");
+        embed.addField(EmbedFieldData.builder().name("Before").value(old.getName()).inline(false).build());
+        embed.addField(EmbedFieldData.builder().name("After").value(current.getName()).inline(false).build());
+        embed.color(GlobalColors.BLUE.getRGB());
+        embed.timestamp(Instant.now().toString());
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
+    }
+
+    public void onVoiceChannelDelete(@Nullable Member lastMember, @Nullable Member owner, VoiceChannel voiceChannel) {
+        var embed = EmbedData.builder();
+        embed.title("Voice Channel Deleted");
+        embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
+        if(lastMember != null) {
+            embed.addField(EmbedFieldData.builder().name("Last Member").value("<@" + lastMember.getId().asString() + ">").inline(true).build());
+        }
+        if(owner != null) {
+            embed.addField(EmbedFieldData.builder().name("Channel Owner").value("<@" + owner.getId().asString() + ">").inline(true).build());
+        }
+        embed.color(GlobalColors.RED.getRGB());
+        embed.timestamp(Instant.now().toString());
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
+    }
+
+    public void onAutoChannelCreate(Member member, VoiceChannel voiceChannel) {
+        var embed = EmbedData.builder();
+        embed.title("Voice Channel Created");
+        embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
+        embed.addField(EmbedFieldData.builder().name("Member").value("<@" + member.getId().asString() + ">").inline(true).build());
+        embed.color(GlobalColors.GREEN.getRGB());
+        embed.timestamp(Instant.now().toString());
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed.build()).block();
     }
 }

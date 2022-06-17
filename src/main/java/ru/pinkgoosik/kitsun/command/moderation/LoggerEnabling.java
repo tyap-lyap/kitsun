@@ -39,7 +39,8 @@ public class LoggerEnabling {
                 .respond(ctx -> {
                     if (!ctx.serverData.logger.enabled) {
                         ctx.channel.createMessage(Embeds.error("The logger is already disabled!")).block();
-                    }else {
+                    }
+                    else {
                         ctx.serverData.logger.disable();
                         ctx.serverData.save();
                         ctx.channel.createMessage(Embeds.success("Logger Disabling", "The logger is now disabled!")).block();

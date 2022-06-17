@@ -50,7 +50,7 @@ public class QuiltUpdatesPublisher {
 
     private void publish(String version) {
         ServerData.get(server).save();
-        Bot.client.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
     }
 
     private EmbedData createEmbed(String version) {

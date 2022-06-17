@@ -9,9 +9,9 @@ public class Scheduler {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                PublishersSchedule.schedule();
-                MCUpdatesSchedule.schedule();
-                QuiltUpdatesSchedule.schedule();
+                PublishersScheduler.schedule();
+                MCUpdatesScheduler.schedule();
+                QuiltUpdatesScheduler.schedule();
             }
         }, 0, 60 * 1000);
     }

@@ -1,6 +1,10 @@
 package ru.pinkgoosik.kitsun;
 
 import discord4j.core.DiscordClientBuilder;
+import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.VoiceStateUpdateEvent;
+import discord4j.core.event.domain.channel.VoiceChannelDeleteEvent;
+import discord4j.core.event.domain.channel.VoiceChannelUpdateEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.lifecycle.ConnectEvent;
@@ -24,7 +28,8 @@ public class Bot {
     public static Secrets secrets;
     public static CachedData<Secrets> secretsCache = new CachedData<>("", "secrets.json", () -> Secrets.DEFAULT);
     public static final Logger LOGGER = Loggers.getLogger("Kitsun");
-    public static RestClient client;
+    public static RestClient rest;
+    public static GatewayDiscordClient client;
 
     public static void main(String[] args) {
         secrets = secretsCache.read(Secrets.class);
@@ -78,9 +83,21 @@ public class Bot {
                         DiscordEvents.onRoleUpdate(event);
                         return Mono.empty();
                     }).then();
+                    Mono<Void> voiceChannelUpdate = gateway.on(VoiceChannelUpdateEvent.class, event -> {
+                        DiscordEvents.onVoiceChannelUpdate(event);
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> voiceChannelDelete = gateway.on(VoiceChannelDeleteEvent.class, event -> {
+                        DiscordEvents.onVoiceChannelDelete(event);
+                        return Mono.empty();
+                    }).then();
+                    Mono<Void> voiceStateUpdate = gateway.on(VoiceStateUpdateEvent.class, event -> {
+                        DiscordEvents.onVoiceStateUpdate(event);
+                        return Mono.empty();
+                    }).then();
                     return Mono.when(connect, memberJoin, memberLeave, messageCreate,
                             messageUpdate, messageDelete, roleCreate, roleDelete,
-                            roleUpdate);
+                            roleUpdate, voiceChannelUpdate, voiceChannelDelete, voiceStateUpdate);
                 })
                 .block();
     }

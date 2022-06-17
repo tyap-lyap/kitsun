@@ -4,7 +4,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.feature.KitsunDebug;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
-public class QuiltUpdatesSchedule {
+public class QuiltUpdatesScheduler {
 
     public static void schedule() {
         try {

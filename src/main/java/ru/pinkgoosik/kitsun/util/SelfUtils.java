@@ -6,6 +6,6 @@ import ru.pinkgoosik.kitsun.Bot;
 public class SelfUtils {
 
     public static String getId() {
-        return (String)Bot.client.getSelf().flatMap(userData -> Mono.create((sink) -> sink.success(userData.id().asString()))).block();
+        return (String)Bot.rest.getSelf().flatMap(userData -> Mono.create((sink) -> sink.success(userData.id().asString()))).block();
     }
 }
