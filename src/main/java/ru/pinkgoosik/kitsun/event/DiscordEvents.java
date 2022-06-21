@@ -13,7 +13,6 @@ import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.event.domain.role.RoleCreateEvent;
 import discord4j.core.event.domain.role.RoleDeleteEvent;
 import discord4j.core.event.domain.role.RoleUpdateEvent;
-import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.channel.VoiceChannel;
 import ru.pinkgoosik.kitsun.Bot;
@@ -36,13 +35,12 @@ public class DiscordEvents {
         try {
             ServerUtils.forEach(serverData -> {
                 serverData.autoChannelsManager.sessions.forEach(session -> {
-                    var channel = event.getClient().getChannelById(Snowflake.of(session.channel)).block();
-                    if(channel != null) {
+                    if(event.getClient().getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel voiceChannel) {
                         var member = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(session.owner)).block();
-                        if(serverData.logger.enabled && channel instanceof VoiceChannel voiceChannel) {
+                        if(serverData.logger.enabled) {
                             serverData.logger.onVoiceChannelDelete(null, member, voiceChannel);
                         }
-                        channel.delete("Refresh sessions data on bot reconnection.").block();
+                        voiceChannel.delete("Refresh sessions data on bot reconnection.").block();
                     }
                 });
                 serverData.autoChannelsManager.sessions = new ArrayList<>();
@@ -169,16 +167,13 @@ public class DiscordEvents {
 
     public static void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
         try {
-            ServerUtils.forEach(serverData -> {
-                var session = serverData.autoChannelsManager.getSession(event.getChannel().getId().asString());
-                if(session.isPresent()) {
-                    serverData.autoChannelsManager.refresh();
-                    var member = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(session.get().owner)).block();
-                    if(serverData.logger.enabled && member != null) {
-                        serverData.logger.onVoiceChannelDelete(null, member, event.getChannel());
-                    }
+            ServerUtils.forEach(serverData -> serverData.autoChannelsManager.getSession(event.getChannel().getId().asString()).ifPresent(session -> {
+                serverData.autoChannelsManager.refresh();
+                var member = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(session.owner)).block();
+                if(serverData.logger.enabled) {
+                    serverData.logger.onVoiceChannelDelete(null, member, event.getChannel());
                 }
-            });
+            }));
         }
         catch (Exception e) {
             String msg = "Failed to proceed voice channel delete event due to an exception:\n" + e;
@@ -189,83 +184,52 @@ public class DiscordEvents {
 
     public static void onVoiceStateUpdate(VoiceStateUpdateEvent event) {
         try {
-            if(event.isJoinEvent()) {
-                ServerUtils.forEach(serverData -> {
+            ServerUtils.forEach(serverData -> {
+                if(event.isJoinEvent()) {
                     if(serverData.autoChannelsManager.enabled) {
                         VoiceChannel channel = event.getCurrent().getChannel().block();
-                        Guild guild = event.getCurrent().getGuild().block();
                         Member member = event.getCurrent().getMember().block();
-                        if(guild != null && member != null && channel != null) {
-                            if(channel.getId().asString().equals(serverData.autoChannelsManager.parentChannel)) {
-                                serverData.autoChannelsManager.createSession(guild, member);
-                            }
+
+                        if(member != null && channel != null) {
+                            serverData.autoChannelsManager.onVoiceChannelJoin(channel, member);
                         }
                     }
-                });
-            }
-
-            if (event.isLeaveEvent()) {
-                ServerUtils.forEach(serverData -> {
+                }
+                if (event.isLeaveEvent()) {
                     if(event.getOld().isPresent()) {
                         var channel = event.getOld().get().getChannel().block();
-                        if(channel != null && serverData.autoChannelsManager.hasSession(channel.getId().asString())) {
-                            if(serverData.autoChannelsManager.getSession(channel.getId().asString()).isPresent()) {
-                                var ses = serverData.autoChannelsManager.getSession(channel.getId().asString()).get();
-                                ses.members = ses.members - 1;
-                                if(ses.members == 0) {
-                                    var leaver = event.getOld().get().getMember().block();
-                                    var owner = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(ses.owner)).block();
-                                    if(serverData.logger.enabled && leaver != null) {
-                                        serverData.logger.onVoiceChannelDelete(leaver, owner, channel);
-                                    }
-                                    channel.delete().block();
-                                    serverData.autoChannelsManager.refresh();
-                                }
-                            }
+                        var leaver = event.getOld().get().getMember().block();
+
+                        if(channel != null && leaver != null) {
+                            serverData.autoChannelsManager.onVoiceChannelLeave(channel, leaver);
                         }
                     }
-                });
-            }
-
-            if (event.isMoveEvent()) {
-                ServerUtils.forEach(serverData -> {
-                    var newChannel = event.getCurrent().getChannel().block();
+                }
+                if (event.isMoveEvent()) {
                     if(serverData.autoChannelsManager.enabled) {
-                        Guild guild = event.getCurrent().getGuild().block();
                         Member member = event.getCurrent().getMember().block();
-                        if(guild != null && member != null && newChannel != null) {
-                            if(newChannel.getId().asString().equals(serverData.autoChannelsManager.parentChannel)) {
-                                serverData.autoChannelsManager.createSession(guild, member);
-                            }
+                        var newChannel = event.getCurrent().getChannel().block();
+
+                        if(member != null && newChannel != null) {
+                            serverData.autoChannelsManager.onVoiceChannelJoin(newChannel, member);
                         }
                     }
 
                     if(event.getOld().isPresent()) {
                         var oldChannel = event.getOld().get().getChannel().block();
-                        if(oldChannel != null && serverData.autoChannelsManager.hasSession(oldChannel.getId().asString())) {
-                            if(serverData.autoChannelsManager.getSession(oldChannel.getId().asString()).isPresent()) {
-                                var ses = serverData.autoChannelsManager.getSession(oldChannel.getId().asString()).get();
-                                ses.members = ses.members - 1;
-                                if(ses.members == 0) {
-                                    var leaver = event.getOld().get().getMember().block();
-                                    var owner = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(ses.owner)).block();
-                                    if(serverData.logger.enabled && leaver != null) {
-                                        serverData.logger.onVoiceChannelDelete(leaver, owner, oldChannel);
-                                    }
-                                    oldChannel.delete().block();
-                                    serverData.autoChannelsManager.refresh();
-                                }
-                            }
+                        var leaver = event.getOld().get().getMember().block();
+
+                        if(oldChannel != null && leaver != null) {
+                            serverData.autoChannelsManager.onVoiceChannelLeave(oldChannel, leaver);
                         }
                     }
-                });
-            }
+                }
+            });
         }
         catch (Exception e) {
             String msg = "Failed to proceed voice state update event due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
             KitsunDebug.report(msg, e, false);
         }
-
     }
 }

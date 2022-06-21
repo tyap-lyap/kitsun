@@ -18,7 +18,7 @@ public class PublishersScheduler {
             ServerUtils.forEach(PublishersScheduler::proceed);
         }
         catch (Exception e) {
-            String msg = "Failed to schedule publishers duo to an exception:\n" + e;
+            String msg = "Failed to schedule mod changelog publishers duo to an exception:\n" + e;
             Bot.LOGGER.error(msg);
             KitsunDebug.report(msg, e, true);
         }
