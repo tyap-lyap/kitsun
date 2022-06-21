@@ -151,7 +151,7 @@ public class DiscordEvents {
         try {
             VoiceChannel current = event.getCurrent();
             Optional<VoiceChannel> old = event.getOld();
-            old.ifPresent(oldChannel -> ServerUtils.forEach(serverData -> {
+            old.ifPresent(oldChannel -> ServerUtils.runFor(current.getGuildId(), serverData -> {
                 if (serverData.logger.enabled) {
                     if (!oldChannel.getName().equals(current.getName())) {
                         serverData.logger.onVoiceChannelNameUpdate(oldChannel, current);
