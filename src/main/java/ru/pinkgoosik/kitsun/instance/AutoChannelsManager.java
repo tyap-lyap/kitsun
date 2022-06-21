@@ -59,29 +59,31 @@ public class AutoChannelsManager {
                     serverData.logger.onVoiceChannelDelete(member, owner, voiceChannel);
                 }
                 voiceChannel.delete().block();
-                serverData.autoChannelsManager.refresh();
+                this.refresh();
             }
         });
     }
 
     public void createSession(Guild guild, Member member) {
         ChannelData channelData = Bot.rest.getChannelById(Snowflake.of(parentChannel)).getData().block();
-        if(channelData == null || !channelData.parentId().isAbsent() && channelData.parentId().get().isPresent()) return;
+        if(channelData == null) return;
 
-        String memberName = member.getDisplayName();
-        String category = channelData.parentId().get().get().asString();
-        VoiceChannel channel = guild.createVoiceChannel(VoiceChannelCreateSpec.builder().name(memberName + "'s lounge").parentId(Snowflake.of(category)).build()).block();
+        if(!channelData.parentId().isAbsent() && channelData.parentId().get().isPresent()) {
+            String memberName = member.getDisplayName();
+            String category = channelData.parentId().get().get().asString();
+            VoiceChannel channel = guild.createVoiceChannel(VoiceChannelCreateSpec.builder().name(memberName + "'s lounge").parentId(Snowflake.of(category)).build()).block();
 
-        if(channel != null) {
-            Snowflake memberId = member.getId();
-            channel.addMemberOverwrite(memberId, PermissionOverwrite.forMember(memberId, PermissionSet.of(Permission.MANAGE_CHANNELS), PermissionSet.none())).block();
-            member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
-            sessions.add(new Session(member.getId().asString(), channel.getId().asString()));
-            ServerData serverData = ServerData.get(server);
-            if(serverData.logger.enabled) {
-                serverData.logger.onAutoChannelCreate(member, channel);
+            if(channel != null) {
+                Snowflake memberId = member.getId();
+                channel.addMemberOverwrite(memberId, PermissionOverwrite.forMember(memberId, PermissionSet.of(Permission.MANAGE_CHANNELS), PermissionSet.none())).block();
+                member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
+                this.sessions.add(new Session(member.getId().asString(), channel.getId().asString()));
+                ServerData serverData = ServerData.get(server);
+                if(serverData.logger.enabled) {
+                    serverData.logger.onAutoChannelCreate(member, channel);
+                }
+                serverData.save();
             }
-            ServerData.get(server).save();
         }
     }
 
@@ -112,7 +114,7 @@ public class AutoChannelsManager {
         public Session(String owner, String channel) {
             this.owner = owner;
             this.channel = channel;
-            this.members = 1;
+            this.members = 0;
         }
     }
 }

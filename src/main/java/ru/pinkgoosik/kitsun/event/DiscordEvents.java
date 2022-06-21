@@ -22,6 +22,7 @@ import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class DiscordEvents {
 
@@ -148,8 +149,8 @@ public class DiscordEvents {
 
     public static void onVoiceChannelUpdate(VoiceChannelUpdateEvent event) {
         try {
-            var current = event.getCurrent();
-            var old = event.getOld();
+            VoiceChannel current = event.getCurrent();
+            Optional<VoiceChannel> old = event.getOld();
             old.ifPresent(oldChannel -> ServerUtils.forEach(serverData -> {
                 if (serverData.logger.enabled) {
                     if (!oldChannel.getName().equals(current.getName())) {
@@ -183,51 +184,81 @@ public class DiscordEvents {
     }
 
     public static void onVoiceStateUpdate(VoiceStateUpdateEvent event) {
+        if(event.isJoinEvent()) {
+            DiscordEvents.onVoiceChannelJoin(event);
+        }
+        if (event.isLeaveEvent()) {
+            DiscordEvents.onVoiceChannelLeave(event);
+        }
+        if (event.isMoveEvent()) {
+            DiscordEvents.onVoiceChannelMove(event);
+        }
+    }
+
+    public static void onVoiceChannelJoin(VoiceStateUpdateEvent event) {
         try {
             ServerUtils.forEach(serverData -> {
-                if(event.isJoinEvent()) {
-                    if(serverData.autoChannelsManager.enabled) {
-                        VoiceChannel channel = event.getCurrent().getChannel().block();
-                        Member member = event.getCurrent().getMember().block();
+                if(serverData.autoChannelsManager.enabled) {
+                    VoiceChannel channel = event.getCurrent().getChannel().block();
+                    Member member = event.getCurrent().getMember().block();
 
-                        if(member != null && channel != null) {
-                            serverData.autoChannelsManager.onVoiceChannelJoin(channel, member);
-                        }
-                    }
-                }
-                if (event.isLeaveEvent()) {
-                    if(event.getOld().isPresent()) {
-                        var channel = event.getOld().get().getChannel().block();
-                        var leaver = event.getOld().get().getMember().block();
-
-                        if(channel != null && leaver != null) {
-                            serverData.autoChannelsManager.onVoiceChannelLeave(channel, leaver);
-                        }
-                    }
-                }
-                if (event.isMoveEvent()) {
-                    if(serverData.autoChannelsManager.enabled) {
-                        Member member = event.getCurrent().getMember().block();
-                        var newChannel = event.getCurrent().getChannel().block();
-
-                        if(member != null && newChannel != null) {
-                            serverData.autoChannelsManager.onVoiceChannelJoin(newChannel, member);
-                        }
-                    }
-
-                    if(event.getOld().isPresent()) {
-                        var oldChannel = event.getOld().get().getChannel().block();
-                        var leaver = event.getOld().get().getMember().block();
-
-                        if(oldChannel != null && leaver != null) {
-                            serverData.autoChannelsManager.onVoiceChannelLeave(oldChannel, leaver);
-                        }
+                    if(member != null && channel != null) {
+                        serverData.autoChannelsManager.onVoiceChannelJoin(channel, member);
                     }
                 }
             });
         }
         catch (Exception e) {
-            String msg = "Failed to proceed voice state update event due to an exception:\n" + e;
+            String msg = "Failed to proceed voice channel join event due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
+        }
+    }
+
+    public static void onVoiceChannelLeave(VoiceStateUpdateEvent event) {
+        try {
+            ServerUtils.forEach(serverData -> {
+                if(event.getOld().isPresent()) {
+                    VoiceChannel channel = event.getOld().get().getChannel().block();
+                    Member leaver = event.getOld().get().getMember().block();
+
+                    if(channel != null && leaver != null) {
+                        serverData.autoChannelsManager.onVoiceChannelLeave(channel, leaver);
+                    }
+                }
+            });
+        }
+        catch (Exception e) {
+            String msg = "Failed to proceed voice channel leave event due to an exception:\n" + e;
+            Bot.LOGGER.error(msg);
+            KitsunDebug.report(msg, e, false);
+        }
+    }
+
+    public static void onVoiceChannelMove(VoiceStateUpdateEvent event) {
+        try {
+            ServerUtils.forEach(serverData -> {
+                if(serverData.autoChannelsManager.enabled) {
+                    VoiceChannel newChannel = event.getCurrent().getChannel().block();
+                    Member member = event.getCurrent().getMember().block();
+
+                    if(member != null && newChannel != null) {
+                        serverData.autoChannelsManager.onVoiceChannelJoin(newChannel, member);
+                    }
+                }
+
+                if(event.getOld().isPresent()) {
+                    VoiceChannel oldChannel = event.getOld().get().getChannel().block();
+                    Member leaver = event.getOld().get().getMember().block();
+
+                    if(oldChannel != null && leaver != null) {
+                        serverData.autoChannelsManager.onVoiceChannelLeave(oldChannel, leaver);
+                    }
+                }
+            });
+        }
+        catch (Exception e) {
+            String msg = "Failed to proceed voice channel move event due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
             KitsunDebug.report(msg, e, false);
         }
