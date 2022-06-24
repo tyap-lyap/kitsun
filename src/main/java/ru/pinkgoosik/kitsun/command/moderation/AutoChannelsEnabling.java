@@ -1,10 +1,15 @@
 package ru.pinkgoosik.kitsun.command.moderation;
 
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.rest.util.Permission;
+import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandBuilder;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.Embeds;
+import ru.pinkgoosik.kitsun.util.SelfUtils;
 
 public class AutoChannelsEnabling {
 
@@ -23,9 +28,19 @@ public class AutoChannelsEnabling {
                         ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
                         return;
                     }
-                    if (!ChannelUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
+                    if (!ChannelUtils.exist(ctx.serverData.server, channelIdArg)) {
                         ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
                         return;
+                    }
+                    if(Bot.client.getChannelById(Snowflake.of(channelIdArg)).block() instanceof VoiceChannel vc) {
+                        var category = vc.getCategory().block();
+                        if(category != null) {
+                            var perms = category.getEffectivePermissions(Snowflake.of(SelfUtils.getId())).block();
+                            if(perms != null && !perms.contains(Permission.ADMINISTRATOR)) {
+                                ctx.channel.createMessage(Embeds.error("Bot doesn't have permission of administrator! It required for auto channels to work properly.")).block();
+                                return;
+                            }
+                        }
                     }
                     if(!ChannelUtils.isVoiceChannel(ctx.serverData.server, channelIdArg)) {
                         ctx.channel.createMessage(Embeds.error("A channel you specified isn't a voice channel!")).block();

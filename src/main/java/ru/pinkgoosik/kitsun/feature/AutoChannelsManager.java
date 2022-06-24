@@ -89,7 +89,7 @@ public class AutoChannelsManager {
     }
 
     public void refresh() {
-        sessions.removeIf(session -> !ChannelUtils.hasChannel(server, session.channel));
+        sessions.removeIf(session -> !ChannelUtils.exist(server, session.channel));
         ServerData.get(server).save();
     }
 

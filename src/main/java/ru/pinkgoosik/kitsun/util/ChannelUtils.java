@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChannelUtils {
 
-    public static boolean hasChannel(String serverId, String channelId) {
+    public static boolean exist(String serverId, String channelId) {
         AtomicBoolean channelExist = new AtomicBoolean(false);
 
         Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {

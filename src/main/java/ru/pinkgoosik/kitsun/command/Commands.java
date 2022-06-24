@@ -4,11 +4,13 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.rest.entity.RestChannel;
+import discord4j.rest.http.client.ClientException;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.everyone.*;
 import ru.pinkgoosik.kitsun.command.moderation.*;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.util.Embeds;
 import ru.pinkgoosik.kitsun.util.SelfUtils;
 
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ public class Commands {
                 }
             }));
         }
-        catch (Exception e) {
+        catch(Exception e) {
             String msg = "Failed to proceed commands event duo to an exception:\n" + e;
             Bot.LOGGER.error(msg);
             KitsunDebugger.report(msg, e, true);
@@ -72,7 +74,29 @@ public class Commands {
             if(!replace.isBlank()) {
                 String split = content.replace(replace, "");
                 CommandUseContext context = new CommandUseContext(member, restChannel, splitToArgs(split), serverData);
-                command.respond(context);
+                try {
+                    command.respond(context);
+                }
+                catch(ClientException e) {
+                    if(e.getMessage().contains("Missing Permissions")) {
+                        var privateChannel = member.getPrivateChannel().block();
+                        if(privateChannel != null) {
+                            try {
+                                privateChannel.createMessage(Embeds.errorSpec("Bot doesn't have permission to send messages in this channel! If you are a server admin provide bot required permission.")).block();
+                            }
+                            catch (Exception b) {
+                                String msg = "Failed to report to an user about missing permission duo to an exception:\n" + b;
+                                Bot.LOGGER.error(msg);
+                                KitsunDebugger.report(msg, b, false);
+                            }
+                        }
+                    }
+                    else {
+                        String msg = "Failed to respond to command duo to an exception:\n" + e;
+                        Bot.LOGGER.error(msg);
+                        KitsunDebugger.report(msg, e, true);
+                    }
+                }
                 return;
             }
         }

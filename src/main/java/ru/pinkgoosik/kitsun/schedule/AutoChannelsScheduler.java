@@ -3,6 +3,7 @@ package ru.pinkgoosik.kitsun.schedule;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.VoiceState;
 import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.rest.http.client.ClientException;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
@@ -42,6 +43,16 @@ public class AutoChannelsScheduler {
                     }
                 });
             });
+        }
+        catch(ClientException e) {
+            if(e.getMessage().contains("Missing Permissions")) {
+                //ignore
+            }
+            else {
+                String msg = "Failed to schedule auto channels invalidation duo to an exception:\n" + e;
+                Bot.LOGGER.error(msg);
+                KitsunDebugger.report(msg, e, true);
+            }
         }
         catch (Exception e) {
             String msg = "Failed to schedule auto channels invalidation duo to an exception:\n" + e;

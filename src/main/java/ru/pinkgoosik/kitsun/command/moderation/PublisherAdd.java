@@ -42,8 +42,12 @@ public class PublisherAdd extends Command {
             ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
             return;
         }
-        if (!ChannelUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
+        if (!ChannelUtils.exist(ctx.serverData.server, channelIdArg)) {
             ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
+            return;
+        }
+        if(ChannelUtils.isVoiceChannel(ctx.serverData.server, channelIdArg)) {
+            ctx.channel.createMessage(Embeds.error("You can't link publisher to a voice channel!")).block();
             return;
         }
         ModrinthAPI.getProject(slug).ifPresentOrElse(project -> {
@@ -59,7 +63,7 @@ public class PublisherAdd extends Command {
             ctx.serverData.publishers.set(newOnes.toArray(old));
             ctx.serverData.publishers.save();
 
-            String text = "Changelog publisher for the project `" + slug + "` got successfully created!";
+            String text = "Changelog publisher for the project `" + slug + "` got successfully created! Make sure bot has permission to send messages in this channel otherwise it wont work.";
             ctx.channel.createMessage(Embeds.success("Creating Changelog Publisher", text)).block();
 
         }, () -> ctx.channel.createMessage(Embeds.error("Project `" + slug + "` is not found.")).block());

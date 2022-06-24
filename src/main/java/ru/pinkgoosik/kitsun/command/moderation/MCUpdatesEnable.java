@@ -37,11 +37,16 @@ public class MCUpdatesEnable extends Command {
             ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
             return;
         }
-        if (ChannelUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
-            ctx.serverData.mcUpdates.get().enable(channelIdArg);
-            ctx.serverData.mcUpdates.save();
-            ctx.channel.createMessage(Embeds.success("Minecraft Updates Enabling", "The Minecraft Updates publishing is now enabled!")).block();
+        if(!ChannelUtils.exist(ctx.serverData.server, channelIdArg)) {
+            ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
+            return;
         }
-        else ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
+        if(ChannelUtils.isVoiceChannel(ctx.serverData.server, channelIdArg)) {
+            ctx.channel.createMessage(Embeds.error("You can't link mc updates to a voice channel!")).block();
+            return;
+        }
+        ctx.serverData.mcUpdates.get().enable(channelIdArg);
+        ctx.serverData.mcUpdates.save();
+        ctx.channel.createMessage(Embeds.success("Minecraft Updates Enabling", "The Minecraft updates publishing is now enabled! Make sure bot has permission to send messages in this channel otherwise it wont work.")).block();
     }
 }

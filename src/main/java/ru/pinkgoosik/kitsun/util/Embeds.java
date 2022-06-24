@@ -1,5 +1,6 @@
 package ru.pinkgoosik.kitsun.util;
 
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
 
@@ -10,6 +11,14 @@ public class Embeds {
                 .title("Failed")
                 .description(text)
                 .color(GlobalColors.RED.getRGB())
+                .build();
+    }
+
+    public static EmbedCreateSpec errorSpec(String text) {
+        return EmbedCreateSpec.builder()
+                .title("Failed")
+                .description(text)
+                .color(GlobalColors.RED)
                 .build();
     }
 

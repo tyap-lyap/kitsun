@@ -23,12 +23,17 @@ public class QuiltUpdatesEnabling {
                         ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
                         return;
                     }
-                    if (ChannelUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
-                        ctx.serverData.quiltUpdates.get().enable(channelIdArg);
-                        ctx.serverData.quiltUpdates.save();
-                        ctx.channel.createMessage(Embeds.success("Quilt Loader Updates", "Quilt Loader updates publishing is now enabled!")).block();
+                    if(!ChannelUtils.exist(ctx.serverData.server, channelIdArg)) {
+                        ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
+                        return;
                     }
-                    else ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
+                    if(ChannelUtils.isVoiceChannel(ctx.serverData.server, channelIdArg)) {
+                        ctx.channel.createMessage(Embeds.error("You can't link quilt updates to a voice channel!")).block();
+                        return;
+                    }
+                    ctx.serverData.quiltUpdates.get().enable(channelIdArg);
+                    ctx.serverData.quiltUpdates.save();
+                    ctx.channel.createMessage(Embeds.success("Quilt Loader Updates", "Quilt Loader updates publishing is now enabled! Make sure bot has permission to send messages in this channel otherwise it wont work.")).block();
                 }).build();
     }
 
@@ -39,7 +44,8 @@ public class QuiltUpdatesEnabling {
                 .respond(ctx -> {
                     if (!ctx.serverData.quiltUpdates.get().enabled) {
                         ctx.channel.createMessage(Embeds.error("Quilt Loader updates publishing is already disabled!")).block();
-                    }else {
+                    }
+                    else {
                         ctx.serverData.quiltUpdates.get().disable();
                         ctx.serverData.quiltUpdates.get().latestVersion = "";
                         ctx.serverData.quiltUpdates.save();
