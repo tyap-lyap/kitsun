@@ -2,7 +2,7 @@ package ru.pinkgoosik.kitsun.api;
 
 import com.google.gson.*;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.feature.KitsunDebug;
+import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -33,7 +33,7 @@ public class QuiltMeta {
         catch (Exception e) {
             String msg = "Failed to parse quilt versions due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, false);
+            KitsunDebugger.report(msg, e, false);
         }
         return Optional.empty();
     }

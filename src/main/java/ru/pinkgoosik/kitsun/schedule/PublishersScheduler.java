@@ -2,12 +2,13 @@ package ru.pinkgoosik.kitsun.schedule;
 
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
-import ru.pinkgoosik.kitsun.feature.KitsunDebug;
-import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PublishersScheduler {
@@ -20,12 +21,12 @@ public class PublishersScheduler {
         catch (Exception e) {
             String msg = "Failed to schedule mod changelog publishers duo to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, true);
+            KitsunDebugger.report(msg, e, true);
         }
     }
 
     private static void proceed(ServerData serverData) {
-        ArrayList<ChangelogPublisher> publishers = serverData.publishers;
+        ArrayList<ChangelogPublisher> publishers = new ArrayList<>(List.of(serverData.publishers.get()));
         String serverId = serverData.server;
 
         if(CACHE.get(serverId) == null || CACHE.get(serverId).size() != publishers.size()) {

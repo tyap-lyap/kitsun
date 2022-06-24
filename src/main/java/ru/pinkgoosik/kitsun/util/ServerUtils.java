@@ -2,37 +2,9 @@ package ru.pinkgoosik.kitsun.util;
 
 import discord4j.common.util.Snowflake;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.instance.ServerData;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 
 public class ServerUtils {
-
-    public static boolean hasChannel(String serverId, String channelId) {
-        AtomicBoolean channelExist = new AtomicBoolean(false);
-
-        Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
-            if(channelData.id().asString().equals(channelId)) {
-                channelExist.set(true);
-            }
-            return true;
-        }).block();
-
-        return channelExist.get();
-    }
-
-    public static boolean isVoiceChannel(String serverId, String channelId) {
-        AtomicBoolean isVoiceChannel = new AtomicBoolean(false);
-
-        Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
-            if(channelData.id().asString().equals(channelId) && !channelData.bitrate().isAbsent()) {
-                isVoiceChannel.set(true);
-            }
-            return true;
-        }).block();
-
-        return isVoiceChannel.get();
-    }
 
     public static void forEach(ServerRunnable runnable) {
         Bot.rest.getGuilds().all(userGuildData -> {

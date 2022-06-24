@@ -5,8 +5,11 @@ import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
 import ru.pinkgoosik.kitsun.permission.Permissions;
+import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.Embeds;
-import ru.pinkgoosik.kitsun.util.ServerUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PublisherAdd extends Command {
 
@@ -39,19 +42,22 @@ public class PublisherAdd extends Command {
             ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
             return;
         }
-        if (!ServerUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
+        if (!ChannelUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
             ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
             return;
         }
         ModrinthAPI.getProject(slug).ifPresentOrElse(project -> {
-            for (var publisher : ctx.serverData.publishers) {
+            for (var publisher : ctx.serverData.publishers.get()) {
                 if(publisher.channel.equals(channelIdArg) && publisher.project.equals(project.id)) {
                     ctx.channel.createMessage(Embeds.error("This channel already has a publisher of the `" + slug + "` project.")).block();
                     return;
                 }
             }
-            ctx.serverData.publishers.add(new ChangelogPublisher(ctx.serverData.server, channelIdArg, project.id));
-            ctx.serverData.save();
+            var old = ctx.serverData.publishers.get();
+            var newOnes = new ArrayList<>(List.of(ctx.serverData.publishers.get()));
+            newOnes.add(new ChangelogPublisher(ctx.serverData.server, channelIdArg, project.id));
+            ctx.serverData.publishers.set(newOnes.toArray(old));
+            ctx.serverData.publishers.save();
 
             String text = "Changelog publisher for the project `" + slug + "` got successfully created!";
             ctx.channel.createMessage(Embeds.success("Creating Changelog Publisher", text)).block();

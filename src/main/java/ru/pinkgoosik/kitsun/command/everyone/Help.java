@@ -3,7 +3,7 @@ package ru.pinkgoosik.kitsun.command.everyone;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.command.Commands;
-import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.config.ServerConfig;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 

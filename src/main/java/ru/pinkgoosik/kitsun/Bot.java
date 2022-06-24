@@ -19,26 +19,24 @@ import discord4j.rest.RestClient;
 import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
-import ru.pinkgoosik.kitsun.cache.CachedData;
+import ru.pinkgoosik.kitsun.cache.Cached;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
 
 public class Bot {
-    public static Secrets secrets;
-    public static CachedData<Secrets> secretsCache = new CachedData<>("", "secrets.json", () -> Secrets.DEFAULT);
+    public static Cached<Secrets> secrets = new Cached<>("", "secrets.json", Secrets.class, () -> Secrets.DEFAULT);
     public static final Logger LOGGER = Loggers.getLogger("Kitsun");
     public static RestClient rest;
     public static GatewayDiscordClient client;
 
     public static void main(String[] args) {
-        secrets = secretsCache.read(Secrets.class);
         Commands.init();
-        initDiscordClient();
+        Bot.init();
     }
 
-    public static void initDiscordClient() {
-        String token = secrets.discordBotToken;
+    public static void init() {
+        String token = secrets.get().discordBotToken;
         if (token.isBlank()) {
             LOGGER.error("Token is blank");
             System.exit(0);

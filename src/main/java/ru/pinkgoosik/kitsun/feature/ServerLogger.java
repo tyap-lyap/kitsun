@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.instance;
+package ru.pinkgoosik.kitsun.feature;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Member;

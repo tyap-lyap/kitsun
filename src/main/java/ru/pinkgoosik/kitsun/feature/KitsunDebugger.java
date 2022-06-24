@@ -3,7 +3,7 @@ package ru.pinkgoosik.kitsun.feature;
 import discord4j.common.util.Snowflake;
 import ru.pinkgoosik.kitsun.Bot;
 
-public class KitsunDebug {
+public class KitsunDebugger {
     private static final String channel = "967506328190877726";
 
     public static void report(String message, Exception e, boolean shouldPing) {

@@ -21,12 +21,12 @@ public class MCUpdatesDisable extends Command {
     public void respond(CommandUseContext ctx) {
         if(disallowed(ctx, Permissions.MC_UPDATES_DISABLE)) return;
 
-        if (!ctx.serverData.mcUpdatesPublisher.enabled) {
+        if (!ctx.serverData.mcUpdates.get().enabled) {
             ctx.channel.createMessage(Embeds.error("The Minecraft updates publishing is already disabled!")).block();
             return;
         }
-        ctx.serverData.mcUpdatesPublisher.disable();
-        ctx.serverData.save();
+        ctx.serverData.mcUpdates.get().disable();
+        ctx.serverData.mcUpdates.save();
         ctx.channel.createMessage(Embeds.success("Minecraft Updates Disabling", "The Minecraft updates publishing is now disabled!")).block();
     }
 }

@@ -1,30 +1,21 @@
-package ru.pinkgoosik.kitsun.instance;
+package ru.pinkgoosik.kitsun.permission;
 
 import discord4j.core.object.entity.Member;
 import discord4j.rest.util.Permission;
-import ru.pinkgoosik.kitsun.permission.RolePermissions;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static ru.pinkgoosik.kitsun.permission.Permissions.*;
 
-public class AccessManager {
-    private static final ArrayList<RolePermissions> DEFAULT = new ArrayList<>(
-            List.of(
-                    new RolePermissions("default", new ArrayList<>(
-                            List.of(HELP, REGISTER, AVAILABLE_CLOAKS, AVAILABLE_ATTRIBUTES,
-                                    AVAILABLE_COSMETICS, REDEEM, CLOAK_SET,
-                                    CLOAK_REVOKE, CLOAK_INFO, UNREGISTER
-                            )
-                    ))
-            )
-    );
+public class PermissionsManager {
+    private static final ArrayList<RolePermissions> DEFAULT = new ArrayList<>(List.of(new RolePermissions("default", new ArrayList<>(List.of(HELP)))));
 
     public String server;
     public ArrayList<RolePermissions> entries = DEFAULT;
 
-    public AccessManager(String serverID) {
+    public PermissionsManager(String serverID) {
         this.server = serverID;
     }
 
@@ -49,13 +40,13 @@ public class AccessManager {
             if (entry.role.equals(role)) {
                 if (!entry.permissions.contains(permission)) {
                     entry.permissions.add(permission);
-                    ServerData.get(server).save();
+                    ServerData.get(server).permissions.save();
                     return;
                 }
             }
         }
         entries.add(new RolePermissions(role, new ArrayList<>(List.of(permission))));
-        ServerData.get(server).save();
+        ServerData.get(server).permissions.save();
     }
 
     public List<String> getPermissionsForEveryone() {

@@ -14,7 +14,7 @@ public class KitsunCmdPrefix {
                 .requires(Permissions.KITSUN_CMD_PREFIX)
                 .respond(ctx -> {
                     String prefixArg = ctx.args.get(0);
-                    if (ctx.serverData.config.general.commandPrefix.equals(prefixArg)) {
+                    if (ctx.serverData.config.get().general.commandPrefix.equals(prefixArg)) {
                         ctx.channel.createMessage(Embeds.error("The prefix is " + prefixArg + " already!")).block();
                         return;
                     }
@@ -22,8 +22,8 @@ public class KitsunCmdPrefix {
                         ctx.channel.createMessage(Embeds.error("You have not specified prefix!")).block();
                         return;
                     }
-                    ctx.serverData.config.general.commandPrefix = prefixArg;
-                    ctx.serverData.save();
+                    ctx.serverData.config.get().general.commandPrefix = prefixArg;
+                    ctx.serverData.config.save();
                     ctx.channel.createMessage(Embeds.success("Prefix Changing", "Prefix successfully changed!")).block();
 
                 }).build();

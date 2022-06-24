@@ -11,7 +11,7 @@ import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
-import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 
 import java.time.Instant;
 import java.util.ArrayList;

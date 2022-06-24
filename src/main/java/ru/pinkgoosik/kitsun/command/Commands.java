@@ -7,8 +7,8 @@ import discord4j.rest.entity.RestChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.everyone.*;
 import ru.pinkgoosik.kitsun.command.moderation.*;
-import ru.pinkgoosik.kitsun.feature.KitsunDebug;
-import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.SelfUtils;
 
 import java.util.ArrayList;
@@ -19,18 +19,6 @@ public class Commands {
 
     public static void init() {
         add(new Help());
-//        add(new Register());
-//
-//        add(new CloaksList());
-//        add(new CloakSet());
-//        add(new CloakInfo());
-//        add(new CloakRevoke());
-//
-//        add(new Unregister());
-
-//        add(new AvailableAttributesCommand());
-//        add(new AvailableCosmeticsCommand());
-//        add(new RedeemCommand());
 
         add(KitsunCmdPrefix.build());
 
@@ -72,12 +60,12 @@ public class Commands {
         catch (Exception e) {
             String msg = "Failed to proceed commands event duo to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, true);
+            KitsunDebugger.report(msg, e, true);
         }
     }
 
     private static void proceed(String content, Member member, RestChannel restChannel, ServerData serverData) {
-        String commandPrefix = serverData.config.general.commandPrefix;
+        String commandPrefix = serverData.config.get().general.commandPrefix;
         String botPing = "<@" + SelfUtils.getId() + "> ";
         for(Command command : Commands.COMMANDS) {
             String replace = iterate(content, command, new String[]{commandPrefix, botPing});

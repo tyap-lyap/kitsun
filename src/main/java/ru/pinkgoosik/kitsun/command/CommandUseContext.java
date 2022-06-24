@@ -2,9 +2,9 @@ package ru.pinkgoosik.kitsun.command;
 
 import discord4j.core.object.entity.Member;
 import discord4j.rest.entity.RestChannel;
-import ru.pinkgoosik.kitsun.instance.AccessManager;
-import ru.pinkgoosik.kitsun.instance.ServerData;
-import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.permission.PermissionsManager;
+import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.config.ServerConfig;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ public final class CommandUseContext {
     public ArrayList<String> args;
     public ServerData serverData;
     public ServerConfig config;
-    public AccessManager accessManager;
+    public PermissionsManager accessManager;
     public String memberId;
 
     public CommandUseContext(Member member, RestChannel channel, ArrayList<String> args, ServerData serverData) {
@@ -22,8 +22,8 @@ public final class CommandUseContext {
         this.channel = channel;
         this.args = args;
         this.serverData = serverData;
-        this.config = serverData.config;
-        this.accessManager = serverData.accessManager;
+        this.config = serverData.config.get();
+        this.accessManager = serverData.permissions.get();
         this.memberId = member.getId().asString();
     }
 }

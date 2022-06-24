@@ -3,9 +3,13 @@ package ru.pinkgoosik.kitsun.command.moderation;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
-import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PublisherRemove extends Command {
 
@@ -35,18 +39,27 @@ public class PublisherRemove extends Command {
         }
         ModrinthAPI.getProject(slugArg).ifPresentOrElse(project -> {
             if (hasPublishers(project.id, ctx.serverData)) {
-                ctx.serverData.publishers.removeIf(publisher -> publisher.project.equals(project.id));
-                ctx.serverData.save();
+                var old = new ArrayList<>(List.of(ctx.serverData.publishers.get()));
+                old.removeIf(publisher -> publisher.project.equals(project.id));
+
+                var newOnes = new ChangelogPublisher[old.size()];
+                for(int i = 0; i < old.size(); i++) {
+                    newOnes[i] = old.get(i);
+                }
+
+                ctx.serverData.publishers.set(newOnes);
+                ctx.serverData.publishers.save();
                 String text = "All publisher of the `" + slugArg + "` project got removed.";
                 ctx.channel.createMessage(Embeds.success("Removing Changelog Publisher", text)).block();
-            }else {
+            }
+            else {
                 ctx.channel.createMessage(Embeds.error("`" + slugArg + "` project doesn't have any publishers.")).block();
             }
         }, () -> ctx.channel.createMessage(Embeds.error("Project `" + slugArg + "` is not found.")).block());
     }
 
     private static boolean hasPublishers(String projectId, ServerData serverData) {
-        for (var publisher : serverData.publishers) {
+        for (var publisher : serverData.publishers.get()) {
             if(publisher.project.equals(projectId)) return true;
         }
         return false;

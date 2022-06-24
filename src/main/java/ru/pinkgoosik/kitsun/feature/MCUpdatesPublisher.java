@@ -7,7 +7,7 @@ import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.mojang.PatchNotes;
 import ru.pinkgoosik.kitsun.api.mojang.VersionManifest;
-import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 
 import java.time.Instant;
 

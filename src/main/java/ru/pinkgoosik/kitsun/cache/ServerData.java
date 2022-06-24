@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.instance;
+package ru.pinkgoosik.kitsun.cache;
 
 import java.util.ArrayList;
 

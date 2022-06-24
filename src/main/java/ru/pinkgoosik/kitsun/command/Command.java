@@ -1,6 +1,6 @@
 package ru.pinkgoosik.kitsun.command;
 
-import ru.pinkgoosik.kitsun.instance.config.ServerConfig;
+import ru.pinkgoosik.kitsun.config.ServerConfig;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
 public abstract class Command {

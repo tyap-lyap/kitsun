@@ -6,7 +6,7 @@ import discord4j.discordjson.json.EmbedThumbnailData;
 import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
-import ru.pinkgoosik.kitsun.instance.ServerData;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 
 import java.time.Instant;
 

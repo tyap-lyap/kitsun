@@ -3,8 +3,8 @@ package ru.pinkgoosik.kitsun.command.moderation;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.permission.Permissions;
+import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.Embeds;
-import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 public class MCUpdatesEnable extends Command {
 
@@ -29,7 +29,7 @@ public class MCUpdatesEnable extends Command {
 
         String channelIdArg = ctx.args.get(0);
 
-        if (ctx.serverData.mcUpdatesPublisher.enabled) {
+        if (ctx.serverData.mcUpdates.get().enabled) {
             ctx.channel.createMessage(Embeds.error("The Minecraft updates publishing is already enabled!")).block();
             return;
         }
@@ -37,9 +37,9 @@ public class MCUpdatesEnable extends Command {
             ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
             return;
         }
-        if (ServerUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
-            ctx.serverData.mcUpdatesPublisher.enable(channelIdArg);
-            ctx.serverData.save();
+        if (ChannelUtils.hasChannel(ctx.serverData.server, channelIdArg)) {
+            ctx.serverData.mcUpdates.get().enable(channelIdArg);
+            ctx.serverData.mcUpdates.save();
             ctx.channel.createMessage(Embeds.success("Minecraft Updates Enabling", "The Minecraft Updates publishing is now enabled!")).block();
         }
         else ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();

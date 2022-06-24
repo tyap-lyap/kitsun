@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.instance.config;
+package ru.pinkgoosik.kitsun.config;
 
 public class ServerConfig {
     public String serverId;

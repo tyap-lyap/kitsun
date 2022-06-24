@@ -6,7 +6,7 @@ import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.SearchResult;
-import ru.pinkgoosik.kitsun.feature.KitsunDebug;
+import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 
 import java.io.InputStreamReader;
 import java.net.*;
@@ -39,7 +39,7 @@ public class ModrinthAPI {
         catch (Exception e) {
             String msg = "Failed to parse modrinth project " + slug + " due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, false);
+            KitsunDebugger.report(msg, e, false);
         }
         return Optional.empty();
     }
@@ -61,7 +61,7 @@ public class ModrinthAPI {
         catch (Exception e) {
             String msg = "Failed to parse modrinth project " + slug + " versions due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, false);
+            KitsunDebugger.report(msg, e, false);
         }
         return Optional.empty();
     }
@@ -82,7 +82,7 @@ public class ModrinthAPI {
         catch (Exception e) {
             String msg = "Failed to parse modrinth user " + id + " due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, false);
+            KitsunDebugger.report(msg, e, false);
         }
         return Optional.empty();
     }
@@ -103,7 +103,7 @@ public class ModrinthAPI {
         catch (Exception e) {
             String msg = "Failed to parse modrinth search result of \"" + request.getUrl() + "\" due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebug.report(msg, e, false);
+            KitsunDebugger.report(msg, e, false);
         }
         return Optional.empty();
     }
