@@ -5,8 +5,10 @@ jobs:
   build:
     strategy:
       matrix:
-        java: 17
-        os: ubuntu-20.04
+        java: [
+          17,
+        ]
+        os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
