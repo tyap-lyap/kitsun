@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+	id "java-library-distribution"
     id "java"
 }
 
@@ -24,15 +24,13 @@ tasks.withType(JavaCompile).configureEach {
     it.options.release = 17
 }
 
-shadowJar {
-    archiveClassifier.set("")
-}
+distZip.shouldRunAfter(build)
 
 jar {
     manifest {
-        attributes("Main-Class": "ru.pinkgoosik.kitsun.Bot")
+        attributes "Main-Class": "ru.pinkgoosik.kitsun.Bot",
+                   "Class-Path": configurations.runtimeClasspath.files.collect { "lib/" + it.getName() }.join(' ')
     }
-    finalizedBy("shadowJar")
 }
 
 java {

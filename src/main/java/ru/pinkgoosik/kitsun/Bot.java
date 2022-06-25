@@ -25,8 +25,8 @@ import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
 
 public class Bot {
-    public static Cached<Secrets> secrets = new Cached<>("", "secrets.json", Secrets.class, () -> Secrets.DEFAULT);
     public static final Logger LOGGER = Loggers.getLogger("Kitsun");
+    public static Cached<Secrets> secrets = new Cached<>("", "secrets.json", Secrets.class, () -> Secrets.DEFAULT);
     public static RestClient rest;
     public static GatewayDiscordClient client;
 

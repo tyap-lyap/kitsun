@@ -24,3 +24,9 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build
         run: ./gradlew build
+      - name: Capture build artifacts
+        if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts
+          path: build/libs/kitsun.jar
