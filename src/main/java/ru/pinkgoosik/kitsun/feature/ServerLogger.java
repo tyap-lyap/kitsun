@@ -13,6 +13,7 @@ import ru.pinkgoosik.kitsun.util.GlobalColors;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ServerLogger {
     public String server;
@@ -30,6 +31,10 @@ public class ServerLogger {
 
     public void disable() {
         this.enabled = false;
+    }
+
+    public void ifEnabled(Consumer<ServerLogger> consumer) {
+        if(enabled) consumer.accept(this);
     }
 
     public void onMemberJoin(Member member) {

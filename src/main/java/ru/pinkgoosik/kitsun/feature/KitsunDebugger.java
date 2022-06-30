@@ -6,23 +6,18 @@ import ru.pinkgoosik.kitsun.Bot;
 public class KitsunDebugger {
     private static final String channel = "967506328190877726";
 
-    public static void report(String message, Exception e, boolean shouldPing) {
+    public static void report(String message, Exception e, boolean ping) {
         String pinkgoosik = "<@287598520268095488>";
-
         String text = message;
-
-        if(shouldPing) {
-            text = pinkgoosik + "\n" + text;
-        }
-
-        trySendMessage(text);
+        if(ping) text = pinkgoosik + "\n" + text;
+        sendMessage(text);
     }
 
     public static void info(String text) {
-        trySendMessage(text);
+        sendMessage(text);
     }
 
-    private static void trySendMessage(String text) {
+    private static void sendMessage(String text) {
         try {
             Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(text).block();
         }

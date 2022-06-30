@@ -70,12 +70,17 @@ public class AutoChannelsManager {
             if(channel != null) {
                 Snowflake memberId = member.getId();
                 channel.addMemberOverwrite(memberId, PermissionOverwrite.forMember(memberId, PermissionSet.of(Permission.MANAGE_CHANNELS), PermissionSet.none())).block();
-                member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
+                try {
+                    member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
+                }
+                catch(Exception e) {
+                    String msg = "Failed to move member due to an exception:\n" + e;
+                    Bot.LOGGER.error(msg);
+                    KitsunDebugger.report(msg, e, false);
+                }
                 this.sessions.add(new Session(member.getId().asString(), channel.getId().asString()));
                 ServerData serverData = ServerData.get(server);
-                if(serverData.logger.get().enabled) {
-                    serverData.logger.get().onAutoChannelCreate(member, channel);
-                }
+                serverData.logger.get().ifEnabled(log -> log.onAutoChannelCreate(member, channel));
                 serverData.save();
             }
         }
