@@ -14,14 +14,12 @@ import discord4j.core.event.domain.role.RoleCreateEvent;
 import discord4j.core.event.domain.role.RoleDeleteEvent;
 import discord4j.core.event.domain.role.RoleUpdateEvent;
 import discord4j.core.object.entity.channel.VoiceChannel;
-import discord4j.rest.http.client.ClientException;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 public class DiscordEvents {
@@ -30,26 +28,6 @@ public class DiscordEvents {
         Bot.rest = event.getClient().getRestClient();
         Bot.client = event.getClient();
         KitsunDebugger.info("Kitsun is now running!");
-
-        // TODO: I should probably check if channel has members or not but I'm lazy ass
-        try {
-            ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
-                manager.sessions.forEach(session -> {
-                    try {
-                        if(event.getClient().getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel vc) {
-                            var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
-                            data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(member, vc));
-                            vc.delete("Refresh sessions data on bot reconnection.").block();
-                        }
-                    }
-                    catch (ClientException ignored) {}
-                });
-                manager.sessions = new ArrayList<>();
-            }));
-        }
-        catch (Exception e) {
-            KitsunDebugger.ping("Failed to refresh sessions data due to an exception:\n" + e);
-        }
         Scheduler.start();
     }
 

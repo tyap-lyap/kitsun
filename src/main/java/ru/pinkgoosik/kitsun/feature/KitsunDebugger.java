@@ -7,7 +7,8 @@ public class KitsunDebugger {
     private static final String channel = "967506328190877726";
 
     public static void ping(String message) {
-        report("<@287598520268095488>\n" + message);
+        Bot.LOGGER.error(message);
+        sendMessage("<@287598520268095488>\n" + message);
     }
 
     public static void report(String message) {
