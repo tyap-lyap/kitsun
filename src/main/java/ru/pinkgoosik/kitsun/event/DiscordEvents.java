@@ -33,28 +33,22 @@ public class DiscordEvents {
 
         // TODO: I should probably check if channel has members or not but I'm lazy ass
         try {
-            ServerUtils.forEach(serverData -> {
-                var manager = serverData.autoChannels;
-                manager.get().sessions.forEach(session -> {
+            ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
+                manager.sessions.forEach(session -> {
                     try {
-                        if(event.getClient().getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel voiceChannel) {
-                            var member = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(session.owner)).block();
-                            if(serverData.logger.get().enabled) {
-                                serverData.logger.get().onVoiceChannelDelete(null, member, voiceChannel);
-                            }
-                            voiceChannel.delete("Refresh sessions data on bot reconnection.").block();
+                        if(event.getClient().getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel vc) {
+                            var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
+                            data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(member, vc));
+                            vc.delete("Refresh sessions data on bot reconnection.").block();
                         }
                     }
                     catch (ClientException ignored) {}
                 });
-                manager.get().sessions = new ArrayList<>();
-                manager.save();
-            });
+                manager.sessions = new ArrayList<>();
+            }));
         }
         catch (Exception e) {
-            String msg = "Failed to refresh sessions data due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, true);
+            KitsunDebugger.ping("Failed to refresh sessions data due to an exception:\n" + e);
         }
         Scheduler.start();
     }
@@ -70,17 +64,11 @@ public class DiscordEvents {
             var guildId = event.getGuildId();
 
             if(guildId.isPresent() && oldMessage.isPresent() && newMessage.isPresent()) {
-                ServerUtils.runFor(guildId.get(), serverData -> {
-                    if(serverData.logger.get().enabled) {
-                        serverData.logger.get().onMessageUpdate(oldMessage.get(), newMessage.get());
-                    }
-                });
+                ServerUtils.runFor(guildId.get(), data -> data.logger.get().ifEnabled(log -> log.onMessageUpdate(oldMessage.get(), newMessage.get())));
             }
         }
         catch (Exception e) {
-            String msg = "Failed to proceed message update event due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to proceed message update event due to an exception:\n" + e);
         }
     }
 
@@ -91,51 +79,35 @@ public class DiscordEvents {
 
             if(guildId.isPresent() && message.isPresent()) {
                 if (message.get().getAuthor().isPresent() && !message.get().getAuthor().get().isBot()) {
-                    ServerUtils.runFor(guildId.get(), serverData -> {
-                        if(serverData.logger.get().enabled) {
-                            serverData.logger.get().onMessageDelete(message.get());
-                        }
-                    });
+                    ServerUtils.runFor(guildId.get(), data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(message.get())));
                 }
             }
         }
         catch (Exception e) {
-            String msg = "Failed to proceed message delete event due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to proceed message delete event due to an exception:\n" + e);
         }
     }
 
     public static void onMemberJoin(MemberJoinEvent event) {
         try {
-            ServerUtils.runFor(event.getGuildId(), (serverData) -> {
-                if(serverData.logger.get().enabled) {
-                    serverData.logger.get().onMemberJoin(event.getMember());
-                }
-                if(!serverData.config.get().general.memberRoleId.isBlank()) {
-                    event.getMember().addRole(Snowflake.of(serverData.config.get().general.memberRoleId)).block();
+            ServerUtils.runFor(event.getGuildId(), data -> {
+                data.logger.get().ifEnabled(log -> log.onMemberJoin(event.getMember()));
+                if(!data.config.get().general.memberRoleId.isBlank()) {
+                    event.getMember().addRole(Snowflake.of(data.config.get().general.memberRoleId)).block();
                 }
             });
         }
         catch (Exception e) {
-            String msg = "Failed to proceed member join event due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to proceed member join event due to an exception:\n" + e);
         }
     }
 
     public static void onMemberLeave(MemberLeaveEvent event) {
         try {
-            event.getMember().ifPresent(member -> ServerUtils.runFor(event.getGuildId(), serverData -> {
-                if(serverData.logger.get().enabled) {
-                    serverData.logger.get().onMemberLeave(member);
-                }
-            }));
+            event.getMember().ifPresent(member -> ServerUtils.runFor(event.getGuildId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(member))));
         }
         catch (Exception e) {
-            String msg = "Failed to proceed member leave event due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to proceed member leave event due to an exception:\n" + e);
         }
     }
 
@@ -155,45 +127,38 @@ public class DiscordEvents {
         try {
             VoiceChannel current = event.getCurrent();
             Optional<VoiceChannel> old = event.getOld();
-            old.ifPresent(oldChannel -> ServerUtils.runFor(current.getGuildId(), serverData -> {
-                if (serverData.logger.get().enabled) {
-                    if (!oldChannel.getName().equals(current.getName())) {
-                        serverData.logger.get().onVoiceChannelNameUpdate(oldChannel, current);
-                    }
+            old.ifPresent(oldChannel -> ServerUtils.runFor(current.getGuildId(), data -> {
+                if (!oldChannel.getName().equals(current.getName())) {
+                    data.logger.get().ifEnabled(log -> log.onVoiceChannelNameUpdate(oldChannel, current));
                 }
             }));
         }
         catch (Exception e) {
-            String msg = "Failed to proceed voice channel update event due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to proceed voice channel update event due to an exception:\n" + e);
         }
     }
 
     public static void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
         try {
-            ServerUtils.forEach(serverData -> {
-                var manager = serverData.autoChannels;
-                manager.get().getSession(event.getChannel().getId().asString()).ifPresent(session -> {
-                    manager.get().refresh();
-                    var member = Bot.client.getMemberById(Snowflake.of(serverData.server), Snowflake.of(session.owner)).block();
-                    if(serverData.logger.get().enabled) {
-                        serverData.logger.get().onVoiceChannelDelete(null, member, event.getChannel());
-                    }
+            VoiceChannel channel = event.getChannel();
+            String channelId = channel.getId().asString();
+
+            ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
+                manager.getSession(channelId).ifPresent(session -> {
+                    manager.refresh();
+                    var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
+                    data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(member, channel));
                 });
 
-                if(manager.get().enabled) {
-                    if(manager.get().parentChannel.equals(event.getChannel().getId().asString())) {
-                        manager.get().disable();
-                        manager.save();
+                if(manager.enabled) {
+                    if(manager.parentChannel.equals(channelId)) {
+                        manager.disable();
                     }
                 }
-            });
+            }));
         }
         catch (Exception e) {
-            String msg = "Failed to proceed voice channel delete event due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
         }
     }
 

@@ -1,7 +1,6 @@
 package ru.pinkgoosik.kitsun.schedule;
 
 import discord4j.rest.http.client.ClientException;
-import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.cache.ServerData;
@@ -24,21 +23,17 @@ public class PublishersScheduler {
 
             }
             else {
-                String msg = "Failed to schedule mod changelog publishers duo to an exception:\n" + e;
-                Bot.LOGGER.error(msg);
-                KitsunDebugger.report(msg, e, true);
+                KitsunDebugger.ping("Failed to schedule mod changelog publishers duo to an exception:\n" + e);
             }
         }
         catch (Exception e) {
-            String msg = "Failed to schedule mod changelog publishers duo to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, true);
+            KitsunDebugger.ping("Failed to schedule mod changelog publishers duo to an exception:\n" + e);
         }
     }
 
-    private static void proceed(ServerData serverData) {
-        ArrayList<ChangelogPublisher> publishers = new ArrayList<>(List.of(serverData.publishers.get()));
-        String serverId = serverData.server;
+    private static void proceed(ServerData data) {
+        ArrayList<ChangelogPublisher> publishers = new ArrayList<>(List.of(data.publishers.get()));
+        String serverId = data.server;
 
         if(CACHE.get(serverId) == null || CACHE.get(serverId).size() != publishers.size()) {
             CACHE.remove(serverId);

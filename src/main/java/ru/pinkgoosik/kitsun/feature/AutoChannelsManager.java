@@ -74,9 +74,7 @@ public class AutoChannelsManager {
                     member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
                 }
                 catch(Exception e) {
-                    String msg = "Failed to move member due to an exception:\n" + e;
-                    Bot.LOGGER.error(msg);
-                    KitsunDebugger.report(msg, e, false);
+                    KitsunDebugger.report("Failed to move member due to an exception:\n" + e);
                 }
                 this.sessions.add(new Session(member.getId().asString(), channel.getId().asString()));
                 ServerData serverData = ServerData.get(server);

@@ -6,11 +6,13 @@ import ru.pinkgoosik.kitsun.Bot;
 public class KitsunDebugger {
     private static final String channel = "967506328190877726";
 
-    public static void report(String message, Exception e, boolean ping) {
-        String pinkgoosik = "<@287598520268095488>";
-        String text = message;
-        if(ping) text = pinkgoosik + "\n" + text;
-        sendMessage(text);
+    public static void ping(String message) {
+        report("<@287598520268095488>\n" + message);
+    }
+
+    public static void report(String message) {
+        Bot.LOGGER.error(message);
+        sendMessage(message);
     }
 
     public static void info(String text) {

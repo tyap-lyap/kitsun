@@ -15,12 +15,7 @@ public class QuiltMeta {
     public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
     public static final String QUILT_VERSIONS_URL = "https://meta.quiltmc.org/v3/versions/loader";
 
-
     public static Optional<ArrayList<QuiltVersion>> getQuiltVersions() {
-        return parseQuiltVersions();
-    }
-
-    private static Optional<ArrayList<QuiltVersion>> parseQuiltVersions() {
         try {
             URL url = new URL(QUILT_VERSIONS_URL);
             URLConnection request = url.openConnection();
@@ -33,7 +28,7 @@ public class QuiltMeta {
         catch (Exception e) {
             String msg = "Failed to parse quilt versions due to an exception:\n" + e;
             Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report(msg);
         }
         return Optional.empty();
     }

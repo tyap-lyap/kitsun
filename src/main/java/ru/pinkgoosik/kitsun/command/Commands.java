@@ -60,9 +60,7 @@ public class Commands {
             }));
         }
         catch(Exception e) {
-            String msg = "Failed to proceed commands event duo to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, true);
+            KitsunDebugger.ping("Failed to proceed commands event duo to an exception:\n" + e);
         }
     }
 
@@ -85,16 +83,12 @@ public class Commands {
                                 privateChannel.createMessage(Embeds.errorSpec("Bot doesn't have permission to send messages in this channel! If you are a server admin provide bot required permission.")).block();
                             }
                             catch (Exception b) {
-                                String msg = "Failed to report to an user about missing permission duo to an exception:\n" + b;
-                                Bot.LOGGER.error(msg);
-                                KitsunDebugger.report(msg, b, false);
+                                KitsunDebugger.report("Failed to report to an user about missing permission duo to an exception:\n" + b);
                             }
                         }
                     }
                     else {
-                        String msg = "Failed to respond to command duo to an exception:\n" + e;
-                        Bot.LOGGER.error(msg);
-                        KitsunDebugger.report(msg, e, true);
+                        KitsunDebugger.ping("Failed to respond to command duo to an exception:\n" + e);
                     }
                 }
                 return;

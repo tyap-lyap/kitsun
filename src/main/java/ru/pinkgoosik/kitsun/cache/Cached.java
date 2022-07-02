@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.function.Consumer;
 
 public class Cached<T> {
     public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
@@ -19,29 +20,25 @@ public class Cached<T> {
 
     T data;
 
-    public Cached(String path, String file, Class<T> tClass, DefaultBuilder<T> defaultBuilder) {
+    public Cached(String path, String file, Class<T> type, DefaultBuilder<T> defaultBuilder) {
         this.defaultBuilder = defaultBuilder;
         this.path = path;
         this.file = file;
-        this.data = this.read(tClass);
+        this.data = this.read(type);
     }
 
-    public T read(Class<T> tClass) {
-        String filePath;
-        if(path.isBlank()) filePath = this.file;
-        else filePath = path + "/" + file;
+    public T read(Class<T> type) {
+        String filePath = path.isBlank() ? this.file : this.path + "/" + this.file;
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            return GSON.fromJson(reader, tClass);
+            return GSON.fromJson(reader, type);
         }
         catch (FileNotFoundException e) {
             Bot.LOGGER.info("File " + filePath + " is not found! Setting to default.");
             return defaultBuilder.create();
         }
         catch (Exception e) {
-            String msg = "Failed to read cached data due to an exception:\n" + e + "\n Setting to default.";
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, true);
+            Bot.LOGGER.error("Failed to read cached data due to an exception:\n" + e + "\n Setting to default.");
             return defaultBuilder.create();
         }
     }
@@ -54,9 +51,7 @@ public class Cached<T> {
             }
         }
         catch (Exception e) {
-            String msg = "Failed to save cached data due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, true);
+            KitsunDebugger.ping("Failed to save cached data due to an exception:\n" + e);
             e.printStackTrace();
         }
     }
@@ -65,8 +60,17 @@ public class Cached<T> {
         return this.data;
     }
 
-    public void set(T newData) {
-        this.data = newData;
+    public void get(Consumer<T> consumer) {
+        consumer.accept(this.data);
+    }
+
+    public void modify(Consumer<T> consumer) {
+        consumer.accept(this.data);
+        this.save();
+    }
+
+    public void set(T replacement) {
+        this.data = replacement;
     }
 
     @FunctionalInterface

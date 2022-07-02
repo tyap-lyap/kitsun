@@ -40,9 +40,7 @@ public class DatamuseAPI {
             return Optional.of(hitsArray);
         }
         catch (Exception e) {
-            String msg = "Failed to parse datamuse adjectives due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg, e, false);
+            KitsunDebugger.report("Failed to parse datamuse adjectives due to an exception:\n" + e);
         }
         return Optional.empty();
     }

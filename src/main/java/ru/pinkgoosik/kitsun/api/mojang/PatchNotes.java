@@ -13,10 +13,6 @@ public class PatchNotes {
     private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
 
     public static Optional<PatchNotesEntry> getEntry(String version) {
-        return parseEntry(version);
-    }
-
-    private static Optional<PatchNotesEntry> parseEntry(String version) {
         try {
             URL url = new URL(LAUNCHER_CONTENT);
             URLConnection request = url.openConnection();
