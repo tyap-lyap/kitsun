@@ -122,15 +122,15 @@ public class ModCard {
     public String commas(int value) {
         String num = Integer.toString(value);
 
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for(int i = 0; i < num.length() ; i++) {
             if((num.length() - i - 1) % 3 == 0) {
-                result += num.charAt(i) + ",";
+                result.append(num.charAt(i)).append(",");
             }
             else {
-                result += Character.toString(num.charAt(i));
+                result.append(num.charAt(i));
             }
         }
-        return result;
+        return result.deleteCharAt(result.length() - 1).toString();
     }
 }
