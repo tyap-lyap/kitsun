@@ -11,7 +11,7 @@ import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 
 import java.time.Instant;
-import java.util.Optional;
+import java.util.*;
 
 public class ModCard {
     //Discord server's id
@@ -38,21 +38,23 @@ public class ModCard {
     }
 
     public void update() {
-        ThreeOptionals function = (message, project, mod) -> {
+        var message = this.getMessage();
+        var mod = CurseForgeAPI.getMod(this.curseforge);
+        var project = ModrinthAPI.getProject(this.modrinth);
+
+        if(message.isPresent() && project.isPresent() && mod.isPresent()) {
             //slugs can be changed anytime
-            this.curseforgeSlug = mod.data.slug;
-            this.modrinthSlug = project.slug;
+            this.curseforgeSlug = mod.get().data.slug;
+            this.modrinthSlug = project.get().slug;
 
             try {
-                message.edit(MessageEditRequest.builder().embed(this.createEmbed(project, mod)).build());
+                message.get().edit(MessageEditRequest.builder().embed(this.createEmbed(project.get(), mod.get())).build()).block();
             }
             catch (Exception e) {
                 KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
                 this.shouldBeRemoved = true;
             }
-
-        };
-        function.proceed(this);
+        }
     }
 
     public Optional<RestMessage> getMessage() {
@@ -70,9 +72,9 @@ public class ModCard {
         String curseforgeLink = mod.data.links.websiteUrl;
         String modrinthLink = project.getProjectUrl();
         String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
-        String description = "**Summary**\n" + project.description;
+        String description = project.description;
 
-        String statsPart = "\n**Statistics**\n Downloads: " + downloads + ", Followers: " + project.followers;
+        String statsPart = "\n**Statistics**\n Downloads: **" + downloads + "** | Followers: **" + project.followers + "**";
 
         String linksPart = "\n**Links**";
         linksPart = linksPart + "\n[CurseForge](" + curseforgeLink + ")";
@@ -88,30 +90,24 @@ public class ModCard {
             linksPart = linksPart + " | [Wiki](" + project.wiki_url + ")";
         }
 
+        String mcVersion = "";
+        var versions = ModrinthAPI.getVersions(project.slug);
+        if(versions.isPresent()) {
+            for(var projectVersion : versions.get()) {
+                if(projectVersion.featured) {
+                    mcVersion = " for " + projectVersion.game_versions.get(0);
+                    break;
+                }
+            }
+        }
+
         return EmbedData.builder()
-//            .author(EmbedAuthorData.builder().name(project.title).build())
-            .title(project.title)
+            .title(project.title + mcVersion)
             .description(description + statsPart + linksPart)
             .color(Color.of(48,178,123).getRGB())
             .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-            .footer(EmbedFooterData.builder().text("Minecraft Mod | " + project.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
+            .footer(EmbedFooterData.builder().text("Minecraft Mod | " + project.license.name).build())
             .timestamp(Instant.parse(project.published).toString())
             .build();
     }
-
-    @FunctionalInterface
-    public interface ThreeOptionals {
-        void run(RestMessage message, ModrinthProject project, CurseForgeMod mod);
-
-        default void proceed(ModCard card) {
-            var message = card.getMessage();
-            var mod = CurseForgeAPI.getMod(card.curseforge);
-            var project = ModrinthAPI.getProject(card.modrinth);
-
-            if(message.isPresent() && project.isPresent() && mod.isPresent()) {
-                this.run(message.get(), project.get(), mod.get());
-            }
-        }
-    }
-
 }
