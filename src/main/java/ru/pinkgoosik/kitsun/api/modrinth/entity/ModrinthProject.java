@@ -1,6 +1,7 @@
 package ru.pinkgoosik.kitsun.api.modrinth.entity;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 
 import java.util.ArrayList;
 
@@ -37,6 +38,12 @@ public class ModrinthProject {
     public String discord_url = "";
     public ArrayList<DonationLink> donation_urls = new ArrayList<>();
     public ArrayList<GalleryEntry> gallery = new ArrayList<>();
+
+    public String getProjectUrl() {
+        String url = ModrinthAPI.MOD_URL.replace("%slug%", this.slug);
+        url = url.replace("mod", this.project_type);
+        return url;
+    }
 
     public static class ModeratorMessage {
         public String message = "";

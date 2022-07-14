@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.command.everyone;
+package ru.pinkgoosik.kitsun.command.member;
 
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;

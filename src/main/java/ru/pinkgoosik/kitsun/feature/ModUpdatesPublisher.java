@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class ChangelogPublisher {
+public class ModUpdatesPublisher {
     /**
      * Discord server ID that this ChangelogPublisher belongs to
      */
@@ -35,7 +35,7 @@ public class ChangelogPublisher {
      */
     public String latestVersion = "";
 
-    public ChangelogPublisher(String serverID, String channelID, String projectID) {
+    public ModUpdatesPublisher(String serverID, String channelID, String projectID) {
         this.server = serverID;
         this.channel = channelID;
         this.project = projectID;

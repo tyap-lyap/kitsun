@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.command.moderation;
+package ru.pinkgoosik.kitsun.command.admin;
 
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandBuilder;

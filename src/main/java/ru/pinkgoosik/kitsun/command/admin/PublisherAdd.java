@@ -1,9 +1,9 @@
-package ru.pinkgoosik.kitsun.command.moderation;
+package ru.pinkgoosik.kitsun.command.admin;
 
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
-import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
+import ru.pinkgoosik.kitsun.feature.ModUpdatesPublisher;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.Embeds;
@@ -59,7 +59,7 @@ public class PublisherAdd extends Command {
             }
             var old = ctx.serverData.publishers.get();
             var newOnes = new ArrayList<>(List.of(ctx.serverData.publishers.get()));
-            newOnes.add(new ChangelogPublisher(ctx.serverData.server, channelIdArg, project.id));
+            newOnes.add(new ModUpdatesPublisher(ctx.serverData.server, channelIdArg, project.id));
             ctx.serverData.publishers.set(newOnes.toArray(old));
             ctx.serverData.publishers.save();
 

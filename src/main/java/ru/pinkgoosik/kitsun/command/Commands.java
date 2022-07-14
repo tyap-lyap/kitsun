@@ -5,9 +5,8 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.rest.entity.RestChannel;
 import discord4j.rest.http.client.ClientException;
-import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.command.everyone.*;
-import ru.pinkgoosik.kitsun.command.moderation.*;
+import ru.pinkgoosik.kitsun.command.member.*;
+import ru.pinkgoosik.kitsun.command.admin.*;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.Embeds;
@@ -38,6 +37,7 @@ public class Commands {
 
         add(QuiltUpdatesEnabling.enable());
         add(QuiltUpdatesEnabling.disable());
+        add(ModCardCommands.add());
 
 //        add(new PermissionsList());
 //        add(new PermissionGrant());

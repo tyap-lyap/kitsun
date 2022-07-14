@@ -22,6 +22,14 @@ public class Scheduler {
                 AutoChannelsScheduler.schedule();
             }
         }, 0, 1000);
+
+        Timer hourTimer = new Timer();
+        hourTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ModCardsScheduler.schedule();
+            }
+        }, 0, 60 * (60 * 1000));
     }
 
 }

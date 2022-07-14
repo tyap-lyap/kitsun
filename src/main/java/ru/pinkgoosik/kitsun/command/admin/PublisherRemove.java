@@ -1,10 +1,10 @@
-package ru.pinkgoosik.kitsun.command.moderation;
+package ru.pinkgoosik.kitsun.command.admin;
 
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandUseContext;
 import ru.pinkgoosik.kitsun.cache.ServerData;
-import ru.pinkgoosik.kitsun.feature.ChangelogPublisher;
+import ru.pinkgoosik.kitsun.feature.ModUpdatesPublisher;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
@@ -42,7 +42,7 @@ public class PublisherRemove extends Command {
                 var old = new ArrayList<>(List.of(ctx.serverData.publishers.get()));
                 old.removeIf(publisher -> publisher.project.equals(project.id));
 
-                var newOnes = new ChangelogPublisher[old.size()];
+                var newOnes = new ModUpdatesPublisher[old.size()];
                 for(int i = 0; i < old.size(); i++) {
                     newOnes[i] = old.get(i);
                 }

@@ -28,6 +28,8 @@ public class Permissions {
     public static final String AUTO_CHANNELS_ENABLE = add("command.auto_channels.enable");
     public static final String AUTO_CHANNELS_DISABLE = add("command.auto_channels.disable");
 
+    public static final String MOD_CARDS_MANAGEMENT = add("command.mod_cards_management");
+
 
     private static String add(String permission) {
         LIST.add(permission);

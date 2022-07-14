@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.command.moderation;
+package ru.pinkgoosik.kitsun.command.admin;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.channel.VoiceChannel;
