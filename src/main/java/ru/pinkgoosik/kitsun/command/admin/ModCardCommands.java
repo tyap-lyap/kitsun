@@ -47,10 +47,9 @@ public class ModCardCommands {
                     }
 
                     ModCard card = new ModCard(serverId, curseforgeMod.get(), modrinthProject.get(), channelId, "");
-                    var messageData = Bot.rest.getChannelById(Snowflake.of(channelId)).createMessage("empty").block();
+                    var messageData = Bot.rest.getChannelById(Snowflake.of(channelId)).createMessage(card.createEmbed(modrinthProject.get(), curseforgeMod.get())).block();
                     if(messageData != null) {
                         card.message = messageData.id().asString();
-                        card.update();
                         var old = ctx.serverData.modCards.get();
                         var newOnes = new ArrayList<>(List.of(ctx.serverData.modCards.get()));
                         newOnes.add(card);

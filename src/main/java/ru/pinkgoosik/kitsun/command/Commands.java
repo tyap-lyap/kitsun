@@ -88,7 +88,7 @@ public class Commands {
                         }
                     }
                     else {
-                        KitsunDebugger.ping("Failed to respond to command duo to an exception:\n" + e);
+                        KitsunDebugger.ping("Failed to respond to command duo to an exception:\n" + e + "\nCommand: " + command.getName() + "\nArguments: " + context.args);
                     }
                 }
                 return;

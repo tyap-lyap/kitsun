@@ -76,16 +76,16 @@ public class ModCard {
 
         String linksPart = "\n**Links**";
         linksPart = linksPart + "\n[CurseForge](" + curseforgeLink + ")";
-        linksPart = linksPart + "| [Modrinth](" + modrinthLink + ")";
+        linksPart = linksPart + " | [Modrinth](" + modrinthLink + ")";
 
         if (project.source_url != null) {
-            linksPart = linksPart + "| [Source](" + project.source_url + ")";
+            linksPart = linksPart + " | [Source](" + project.source_url + ")";
         }
         if (project.issues_url != null) {
-            linksPart = linksPart + "| [Issues](" + project.issues_url + ")";
+            linksPart = linksPart + " | [Issues](" + project.issues_url + ")";
         }
         if (project.wiki_url != null) {
-            linksPart = linksPart + "| [Wiki](" + project.wiki_url + ")";
+            linksPart = linksPart + " | [Wiki](" + project.wiki_url + ")";
         }
 
         return EmbedData.builder()
