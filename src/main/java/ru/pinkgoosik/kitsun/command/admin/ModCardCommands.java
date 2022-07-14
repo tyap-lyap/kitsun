@@ -55,9 +55,6 @@ public class ModCardCommands {
                         newOnes.add(card);
                         ctx.serverData.modCards.set(newOnes.toArray(old));
                         ctx.serverData.modCards.save();
-
-                        String text = "Mod card for the project `" + modrinthSlugArg + "` got successfully created!";
-                        ctx.channel.createMessage(Embeds.success("Creating Mod Card", text)).block();
                     }
                 })
                 .build();

@@ -31,7 +31,7 @@ public class ModCardsScheduler {
     private static void proceed(ServerData data) {
         ArrayList<ModCard> modCards = new ArrayList<>(List.of(data.modCards.get()));
         modCards.forEach(ModCard::update);
-        modCards.removeIf(c -> c.shouldBeRemoved);
+        modCards.removeIf(card -> card.shouldBeRemoved);
         data.modCards.set(modCards.toArray(new ModCard[0]));
         data.modCards.save();
     }

@@ -53,6 +53,9 @@ public class ModCard {
                 }
                 catch (Exception e) {
                     KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
+                    if(e.getMessage().contains("Unknown Message")) {
+                        this.shouldBeRemoved = true;
+                    }
                 }
             }
         }
@@ -79,9 +82,9 @@ public class ModCard {
         String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
         String description = project.description;
 
-        String statsPart = "\n**Statistics**\n Downloads: **" + downloads + "** | Followers: **" + project.followers + "**";
+        String statsPart = "\n**Statistics**\n Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
 
-        String linksPart = "\n**Links**";
+        String linksPart = "\n**Resources**";
         linksPart = linksPart + "\n[CurseForge](" + curseforgeLink + ")";
         linksPart = linksPart + " | [Modrinth](" + modrinthLink + ")";
 
@@ -98,11 +101,11 @@ public class ModCard {
         String mcVersion = "";
         var versions = ModrinthAPI.getVersions(project.slug);
         if(versions.isPresent()) {
-            for(var projectVersion : versions.get()) {
-                if(projectVersion.featured) {
-                    mcVersion = " for " + projectVersion.game_versions.get(0);
-                    break;
-                }
+            mcVersion = " for " + versions.get().get(0).game_versions.get(0);
+            var first = versions.get().get(versions.get().size() - 1).game_versions.get(0);
+
+            if(!first.equals(versions.get().get(0).game_versions.get(0))) {
+                mcVersion = " for " + first + " - " + versions.get().get(0).game_versions.get(0);
             }
         }
 
@@ -114,5 +117,20 @@ public class ModCard {
             .footer(EmbedFooterData.builder().text("Minecraft Mod | " + project.license.name).build())
             .timestamp(Instant.parse(project.published).toString())
             .build();
+    }
+
+    public String commas(int value) {
+        String num = Integer.toString(value);
+
+        String result = "";
+        for(int i = 0; i < num.length() ; i++) {
+            if((num.length() - i - 1) % 3 == 0) {
+                result += num.charAt(i) + ",";
+            }
+            else {
+                result += Character.toString(num.charAt(i));
+            }
+        }
+        return result;
     }
 }
