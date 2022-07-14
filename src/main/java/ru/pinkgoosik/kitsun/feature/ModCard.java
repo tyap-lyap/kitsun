@@ -82,20 +82,20 @@ public class ModCard {
         String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
         String description = project.description;
 
-        String statsPart = "\n**Statistics**\n Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
+        String statsPart = "\n \n**Statistics**\n Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
 
-        String linksPart = "\n**Resources**";
-        linksPart = linksPart + "\n[CurseForge](" + curseforgeLink + ")";
-        linksPart = linksPart + " | [Modrinth](" + modrinthLink + ")";
+        String linksPart = "\n \n**Resources**";
+        linksPart = linksPart + "\n<:curseforge:890219843243085834>[CurseForge](" + curseforgeLink + ")";
+        linksPart = linksPart + " | <:modrinth:890219821659205652>[Modrinth](" + modrinthLink + ")";
 
         if (project.source_url != null) {
-            linksPart = linksPart + " | [Source](" + project.source_url + ")";
+            linksPart = linksPart + " | <:github:890219809424424970>[Source](" + project.source_url + ")";
         }
         if (project.issues_url != null) {
-            linksPart = linksPart + " | [Issues](" + project.issues_url + ")";
+            linksPart = linksPart + " | 🐛[Issues](" + project.issues_url + ")";
         }
         if (project.wiki_url != null) {
-            linksPart = linksPart + " | [Wiki](" + project.wiki_url + ")";
+            linksPart = linksPart + " | 📖[Wiki](" + project.wiki_url + ")";
         }
 
         String mcVersion = "";
