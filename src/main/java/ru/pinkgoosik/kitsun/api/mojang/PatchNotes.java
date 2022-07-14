@@ -54,6 +54,8 @@ public class PatchNotes {
             str = str.replace("target=\"_blank\" rel=\"noopener noreferrer\">", "");
             str = str.replace("</p>", " ").replace("<strong>", "**");
             str = str.replace("</strong>", "**").replace("\"", "");
+			str = str.replace("<em>", "").replace("</em>", "");
+			str = str.replace("<hr>", "");
             return str;
         }
 
