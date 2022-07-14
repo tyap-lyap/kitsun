@@ -42,19 +42,24 @@ public class ModCard {
         var mod = CurseForgeAPI.getMod(this.curseforge);
         var project = ModrinthAPI.getProject(this.modrinth);
 
-        if(message.isPresent() && project.isPresent() && mod.isPresent()) {
-            //slugs can be changed anytime
-            this.curseforgeSlug = mod.get().data.slug;
-            this.modrinthSlug = project.get().slug;
+        if(message.isPresent()) {
+            if(project.isPresent() && mod.isPresent()) {
+                //slugs can be changed anytime
+                this.curseforgeSlug = mod.get().data.slug;
+                this.modrinthSlug = project.get().slug;
 
-            try {
-                message.get().edit(MessageEditRequest.builder().embed(this.createEmbed(project.get(), mod.get())).build()).block();
-            }
-            catch (Exception e) {
-                KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
-                this.shouldBeRemoved = true;
+                try {
+                    message.get().edit(MessageEditRequest.builder().embed(this.createEmbed(project.get(), mod.get())).build()).block();
+                }
+                catch (Exception e) {
+                    KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
+                }
             }
         }
+        else {
+            this.shouldBeRemoved = true;
+        }
+
     }
 
     public Optional<RestMessage> getMessage() {
