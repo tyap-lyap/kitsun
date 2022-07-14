@@ -18,7 +18,7 @@ dependencies {
     implementation "com.discord4j:discord4j-core:3.2.2"
     implementation "com.google.code.gson:gson:2.9.0"
 	implementation "com.google.code.gson:gson:2.9.0"
-	implementation "org.kohsuke:github-api:1.307"
+//	implementation "org.kohsuke:github-api:1.307"
 //    implementation "com.jcraft:jsch:0.1.55"
 }
 
