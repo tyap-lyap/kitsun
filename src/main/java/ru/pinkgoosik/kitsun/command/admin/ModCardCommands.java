@@ -1,6 +1,7 @@
 package ru.pinkgoosik.kitsun.command.admin;
 
 import discord4j.common.util.Snowflake;
+import discord4j.discordjson.json.MessageData;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
@@ -37,17 +38,32 @@ public class ModCardCommands {
                     var curseforgeMod = CurseForgeAPI.getMod(curseforgeIdArg);
                     var modrinthProject = ModrinthAPI.getProject(modrinthSlugArg);
 
-                    if(curseforgeMod.isEmpty()) {
-                        ctx.channel.createMessage(Embeds.error("Such curseforge mod doesn't exist!")).block();
-                        return;
-                    }
                     if(modrinthProject.isEmpty()) {
                         ctx.channel.createMessage(Embeds.error("Such modrinth project doesn't exist!")).block();
                         return;
                     }
 
-                    ModCard card = new ModCard(serverId, curseforgeMod.get(), modrinthProject.get(), channelId, "");
-                    var messageData = Bot.rest.getChannelById(Snowflake.of(channelId)).createMessage(card.createEmbed(modrinthProject.get(), curseforgeMod.get())).block();
+                    ModCard card;
+                    if(curseforgeIdArg.isEmpty()) {
+                        card = new ModCard(serverId, modrinthProject.get(), channelId, "");
+                    }
+                    else {
+                        if(curseforgeMod.isEmpty()) {
+                            ctx.channel.createMessage(Embeds.error("Such curseforge mod doesn't exist!")).block();
+                            return;
+                        }
+                        else {
+                            card = new ModCard(serverId, curseforgeMod.get(), modrinthProject.get(), channelId, "");
+                        }
+                    }
+                    MessageData messageData;
+
+                    if(curseforgeMod.isPresent()) {
+                        messageData = Bot.rest.getChannelById(Snowflake.of(channelId)).createMessage(card.createEmbed(modrinthProject.get(), curseforgeMod.get())).block();
+                    }
+                    else {
+                        messageData = Bot.rest.getChannelById(Snowflake.of(channelId)).createMessage(card.createEmbed(modrinthProject.get(), null)).block();
+                    }
                     if(messageData != null) {
                         card.message = messageData.id().asString();
                         var old = ctx.serverData.modCards.get();

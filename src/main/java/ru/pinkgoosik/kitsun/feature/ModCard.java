@@ -4,6 +4,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.*;
 import discord4j.rest.entity.RestMessage;
 import discord4j.rest.util.Color;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
@@ -24,6 +25,7 @@ public class ModCard {
     public String modrinthSlug;
     public String curseforge;
     public String curseforgeSlug;
+    public boolean hasCurseforgePage;
 
     public boolean shouldBeRemoved = false;
 
@@ -31,6 +33,16 @@ public class ModCard {
         this.server = serverId;
         this.curseforge = mod.data.getStringId();
         this.curseforgeSlug = mod.data.slug;
+        this.hasCurseforgePage = true;
+        this.modrinth = project.id;
+        this.modrinthSlug = project.slug;
+        this.channel = channelId;
+        this.message = messageId;
+    }
+
+    public ModCard(String serverId, ModrinthProject project, String channelId, String messageId) {
+        this.server = serverId;
+        this.hasCurseforgePage = false;
         this.modrinth = project.id;
         this.modrinthSlug = project.slug;
         this.channel = channelId;
@@ -39,30 +51,36 @@ public class ModCard {
 
     public void update() {
         var message = this.getMessage();
-        var mod = CurseForgeAPI.getMod(this.curseforge);
         var project = ModrinthAPI.getProject(this.modrinth);
-
-        if(message.isPresent()) {
-            if(project.isPresent() && mod.isPresent()) {
-                //slugs can be changed anytime
-                this.curseforgeSlug = mod.get().data.slug;
-                this.modrinthSlug = project.get().slug;
-
-                try {
-                    message.get().edit(MessageEditRequest.builder().embed(this.createEmbed(project.get(), mod.get())).build()).block();
-                }
-                catch (Exception e) {
-                    KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
-                    if(e.getMessage().contains("Unknown Message")) {
-                        this.shouldBeRemoved = true;
-                    }
+        if(message.isPresent() && project.isPresent()) {
+            if(this.hasCurseforgePage) {
+                var mod = CurseForgeAPI.getMod(this.curseforge);
+                if(mod.isPresent()) {
+                    //slugs can be changed anytime
+                    this.curseforgeSlug = mod.get().data.slug;
+                    this.modrinthSlug = project.get().slug;
+                    this.updateMessage(message.get(), project.get(), mod.get());
                 }
             }
+            else {
+                this.modrinthSlug = project.get().slug;
+                this.updateMessage(message.get(), project.get(), null);
+            }
         }
-        else {
-            this.shouldBeRemoved = true;
-        }
+    }
 
+    private void updateMessage(RestMessage message, ModrinthProject project, @Nullable CurseForgeMod mod) {
+        try {
+            message.edit(MessageEditRequest.builder().embedOrNull(this.createEmbed(project, mod)).build()).block();
+        }
+        catch (Exception e) {
+            if(e.getMessage().contains("Unknown Message")) {
+                this.shouldBeRemoved = true;
+            }
+            else {
+                KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
+            }
+        }
     }
 
     public Optional<RestMessage> getMessage() {
@@ -75,27 +93,31 @@ public class ModCard {
         }
     }
 
-    public EmbedData createEmbed(ModrinthProject project, CurseForgeMod mod) {
-        int downloads = project.downloads + mod.data.downloadCount;
-        String curseforgeLink = mod.data.links.websiteUrl;
+    public EmbedData createEmbed(ModrinthProject project, @Nullable CurseForgeMod mod) {
+        int downloads = project.downloads;
+        if(mod != null) downloads = downloads + mod.data.downloadCount;
         String modrinthLink = project.getProjectUrl();
         String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
         String description = project.description;
 
-        String statsPart = "\n \n**Statistics**\n Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
+        String stats = "Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
 
-        String linksPart = "\n \n**Resources**";
-        linksPart = linksPart + "\n<:curseforge:890219843243085834>[CurseForge](" + curseforgeLink + ")";
-        linksPart = linksPart + " | <:modrinth:890219821659205652>[Modrinth](" + modrinthLink + ")";
+        String links = "";
+
+        links = links + "[Modrinth](" + modrinthLink + ")";
+
+        if(mod != null) {
+            links = links + " | [CurseForge](" + mod.data.links.websiteUrl + ")";
+        }
 
         if (project.source_url != null) {
-            linksPart = linksPart + " | <:github:890219809424424970>[Source](" + project.source_url + ")";
+            links = links + " | [Source](" + project.source_url + ")";
         }
         if (project.issues_url != null) {
-            linksPart = linksPart + " | 🐛[Issues](" + project.issues_url + ")";
+            links = links + " | [Issues](" + project.issues_url + ")";
         }
         if (project.wiki_url != null) {
-            linksPart = linksPart + " | 📖[Wiki](" + project.wiki_url + ")";
+            links = links + " | [Wiki](" + project.wiki_url + ")";
         }
 
         String mcVersion = "";
@@ -111,7 +133,9 @@ public class ModCard {
 
         return EmbedData.builder()
             .title(project.title + mcVersion)
-            .description(description + statsPart + linksPart)
+            .description(description)
+            .addField(EmbedFieldData.builder().name("Statistics").value(stats).inline(false).build())
+            .addField(EmbedFieldData.builder().name("Resources").value(links).inline(false).build())
             .color(Color.of(48,178,123).getRGB())
             .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
             .footer(EmbedFooterData.builder().text("Minecraft Mod | " + project.license.name).build())
