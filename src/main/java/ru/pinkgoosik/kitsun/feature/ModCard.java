@@ -12,6 +12,7 @@ import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class ModCard {
@@ -25,7 +26,7 @@ public class ModCard {
     public String modrinthSlug;
     public String curseforge;
     public String curseforgeSlug;
-    public boolean hasCurseforgePage;
+    public boolean hasCurseforgePage = true;
 
     public boolean shouldBeRemoved = false;
 
@@ -33,7 +34,6 @@ public class ModCard {
         this.server = serverId;
         this.curseforge = mod.data.getStringId();
         this.curseforgeSlug = mod.data.slug;
-        this.hasCurseforgePage = true;
         this.modrinth = project.id;
         this.modrinthSlug = project.slug;
         this.channel = channelId;
@@ -101,6 +101,11 @@ public class ModCard {
         String description = project.description;
 
         String stats = "Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
+
+        Instant updated = Instant.parse(project.updated);
+        Instant now = Instant.now();
+
+        stats = stats + " | Updated **" + (int)ChronoUnit.DAYS.between(updated, now) + "** days ago";
 
         String links = "";
 
