@@ -98,14 +98,16 @@ public class ModCard {
         if(mod != null) downloads = downloads + mod.data.downloadCount;
         String modrinthLink = project.getProjectUrl();
         String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
-        String description = project.description;
+        String description = compact(project.description);
 
         String stats = "Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
 
         Instant updated = Instant.parse(project.updated);
+        Instant created = Instant.parse(project.published);
         Instant now = Instant.now();
 
-        stats = stats + " | Updated **" + (int)ChronoUnit.DAYS.between(updated, now) + "** days ago";
+        stats = stats + "\nUpdated: **" + (int)ChronoUnit.DAYS.between(updated, now) + "** days ago";
+        stats = stats + " | Created: **" + (int)ChronoUnit.DAYS.between(created, now) + "** days ago";
 
         String links = "";
 
@@ -162,4 +164,22 @@ public class ModCard {
         }
         return result.deleteCharAt(result.length() - 1).toString();
     }
+
+    public String compact(String text) {
+        String[] words = text.split(" ");
+
+        StringBuilder line = new StringBuilder();
+        StringBuilder result = new StringBuilder();
+
+        for(String word : words) {
+            if(line.length() + word.length() > 32) {
+                result.append(line).append("\n");
+                line = new StringBuilder();
+            }
+            line.append(word).append(" ");
+        }
+        result.append(line);
+        return result.toString();
+    }
+
 }
