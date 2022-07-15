@@ -106,8 +106,8 @@ public class ModCard {
         Instant created = Instant.parse(project.published);
         Instant now = Instant.now();
 
-        stats = stats + "\nUpdated: **" + (int)ChronoUnit.DAYS.between(updated, now) + "** days ago";
-        stats = stats + " | Created: **" + (int)ChronoUnit.DAYS.between(created, now) + "** days ago";
+        stats = stats + "\nUpdated: **" + commas((int)ChronoUnit.DAYS.between(updated, now)) + "** days ago";
+        stats = stats + " | Created: **" + commas((int)ChronoUnit.DAYS.between(created, now)) + "** days ago";
 
         String links = "";
 
@@ -172,7 +172,7 @@ public class ModCard {
         StringBuilder result = new StringBuilder();
 
         for(String word : words) {
-            if(line.length() + word.length() > 32) {
+            if(line.length() + word.length() > 36) {
                 result.append(line).append("\n");
                 line = new StringBuilder();
             }
