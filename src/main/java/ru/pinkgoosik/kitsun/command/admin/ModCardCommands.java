@@ -17,9 +17,9 @@ import java.util.List;
 public class ModCardCommands {
 
     public static Command add() {
-        return CommandBuilder.create("mod-card")
+        return CommandBuilder.create("mod-card create")
                 .args("<modrinth slug> <curseforge id>")
-                .description("Creates mod card of the of the certain project which updates every now and then.")
+                .description("Creates a mod card of the certain project which updates every now and then.")
                 .requires(Permissions.MOD_CARDS_MANAGEMENT)
                 .respond(ctx -> {
                     String modrinthSlugArg = ctx.args.get(0);
@@ -31,10 +31,6 @@ public class ModCardCommands {
                         ctx.channel.createMessage(Embeds.error("You have not specified a modrinth project slug!")).block();
                         return;
                     }
-                    if (curseforgeIdArg.equals("empty")) {
-                        ctx.channel.createMessage(Embeds.error("You have not specified a curseforge mod id!")).block();
-                        return;
-                    }
                     var curseforgeMod = CurseForgeAPI.getMod(curseforgeIdArg);
                     var modrinthProject = ModrinthAPI.getProject(modrinthSlugArg);
 
@@ -44,7 +40,7 @@ public class ModCardCommands {
                     }
 
                     ModCard card;
-                    if(curseforgeIdArg.isEmpty()) {
+                    if(curseforgeIdArg.equals("empty")) {
                         card = new ModCard(serverId, modrinthProject.get(), channelId, "");
                     }
                     else {
