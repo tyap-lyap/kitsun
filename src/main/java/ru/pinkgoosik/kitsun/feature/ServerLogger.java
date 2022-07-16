@@ -10,7 +10,7 @@ import discord4j.discordjson.json.EmbedFieldData;
 import discord4j.discordjson.json.ImmutableEmbedData;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.util.GlobalColors;
+import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -41,7 +41,7 @@ public class ServerLogger {
     public void onMemberJoin(Member member) {
         var embed = EmbedData.builder();
         embed.author(EmbedAuthorData.builder().name(member.getTag() + " joined").iconUrl(member.getAvatarUrl()).build());
-        embed.color(GlobalColors.GREEN.getRGB());
+        embed.color(KitsunColors.getGreen().getRGB());
         embed.timestamp(Instant.now().toString());
         log(embed.build());
     }
@@ -49,7 +49,7 @@ public class ServerLogger {
     public void onMemberLeave(Member member) {
         var embed = EmbedData.builder();
         embed.author(EmbedAuthorData.builder().name(member.getTag() + " left").iconUrl(member.getAvatarUrl()).build());
-        embed.color(GlobalColors.RED.getRGB());
+        embed.color(KitsunColors.getRed().getRGB());
         embed.timestamp(Instant.now().toString());
         log(embed.build());
     }
@@ -63,7 +63,7 @@ public class ServerLogger {
             embed.addField(EmbedFieldData.builder().name("Member").value("<@" + message.getAuthor().get().getId().asString() + ">").inline(true).build());
             embed.addField(EmbedFieldData.builder().name("Before").value(old.getContent()).inline(false).build());
             embed.addField(EmbedFieldData.builder().name("After").value(message.getContent()).inline(false).build());
-            embed.color(GlobalColors.BLUE.getRGB());
+            embed.color(KitsunColors.getBlue().getRGB());
             embed.timestamp(Instant.now().toString());
             log(embed.build());
         }
@@ -76,7 +76,7 @@ public class ServerLogger {
             embed.addField(EmbedFieldData.builder().name("Channel").value("<#" + Objects.requireNonNull(message.getRestChannel().getData().block()).id().asString() + ">").inline(true).build());
             embed.addField(EmbedFieldData.builder().name("Member").value("<@" + message.getAuthor().get().getId().asString() + ">").inline(true).build());
             embed.addField(EmbedFieldData.builder().name("Message").value(message.getContent()).inline(false).build());
-            embed.color(GlobalColors.BLUE.getRGB());
+            embed.color(KitsunColors.getRed().getRGB());
             embed.timestamp(Instant.now().toString());
             log(embed.build());
         }
@@ -87,7 +87,7 @@ public class ServerLogger {
         embed.title("Voice Channel Updated");
         embed.addField(EmbedFieldData.builder().name("Before").value(old.getName()).inline(false).build());
         embed.addField(EmbedFieldData.builder().name("After").value(current.getName()).inline(false).build());
-        embed.color(GlobalColors.BLUE.getRGB());
+        embed.color(KitsunColors.getBlue().getRGB());
         embed.timestamp(Instant.now().toString());
         log(embed.build());
     }
@@ -99,7 +99,7 @@ public class ServerLogger {
         if(owner != null) {
             embed.addField(EmbedFieldData.builder().name("Owner").value("<@" + owner.getId().asString() + ">").inline(true).build());
         }
-        embed.color(GlobalColors.RED.getRGB());
+        embed.color(KitsunColors.getRed().getRGB());
         embed.timestamp(Instant.now().toString());
         log(embed.build());
     }
@@ -109,7 +109,7 @@ public class ServerLogger {
         embed.title("Voice Channel Created");
         embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
         embed.addField(EmbedFieldData.builder().name("Member").value("<@" + member.getId().asString() + ">").inline(true).build());
-        embed.color(GlobalColors.GREEN.getRGB());
+        embed.color(KitsunColors.getGreen().getRGB());
         embed.timestamp(Instant.now().toString());
         log(embed.build());
     }

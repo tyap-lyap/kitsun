@@ -68,7 +68,7 @@ public class ModUpdatesPublisher {
             changelogPart = changelogPart + "**Changelog**\n" + version.changelog.trim() + "\n ";
         }
 
-        Optional<ModrinthUser> user = ModrinthAPI.getUser(version.author_id);
+        Optional<ModrinthUser> user = ModrinthAPI.getUser(version.authorId);
         if(user.isPresent()) {
             if (!changelogPart.isBlank()) changelogPart = changelogPart + "\n";
             String publisherPart = "**Published by** [" + user.get().username + "](https://modrinth.com/user/" + user.get().id + ")";
@@ -76,26 +76,26 @@ public class ModUpdatesPublisher {
         }
 
         String linksPart = "";
-        if (project.source_url != null) {
-            linksPart = linksPart + "\n[Source Code](" + project.source_url + ")";
+        if (project.sourceUrl != null) {
+            linksPart = linksPart + "\n[Source Code](" + project.sourceUrl + ")";
         }
-        if (project.issues_url != null) {
+        if (project.issuesUrl != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
             else linksPart = linksPart + "\n";
-            linksPart = linksPart + "[Issue Tracker](" + project.issues_url + ")";
+            linksPart = linksPart + "[Issue Tracker](" + project.issuesUrl + ")";
         }
-        if (project.wiki_url != null) {
+        if (project.wikiUrl != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
             else linksPart = linksPart + "\n";
-            linksPart = linksPart + "[Wiki](" + project.wiki_url + ")";
+            linksPart = linksPart + "[Wiki](" + project.wikiUrl + ")";
         }
-        String versionType = version.version_type.substring(0, 1).toUpperCase() + version.version_type.substring(1);
-        String minecraftVersions = " for " + version.game_versions.get(0);
+        String versionType = version.versionType.substring(0, 1).toUpperCase() + version.versionType.substring(1);
+        String minecraftVersions = " for " + version.gameVersions.get(0);
 
-        if(version.game_versions.size() > 1) {
-            minecraftVersions = minecraftVersions + " - " + version.game_versions.get(version.game_versions.size() - 1);
+        if(version.gameVersions.size() > 1) {
+            minecraftVersions = minecraftVersions + " - " + version.gameVersions.get(version.gameVersions.size() - 1);
         }
-        String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
+        String iconUrl = project.iconUrl != null ? project.iconUrl : "https://i.imgur.com/rM5bzkK.png";
 
         //I hate qsl icon lmao
         if(project.slug.equals("qsl")) {
@@ -103,13 +103,13 @@ public class ModUpdatesPublisher {
         }
         return EmbedData.builder()
                 .author(EmbedAuthorData.builder().name(project.title).build())
-                .title(version.version_number + " " + versionType + minecraftVersions)
-                .url(ModrinthAPI.MOD_URL.replace("%slug%", project.slug))
+                .title(version.versionNumber + " " + versionType + minecraftVersions)
+                .url(project.getProjectUrl())
                 .description(changelogPart + linksPart)
                 .color(Color.of(48,178,123).getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
                 .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
-                .timestamp(Instant.parse(version.date_published).toString())
+                .timestamp(Instant.parse(version.datePublished).toString())
                 .build();
     }
 }

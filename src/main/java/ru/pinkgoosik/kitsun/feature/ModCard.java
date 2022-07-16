@@ -97,7 +97,7 @@ public class ModCard {
         int downloads = project.downloads;
         if(mod != null) downloads = downloads + mod.data.downloadCount;
         String modrinthLink = project.getProjectUrl();
-        String iconUrl = project.icon_url != null ? project.icon_url : "https://i.imgur.com/rM5bzkK.png";
+        String iconUrl = project.iconUrl != null ? project.iconUrl : "https://i.imgur.com/rM5bzkK.png";
         String description = compact(project.description);
 
         String stats = "Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
@@ -117,24 +117,24 @@ public class ModCard {
             links = links + " | [CurseForge](" + mod.data.links.websiteUrl + ")";
         }
 
-        if (project.source_url != null) {
-            links = links + " | [Source](" + project.source_url + ")";
+        if (project.sourceUrl != null) {
+            links = links + " | [Source](" + project.sourceUrl + ")";
         }
-        if (project.issues_url != null) {
-            links = links + " | [Issues](" + project.issues_url + ")";
+        if (project.issuesUrl != null) {
+            links = links + " | [Issues](" + project.issuesUrl + ")";
         }
-        if (project.wiki_url != null) {
-            links = links + " | [Wiki](" + project.wiki_url + ")";
+        if (project.wikiUrl != null) {
+            links = links + " | [Wiki](" + project.wikiUrl + ")";
         }
 
         String mcVersion = "";
         var versions = ModrinthAPI.getVersions(project.slug);
         if(versions.isPresent()) {
-            mcVersion = " for " + versions.get().get(0).game_versions.get(0);
-            var first = versions.get().get(versions.get().size() - 1).game_versions.get(0);
+            mcVersion = " for " + versions.get().get(0).gameVersions.get(0);
+            var first = versions.get().get(versions.get().size() - 1).gameVersions.get(0);
 
-            if(!first.equals(versions.get().get(0).game_versions.get(0))) {
-                mcVersion = " for " + first + " - " + versions.get().get(0).game_versions.get(0);
+            if(!first.equals(versions.get().get(0).gameVersions.get(0))) {
+                mcVersion = " for " + first + " - " + versions.get().get(0).gameVersions.get(0);
             }
         }
 

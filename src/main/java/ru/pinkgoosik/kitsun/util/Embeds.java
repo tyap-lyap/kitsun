@@ -7,43 +7,43 @@ import discord4j.discordjson.json.EmbedThumbnailData;
 public class Embeds {
 
     public static EmbedData error(String text) {
-        return EmbedData.builder()
-                .title("Failed")
-                .description(text)
-                .color(GlobalColors.RED.getRGB())
-                .build();
+        var embed = EmbedData.builder();
+        embed.title("Failed");
+        embed.description(text);
+        embed.color(KitsunColors.getRed().getRGB());
+        return embed.build();
     }
 
     public static EmbedCreateSpec errorSpec(String text) {
-        return EmbedCreateSpec.builder()
-                .title("Failed")
-                .description(text)
-                .color(GlobalColors.RED)
-                .build();
+        var embed = EmbedCreateSpec.builder();
+        embed.title("Failed");
+        embed.description(text);
+        embed.color(KitsunColors.getRed());
+        return embed.build();
     }
 
     public static EmbedData success(String title, String text) {
-        return EmbedData.builder()
-                .title(title)
-                .description(text)
-                .color(GlobalColors.GREEN.getRGB())
-                .build();
+        var embed = EmbedData.builder();
+        embed.title(title);
+        embed.description(text);
+        embed.color(KitsunColors.getGreen().getRGB());
+        return embed.build();
     }
 
     public static EmbedData success(String title, String text, String previewUrl) {
-        return EmbedData.builder()
-                .title(title)
-                .description(text)
-                .color(GlobalColors.GREEN.getRGB())
-                .thumbnail(EmbedThumbnailData.builder().url(previewUrl).build())
-                .build();
+        var embed = EmbedData.builder();
+        embed.title(title);
+        embed.description(text);
+        embed.color(KitsunColors.getGreen().getRGB());
+        embed.thumbnail(EmbedThumbnailData.builder().url(previewUrl).build());
+        return embed.build();
     }
 
     public static EmbedData info(String title, String text) {
-        return EmbedData.builder()
-                .title(title)
-                .description(text)
-                .color(GlobalColors.BLUE.getRGB())
-                .build();
+        var embed = EmbedData.builder();
+        embed.title(title);
+        embed.description(text);
+        embed.color(KitsunColors.getBlue().getRGB());
+        return embed.build();
     }
 }

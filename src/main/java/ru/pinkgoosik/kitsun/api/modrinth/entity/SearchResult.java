@@ -1,5 +1,6 @@
 package ru.pinkgoosik.kitsun.api.modrinth.entity;
 
+import com.google.gson.annotations.SerializedName;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
@@ -16,19 +17,27 @@ public class SearchResult {
         public String title = "";
         public String description = "";
         public ArrayList<String> categories = new ArrayList<>();
-        public String client_side = "";
-        public String server_side = "";
-        public String project_type = "";
+        @SerializedName("client_side")
+        public String clientSide = "";
+        @SerializedName("server_side")
+        public String serverSide = "";
+        @SerializedName("project_type")
+        public String projectType = "";
         public String downloads = "";
         @Nullable
-        public String icon_url = "";
-        public String project_id = "";
+        @SerializedName("icon_url")
+        public String iconUrl = "";
+        @SerializedName("project_id")
+        public String projectId = "";
         public String author = "";
         public ArrayList<String> versions = new ArrayList<>();
         public int follows = 0;
-        public String date_created = "";
-        public String date_modified = "";
-        public String latest_version = "";
+        @SerializedName("date_created")
+        public String dateCreated = "";
+        @SerializedName("date_modified")
+        public String dateModified = "";
+        @SerializedName("latest_version")
+        public String latestVersion = "";
         public String license = "";
         public ArrayList<String> gallery = new ArrayList<>();
     }

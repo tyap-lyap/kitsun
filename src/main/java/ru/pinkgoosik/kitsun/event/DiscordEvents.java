@@ -27,7 +27,8 @@ public class DiscordEvents {
     public static void onConnect(ConnectEvent event) {
         Bot.rest = event.getClient().getRestClient();
         Bot.client = event.getClient();
-        KitsunDebugger.info("Kitsun is now running!");
+        String note = Bot.secrets.get().note;
+        KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
         Scheduler.start();
     }
 

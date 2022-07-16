@@ -1,34 +1,22 @@
 package ru.pinkgoosik.kitsun.api;
 
-import com.google.gson.*;
-import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.util.UrlParser;
 
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class QuiltMeta {
-    public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
     public static final String QUILT_VERSIONS_URL = "https://meta.quiltmc.org/v3/versions/loader";
 
     public static Optional<ArrayList<QuiltVersion>> getQuiltVersions() {
         try {
-            URL url = new URL(QUILT_VERSIONS_URL);
-            URLConnection request = url.openConnection();
-            request.connect();
-            JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader(request.getInputStream()));
-            JsonArray jsonArray = jsonElement.getAsJsonArray();
-            QuiltVersion[] versions = GSON.fromJson(jsonArray, QuiltVersion[].class);
+            QuiltVersion[] versions = UrlParser.get(QUILT_VERSIONS_URL, QuiltVersion[].class);
             return Optional.of(new ArrayList<>(List.of(versions)));
         }
         catch (Exception e) {
-            String msg = "Failed to parse quilt versions due to an exception:\n" + e;
-            Bot.LOGGER.error(msg);
-            KitsunDebugger.report(msg);
+            KitsunDebugger.report("Failed to parse quilt versions due to an exception:\n" + e);
         }
         return Optional.empty();
     }

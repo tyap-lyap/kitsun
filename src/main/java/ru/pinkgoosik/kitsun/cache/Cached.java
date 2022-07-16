@@ -27,6 +27,15 @@ public class Cached<T> {
         this.data = this.read(type);
     }
 
+    public static<T> Cached<T> of(String path, String file, Class<T> type, DefaultBuilder<T> defaultBuilder) {
+        String fileName = file.contains(".json") ? file : file + ".json";
+        return new Cached<>(path, fileName, type, defaultBuilder);
+    }
+
+    public static<T> Cached<T> of(String file, Class<T> type, DefaultBuilder<T> defaultBuilder) {
+        return new Cached<>("", file, type, defaultBuilder);
+    }
+
     public T read(Class<T> type) {
         String filePath = path.isBlank() ? this.file : this.path + "/" + this.file;
         try {

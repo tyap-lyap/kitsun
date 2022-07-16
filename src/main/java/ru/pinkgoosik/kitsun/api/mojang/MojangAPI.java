@@ -1,10 +1,9 @@
 package ru.pinkgoosik.kitsun.api.mojang;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.util.UrlParser;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -15,16 +14,9 @@ public class MojangAPI {
     private static final String URL_STRING = "https://api.mojang.com/users/profiles/minecraft/%nickname%";
     private static final String MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
-    private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
-
     public static Optional<VersionManifest> getManifest() {
         try {
-            URL url = new URL(MANIFEST);
-            URLConnection request = url.openConnection();
-            request.connect();
-            InputStreamReader reader = new InputStreamReader(request.getInputStream());
-            VersionManifest manifest = GSON.fromJson(reader, VersionManifest.class);
-            return Optional.of(manifest);
+            return Optional.of(UrlParser.get(MANIFEST, VersionManifest.class));
         }
         catch (Exception e) {
             KitsunDebugger.report("Failed to parse minecraft versions manifest due to an exception:\n" + e);

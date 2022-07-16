@@ -50,7 +50,7 @@ public class SearchRequest {
     }
 
     public enum Index {
-        RELEVANT("downloads"),
+        RELEVANT("relevant"),
         DOWNLOADS("downloads"),
         FOLLOWS("follows"),
         NEWEST("newest"),

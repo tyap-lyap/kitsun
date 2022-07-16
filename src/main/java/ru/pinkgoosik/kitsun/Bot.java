@@ -26,7 +26,7 @@ import ru.pinkgoosik.kitsun.event.DiscordEvents;
 
 public class Bot {
     public static final Logger LOGGER = Loggers.getLogger("Kitsun");
-    public static Cached<Secrets> secrets = new Cached<>("", "secrets.json", Secrets.class, () -> Secrets.DEFAULT);
+    public static Cached<Secrets> secrets = Cached.of("secrets", Secrets.class, () -> Secrets.DEFAULT);
     public static RestClient rest;
     public static GatewayDiscordClient client;
 
@@ -36,7 +36,7 @@ public class Bot {
     }
 
     public static void init() {
-        String token = secrets.get().discordBotToken;
+        String token = secrets.get().token;
         if (token.isBlank()) {
             LOGGER.error("Token is blank");
             System.exit(0);

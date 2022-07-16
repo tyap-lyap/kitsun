@@ -1,8 +1,13 @@
 package ru.pinkgoosik.kitsun.api.modrinth.entity;
 
+import com.google.gson.annotations.SerializedName;
+
 @SuppressWarnings("unused")
 public class DependencyEntry {
-    public String version_id = "";
-    public String project_id = "";
-    public String dependency_type = "";
+    @SerializedName("version_id")
+    public String versionId = "";
+    @SerializedName("project_id")
+    public String projectId = "";
+    @SerializedName("dependency_type")
+    public String dependencyType = "";
 }
