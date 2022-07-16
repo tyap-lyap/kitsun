@@ -5,13 +5,13 @@ import discord4j.discordjson.json.EmbedAuthorData;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedFooterData;
 import discord4j.discordjson.json.EmbedThumbnailData;
-import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -106,7 +106,7 @@ public class ModUpdatesPublisher {
                 .title(version.versionNumber + " " + versionType + minecraftVersions)
                 .url(project.getProjectUrl())
                 .description(changelogPart + linksPart)
-                .color(Color.of(48,178,123).getRGB())
+                .color(KitsunColors.getCyan().getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
                 .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
                 .timestamp(Instant.parse(version.datePublished).toString())

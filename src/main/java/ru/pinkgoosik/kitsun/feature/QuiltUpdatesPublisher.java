@@ -3,10 +3,10 @@ package ru.pinkgoosik.kitsun.feature;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
-import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
 import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
 
@@ -59,7 +59,7 @@ public class QuiltUpdatesPublisher {
         return EmbedData.builder().title("New Quilt Loader Version")
                 .description("Quilt Loader " + version + " just got released!" + linksPart)
                 .thumbnail(EmbedThumbnailData.builder().url("https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_logo_dark.png?raw=true").build())
-                .color(Color.of(48,178,123).getRGB())
+                .color(KitsunColors.getCyan().getRGB())
                 .timestamp(Instant.now().toString())
                 .build();
     }

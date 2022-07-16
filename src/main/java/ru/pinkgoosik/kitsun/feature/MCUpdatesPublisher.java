@@ -3,11 +3,11 @@ package ru.pinkgoosik.kitsun.feature;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.EmbedData;
 import discord4j.discordjson.json.EmbedThumbnailData;
-import discord4j.rest.util.Color;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.mojang.PatchNotes;
 import ru.pinkgoosik.kitsun.api.mojang.VersionManifest;
 import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
 
@@ -78,7 +78,7 @@ public class MCUpdatesPublisher {
     private EmbedData createEmbed(String version, String type) {
         return EmbedData.builder().title("New Minecraft Version")
                 .description(type + " " + version + " just got released!")
-                .color(Color.of(48,178,123).getRGB())
+                .color(KitsunColors.getCyan().getRGB())
                 .timestamp(Instant.now().toString())
                 .build();
     }
@@ -98,7 +98,7 @@ public class MCUpdatesPublisher {
         return EmbedData.builder().title(entry.version + " Patch Notes")
                 .thumbnail(EmbedThumbnailData.builder().url(entry.image.getFullUrl()).build())
                 .description(entry.summary() + "\n[Full Patch Notes](" + QUILT_MC_PATCH_NOTES.replaceAll("%version%", entry.version) + ")")
-                .color(Color.of(48,178,123).getRGB())
+                .color(KitsunColors.getCyan().getRGB())
                 .timestamp(Instant.now().toString())
                 .build();
     }

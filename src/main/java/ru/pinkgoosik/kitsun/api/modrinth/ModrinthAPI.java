@@ -7,6 +7,7 @@ import ru.pinkgoosik.kitsun.api.modrinth.entity.SearchResult;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.util.UrlParser;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
@@ -22,6 +23,9 @@ public class ModrinthAPI {
         try {
             return Optional.of(UrlParser.get(API_PROJECT_URL.replace("%slug%", slug), ModrinthProject.class));
         }
+        catch (FileNotFoundException e) {
+            return Optional.empty();
+        }
         catch (Exception e) {
             KitsunDebugger.report("Failed to parse modrinth project " + slug + " due to an exception:\n" + e);
         }
@@ -33,6 +37,9 @@ public class ModrinthAPI {
             ProjectVersion[] versions = UrlParser.get(API_PROJECT_VERSIONS_URL.replace("%slug%", slug), ProjectVersion[].class);
             return Optional.of(new ArrayList<>(Arrays.asList(versions)));
         }
+        catch (FileNotFoundException e) {
+            return Optional.empty();
+        }
         catch (Exception e) {
             KitsunDebugger.report("Failed to parse modrinth project " + slug + " versions due to an exception:\n" + e);
         }
@@ -43,6 +50,9 @@ public class ModrinthAPI {
         try {
             return Optional.of(UrlParser.get(API_USER_URL.replace("%id%", id), ModrinthUser.class));
         }
+        catch (FileNotFoundException e) {
+            return Optional.empty();
+        }
         catch (Exception e) {
             KitsunDebugger.report("Failed to parse modrinth user " + id + " due to an exception:\n" + e);
         }
@@ -52,6 +62,9 @@ public class ModrinthAPI {
     public static Optional<SearchResult> search(SearchRequest request) {
         try {
             return Optional.of(UrlParser.get(request.getUrl(), SearchResult.class));
+        }
+        catch (FileNotFoundException e) {
+            return Optional.empty();
         }
         catch (Exception e) {
             KitsunDebugger.report("Failed to parse modrinth search result of \"" + request.getUrl() + "\" due to an exception:\n" + e);

@@ -3,13 +3,13 @@ package ru.pinkgoosik.kitsun.feature;
 import discord4j.common.util.Snowflake;
 import discord4j.discordjson.json.*;
 import discord4j.rest.entity.RestMessage;
-import discord4j.rest.util.Color;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
+import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -143,7 +143,7 @@ public class ModCard {
             .description(description)
             .addField(EmbedFieldData.builder().name("Statistics").value(stats).inline(false).build())
             .addField(EmbedFieldData.builder().name("Resources").value(links).inline(false).build())
-            .color(Color.of(48,178,123).getRGB())
+            .color(KitsunColors.getCyan().getRGB())
             .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
             .footer(EmbedFooterData.builder().text("Minecraft Mod | " + project.license.name).build())
             .timestamp(Instant.parse(project.published).toString())
