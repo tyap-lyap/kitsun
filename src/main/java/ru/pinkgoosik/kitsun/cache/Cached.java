@@ -33,7 +33,7 @@ public class Cached<T> {
     }
 
     public static<T> Cached<T> of(String file, Class<T> type, DefaultBuilder<T> defaultBuilder) {
-        return new Cached<>("", file, type, defaultBuilder);
+        return Cached.of("", file, type, defaultBuilder);
     }
 
     public T read(Class<T> type) {
