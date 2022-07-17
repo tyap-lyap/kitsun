@@ -10,7 +10,9 @@ public class SearchResult {
     public ArrayList<Hit> hits = new ArrayList<>();
     public int offset = 0;
     public int limit = 0;
-    public int total_hits = 0;
+
+    @SerializedName("total_hits")
+    public int totalHits = 0;
 
     public static class Hit {
         public String slug = "";

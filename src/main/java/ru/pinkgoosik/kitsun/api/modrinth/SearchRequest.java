@@ -1,5 +1,7 @@
 package ru.pinkgoosik.kitsun.api.modrinth;
 
+import java.util.function.Consumer;
+
 @SuppressWarnings("unused")
 public class SearchRequest {
 
@@ -12,7 +14,13 @@ public class SearchRequest {
         return new Builder();
     }
 
-    public String getUrl() {
+    public static SearchRequest build(Consumer<Builder> consumer) {
+        Builder builder = SearchRequest.builder();
+        consumer.accept(builder);
+        return builder.build();
+    }
+
+    public String buildUrl() {
         String url = ModrinthAPI.API_URL + "/search?query='%QUERY%'&index=%INDEX%&limit=%LIMIT%&offset=%OFFSET%";
         url = url.replaceAll("%QUERY%", this.query);
         url = url.replaceAll("%INDEX%", this.index.toString());
