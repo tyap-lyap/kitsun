@@ -5,15 +5,13 @@ import java.util.*;
 public class Scheduler {
 
     public static void start() {
-        Timer minTimer = new Timer();
-        minTimer.schedule(new TimerTask() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                PublishersScheduler.schedule();
                 MCUpdatesScheduler.schedule();
-                QuiltUpdatesScheduler.schedule();
             }
-        }, 0, 60 * 1000);
+        }, 0, 5 * (60 * 1000));
 
         Timer secTimer = new Timer();
         secTimer.schedule(new TimerTask() {
@@ -23,13 +21,23 @@ public class Scheduler {
             }
         }, 0, 1000);
 
-        Timer hourTimer = new Timer();
-        hourTimer.schedule(new TimerTask() {
+        Timer timer1 = new Timer();
+        timer1.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                PublishersScheduler.schedule();
+                QuiltUpdatesScheduler.schedule();
+                ModCardsScheduler.schedule();
+            }
+        }, 0, 60 * (60 * 1000));
+
+        Timer timer2 = new Timer();
+        timer2.schedule(new TimerTask() {
             @Override
             public void run() {
                 ModCardsScheduler.schedule();
             }
-        }, 0, 60 * (60 * 1000));
+        }, 0, (60 * 4) * (60 * 1000));
     }
 
 }

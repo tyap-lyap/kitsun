@@ -35,17 +35,19 @@ public class ModUpdatesPublisher {
      */
     public String latestVersion = "";
 
+    public transient ModrinthProject cachedProject;
+
     public ModUpdatesPublisher(String serverID, String channelID, String projectID) {
         this.server = serverID;
         this.channel = channelID;
         this.project = projectID;
+        ModrinthAPI.getProject(this.project).ifPresent(proj -> this.cachedProject = proj);
     }
 
     public void check() {
-        Optional<ModrinthProject> project = ModrinthAPI.getProject(this.project);
         Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(this.project);
-        if(project.isPresent() && versions.isPresent()) {
-            if(updated(versions.get())) publish(project.get(), versions.get());
+        if(versions.isPresent()) {
+            if(updated(versions.get())) publish(versions.get());
         }
     }
 
@@ -54,14 +56,14 @@ public class ModUpdatesPublisher {
         return !latest.isEmpty() && !latestVersion.equals(latest);
     }
 
-    private void publish(ModrinthProject project, ArrayList<ProjectVersion> versions) {
+    private void publish(ArrayList<ProjectVersion> versions) {
         ProjectVersion modVersion = versions.get(0);
-        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(project, modVersion)).block();
+        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(modVersion)).block();
         latestVersion = modVersion.id;
         ServerData.get(server).save();
     }
 
-    private EmbedData createEmbed(ModrinthProject project, ProjectVersion version) {
+    private EmbedData createEmbed(ProjectVersion version) {
         String changelogPart = "";
 
         if(!version.changelog.isBlank() && version.changelog.length() < 5000) {
@@ -76,18 +78,18 @@ public class ModUpdatesPublisher {
         }
 
         String linksPart = "";
-        if (project.sourceUrl != null) {
-            linksPart = linksPart + "\n[Source Code](" + project.sourceUrl + ")";
+        if (cachedProject.sourceUrl != null) {
+            linksPart = linksPart + "\n[Source Code](" + cachedProject.sourceUrl + ")";
         }
-        if (project.issuesUrl != null) {
+        if (cachedProject.issuesUrl != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
             else linksPart = linksPart + "\n";
-            linksPart = linksPart + "[Issue Tracker](" + project.issuesUrl + ")";
+            linksPart = linksPart + "[Issue Tracker](" + cachedProject.issuesUrl + ")";
         }
-        if (project.wikiUrl != null) {
+        if (cachedProject.wikiUrl != null) {
             if (!linksPart.isBlank()) linksPart = linksPart + " | ";
             else linksPart = linksPart + "\n";
-            linksPart = linksPart + "[Wiki](" + project.wikiUrl + ")";
+            linksPart = linksPart + "[Wiki](" + cachedProject.wikiUrl + ")";
         }
         String versionType = version.versionType.substring(0, 1).toUpperCase() + version.versionType.substring(1);
         String minecraftVersions = " for " + version.gameVersions.get(0);
@@ -95,20 +97,20 @@ public class ModUpdatesPublisher {
         if(version.gameVersions.size() > 1) {
             minecraftVersions = minecraftVersions + " - " + version.gameVersions.get(version.gameVersions.size() - 1);
         }
-        String iconUrl = project.iconUrl != null ? project.iconUrl : "https://i.imgur.com/rM5bzkK.png";
+        String iconUrl = cachedProject.iconUrl != null ? cachedProject.iconUrl : "https://i.imgur.com/rM5bzkK.png";
 
         //I hate qsl icon lmao
-        if(project.slug.equals("qsl")) {
+        if(cachedProject.slug.equals("qsl")) {
             iconUrl = "https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_mini_icon_dark.png?raw=true";
         }
         return EmbedData.builder()
-                .author(EmbedAuthorData.builder().name(project.title).build())
+                .author(EmbedAuthorData.builder().name(cachedProject.title).build())
                 .title(version.versionNumber + " " + versionType + minecraftVersions)
-                .url(project.getProjectUrl())
+                .url(cachedProject.getProjectUrl())
                 .description(changelogPart + linksPart)
                 .color(KitsunColors.getCyan().getRGB())
                 .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-                .footer(EmbedFooterData.builder().text("Modrinth Project | " + project.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
+                .footer(EmbedFooterData.builder().text("Modrinth Project | " + cachedProject.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
                 .timestamp(Instant.parse(version.datePublished).toString())
                 .build();
     }
