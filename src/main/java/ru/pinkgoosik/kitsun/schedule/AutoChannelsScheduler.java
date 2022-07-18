@@ -16,30 +16,32 @@ public class AutoChannelsScheduler {
     public static void schedule() {
         try {
             ServerUtils.forEach(data -> data.autoChannels.get(manager -> {
-                if(manager.enabled) {
-                    if(Bot.client.getChannelById(Snowflake.of(manager.parentChannel)).block() instanceof VoiceChannel channel) {
-                        List<VoiceState> states = channel.getVoiceStates().collectList().block();
-                        if(states != null) {
-                            for (var state : states) {
-                                var member = state.getMember().block();
+                if (manager != null) {
+                    if(manager.enabled) {
+                        if(Bot.client.getChannelById(Snowflake.of(manager.parentChannel)).block() instanceof VoiceChannel channel) {
+                            List<VoiceState> states = channel.getVoiceStates().collectList().block();
+                            if(states != null) {
+                                for (var state : states) {
+                                    var member = state.getMember().block();
 
-                                if(member != null && state.getChannelId().isPresent()) {
-                                    if(state.getChannelId().get().asString().equals(channel.getId().asString())) {
-                                        manager.onParentChannelJoin(member);
-                                        return;
+                                    if(member != null && state.getChannelId().isPresent()) {
+                                        if(state.getChannelId().get().asString().equals(channel.getId().asString())) {
+                                            manager.onParentChannelJoin(member);
+                                            return;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                manager.sessions.forEach(session -> {
-                    if(Bot.client.getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel channel) {
-                        if (ChannelUtils.getMembers(channel) == 0) {
-                            channel.delete("Empty auto channel.").block();
+                    manager.sessions.forEach(session -> {
+                        if(Bot.client.getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel channel) {
+                            if (ChannelUtils.getMembers(channel) == 0) {
+                                channel.delete("Empty auto channel.").block();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }));
         }
         catch(ClientException e) {

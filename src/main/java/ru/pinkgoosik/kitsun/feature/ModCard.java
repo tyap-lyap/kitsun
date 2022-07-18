@@ -189,6 +189,14 @@ public class ModCard {
             title = mod.data.name;
         }
 
+        String license = "";
+        Instant instant = Instant.now();
+
+        if(project != null) {
+            license = " | " + project.license.name;
+            instant = Instant.parse(project.published);
+        }
+
         return EmbedData.builder()
             .title(title + mcVersion)
             .description(description)
@@ -196,8 +204,8 @@ public class ModCard {
             .addField(EmbedFieldData.builder().name("Resources").value(links).inline(false).build())
             .color(KitsunColors.getCyan().getRGB())
             .thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-            .footer(EmbedFooterData.builder().text("Minecraft Mod | " + project.license.name).build())
-            .timestamp(Instant.parse(project.published).toString())
+            .footer(EmbedFooterData.builder().text("Minecraft Mod" + license).build())
+            .timestamp(instant.toString())
             .build();
     }
 
