@@ -13,6 +13,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -92,13 +93,20 @@ public class ServerLogger {
         log(embed.build());
     }
 
-    public void onVoiceChannelDelete(@Nullable Member owner, VoiceChannel voiceChannel) {
+    public void onVoiceChannelDelete(AutoChannelsManager.@Nullable Session session, @Nullable Member owner, VoiceChannel voiceChannel) {
         var embed = EmbedData.builder();
         embed.title("Voice Channel Deleted");
         embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
         if(owner != null) {
             embed.addField(EmbedFieldData.builder().name("Owner").value("<@" + owner.getId().asString() + ">").inline(true).build());
         }
+
+        if(session != null) {
+            Instant created = session.created;
+            Instant now = Instant.now();
+            embed.addField(EmbedFieldData.builder().name("Lasted").value("**" + (int)ChronoUnit.MINUTES.between(created, now) + "** min").inline(false).build());
+        }
+
         embed.color(KitsunColors.getRed().getRGB());
         embed.timestamp(Instant.now().toString());
         log(embed.build());

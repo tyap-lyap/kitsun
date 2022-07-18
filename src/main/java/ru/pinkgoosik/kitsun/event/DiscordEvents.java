@@ -124,9 +124,9 @@ public class DiscordEvents {
 
             ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
                 manager.getSession(channelId).ifPresent(session -> {
-                    manager.refresh();
                     var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
-                    data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(member, channel));
+                    data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
+                    manager.refresh();
                 });
 
                 if(manager.enabled) {

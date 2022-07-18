@@ -35,16 +35,18 @@ public class ModUpdatesPublisher {
      */
     public String latestVersion = "";
 
-    public transient ModrinthProject cachedProject;
+    public transient ModrinthProject cachedProject = null;
 
     public ModUpdatesPublisher(String serverID, String channelID, String projectID) {
         this.server = serverID;
         this.channel = channelID;
         this.project = projectID;
-        ModrinthAPI.getProject(this.project).ifPresent(proj -> this.cachedProject = proj);
     }
 
     public void check() {
+        if(cachedProject == null) {
+            ModrinthAPI.getProject(this.project).ifPresent(proj -> this.cachedProject = proj);
+        }
         Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(this.project);
         if(versions.isPresent()) {
             if(updated(versions.get())) publish(versions.get());

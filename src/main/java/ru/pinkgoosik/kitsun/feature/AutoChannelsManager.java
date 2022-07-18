@@ -15,6 +15,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -97,6 +98,7 @@ public class AutoChannelsManager {
     }
 
     public static class Session {
+        public Instant created = Instant.now();
         public String owner;
         public String channel;
 
