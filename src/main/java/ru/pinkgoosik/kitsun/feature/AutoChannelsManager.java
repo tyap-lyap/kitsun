@@ -98,7 +98,7 @@ public class AutoChannelsManager {
     }
 
     public static class Session {
-        public Instant created = Instant.now();
+        public String created = Instant.now().toString();
         public String owner;
         public String channel;
 

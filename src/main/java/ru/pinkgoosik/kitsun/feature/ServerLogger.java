@@ -102,7 +102,7 @@ public class ServerLogger {
         }
 
         if(session != null) {
-            Instant created = session.created;
+            Instant created = Instant.parse(session.created);
             Instant now = Instant.now();
             embed.addField(EmbedFieldData.builder().name("Lasted").value("**" + (int)ChronoUnit.MINUTES.between(created, now) + "** min").inline(false).build());
         }

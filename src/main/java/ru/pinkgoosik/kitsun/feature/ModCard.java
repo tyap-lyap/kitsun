@@ -26,45 +26,53 @@ public class ModCard {
     public String modrinthSlug;
     public String curseforge;
     public String curseforgeSlug;
-    public boolean hasCurseforgePage = true;
+    public boolean hasCurseforgePage = false;
+    public boolean hasModrinthPage = false;
 
     public boolean shouldBeRemoved = false;
 
-    public ModCard(String serverId, CurseForgeMod mod, ModrinthProject project, String channelId, String messageId) {
+    public ModCard(String serverId, @Nullable CurseForgeMod mod, @Nullable ModrinthProject project, String channelId, String messageId) {
         this.server = serverId;
-        this.curseforge = mod.data.getStringId();
-        this.curseforgeSlug = mod.data.slug;
-        this.modrinth = project.id;
-        this.modrinthSlug = project.slug;
-        this.channel = channelId;
-        this.message = messageId;
-    }
-
-    public ModCard(String serverId, ModrinthProject project, String channelId, String messageId) {
-        this.server = serverId;
-        this.hasCurseforgePage = false;
-        this.modrinth = project.id;
-        this.modrinthSlug = project.slug;
+        if(mod != null) {
+            this.curseforge = mod.data.getStringId();
+            this.curseforgeSlug = mod.data.slug;
+            this.hasCurseforgePage = true;
+        }
+        if(project != null) {
+            this.modrinth = project.id;
+            this.modrinthSlug = project.slug;
+            this.hasModrinthPage = true;
+        }
         this.channel = channelId;
         this.message = messageId;
     }
 
     public void update() {
         var message = this.getMessage();
-        var project = ModrinthAPI.getProject(this.modrinth);
-        if(message.isPresent() && project.isPresent()) {
-            if(this.hasCurseforgePage) {
+        if(message.isPresent()) {
+            if(this.hasCurseforgePage && this.hasModrinthPage) {
+                var project = ModrinthAPI.getProject(this.modrinth);
                 var mod = CurseForgeAPI.getMod(this.curseforge);
-                if(mod.isPresent()) {
+                if(mod.isPresent() && project.isPresent()) {
                     //slugs can be changed anytime
                     this.curseforgeSlug = mod.get().data.slug;
                     this.modrinthSlug = project.get().slug;
                     this.updateMessage(message.get(), project.get(), mod.get());
                 }
             }
-            else {
-                this.modrinthSlug = project.get().slug;
-                this.updateMessage(message.get(), project.get(), null);
+            else if(this.hasModrinthPage) {
+                var project = ModrinthAPI.getProject(this.modrinth);
+                if(project.isPresent()) {
+                    this.modrinthSlug = project.get().slug;
+                    this.updateMessage(message.get(), project.get(), null);
+                }
+            }
+            else if(this.hasCurseforgePage) {
+                var mod = CurseForgeAPI.getMod(this.curseforge);
+                if(mod.isPresent()) {
+                    this.curseforgeSlug = mod.get().data.slug;
+                    this.updateMessage(message.get(), null, mod.get());
+                }
             }
         }
     }
@@ -93,53 +101,96 @@ public class ModCard {
         }
     }
 
-    public EmbedData createEmbed(ModrinthProject project, @Nullable CurseForgeMod mod) {
-        int downloads = project.downloads;
+    public EmbedData createEmbed(@Nullable ModrinthProject project, @Nullable CurseForgeMod mod) {
+        int downloads = 0;
+        if (project != null) downloads = downloads + project.downloads;
         if(mod != null) downloads = downloads + mod.data.downloadCount;
-        String modrinthLink = project.getProjectUrl();
-        String iconUrl = project.iconUrl != null ? project.iconUrl : "https://i.imgur.com/rM5bzkK.png";
-        String description = compact(project.description);
 
-        String stats = "Downloads: **" + commas(downloads) + "** | Followers: **" + commas(project.followers) + "**";
+        String modrinthLink = project != null ? project.getProjectUrl() : "";
 
-        Instant updated = Instant.parse(project.updated);
-        Instant created = Instant.parse(project.published);
-        Instant now = Instant.now();
+        String iconUrl = "";
 
-        stats = stats + "\nUpdated: **" + commas((int)ChronoUnit.DAYS.between(updated, now)) + "** days ago";
-        stats = stats + " | Created: **" + commas((int)ChronoUnit.DAYS.between(created, now)) + "** days ago";
+        if(project != null) {
+            iconUrl = project.iconUrl != null ? project.iconUrl : "https://i.imgur.com/rM5bzkK.png";
+        }
+        else if(mod != null) {
+            iconUrl = mod.data.links.websiteUrl;
+        }
+
+        String description = "";
+
+        if(project != null) description = compact(project.description);
+        if(mod != null) description = compact(mod.data.summary);
+
+        String stats = "Downloads: **" + commas(downloads) + "**";
+        if(project != null) stats = stats + " | Followers: **" + commas(project.followers) + "**";
+
+        if(project != null) {
+            Instant updated = Instant.parse(project.updated);
+            Instant created = Instant.parse(project.published);
+            Instant now = Instant.now();
+
+            stats = stats + "\nUpdated: **" + commas((int)ChronoUnit.DAYS.between(updated, now)) + "** days ago";
+            stats = stats + " | Created: **" + commas((int)ChronoUnit.DAYS.between(created, now)) + "** days ago";
+        }
+
 
         String links = "";
 
-        links = links + "[Modrinth](" + modrinthLink + ")";
+        if(project != null) {
+            links = links + "[Modrinth](" + modrinthLink + ")";
+        }
+        else if(mod != null) {
+            links = links + "[CurseForge](" + mod.data.links.websiteUrl + ")";
+        }
 
-        if(mod != null) {
+        if(project != null && mod != null) {
             links = links + " | [CurseForge](" + mod.data.links.websiteUrl + ")";
         }
 
-        if (project.sourceUrl != null) {
+        if (project != null && project.sourceUrl != null) {
             links = links + " | [Source](" + project.sourceUrl + ")";
         }
-        if (project.issuesUrl != null) {
+        else if (mod != null && mod.data.links.sourceUrl != null && !mod.data.links.sourceUrl.isBlank()) {
+            links = links + " | [Source](" + mod.data.links.sourceUrl + ")";
+        }
+        if (project != null && project.issuesUrl != null) {
             links = links + " | [Issues](" + project.issuesUrl + ")";
         }
-        if (project.wikiUrl != null) {
+        else if (mod != null && mod.data.links.issuesUrl != null && !mod.data.links.issuesUrl.isBlank()) {
+            links = links + " | [Issues](" + mod.data.links.issuesUrl + ")";
+        }
+        if (project != null && project.wikiUrl != null) {
             links = links + " | [Wiki](" + project.wikiUrl + ")";
+        }
+        else if (mod != null && mod.data.links.wikiUrl != null && !mod.data.links.wikiUrl.isBlank()) {
+            links = links + " | [Wiki](" + mod.data.links.wikiUrl + ")";
         }
 
         String mcVersion = "";
-        var versions = ModrinthAPI.getVersions(project.slug);
-        if(versions.isPresent()) {
-            mcVersion = " for " + versions.get().get(0).gameVersions.get(0);
-            var first = versions.get().get(versions.get().size() - 1).gameVersions.get(0);
+        if(project != null) {
+            var versions = ModrinthAPI.getVersions(project.slug);
+            if(versions.isPresent()) {
+                mcVersion = " for " + versions.get().get(0).gameVersions.get(0);
+                var first = versions.get().get(versions.get().size() - 1).gameVersions.get(0);
 
-            if(!first.equals(versions.get().get(0).gameVersions.get(0))) {
-                mcVersion = " for " + first + " - " + versions.get().get(0).gameVersions.get(0);
+                if(!first.equals(versions.get().get(0).gameVersions.get(0))) {
+                    mcVersion = " for " + first + " - " + versions.get().get(0).gameVersions.get(0);
+                }
             }
         }
 
+        String title = "";
+
+        if(project != null) {
+            title = project.title;
+        }
+        else if(mod != null) {
+            title = mod.data.name;
+        }
+
         return EmbedData.builder()
-            .title(project.title + mcVersion)
+            .title(title + mcVersion)
             .description(description)
             .addField(EmbedFieldData.builder().name("Statistics").value(stats).inline(false).build())
             .addField(EmbedFieldData.builder().name("Resources").value(links).inline(false).build())

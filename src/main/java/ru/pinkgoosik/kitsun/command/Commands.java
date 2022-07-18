@@ -38,6 +38,8 @@ public class Commands {
         add(QuiltUpdatesEnabling.enable());
         add(QuiltUpdatesEnabling.disable());
         add(ModCardCommands.add());
+        add(ModCardCommands.curseforge());
+        add(ModCardCommands.modrinth());
 
 //        add(new PermissionsList());
 //        add(new PermissionGrant());
