@@ -126,6 +126,7 @@ public class DiscordEvents {
                 manager.getSession(channelId).ifPresent(session -> {
                     var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
                     data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
+                    session.shouldBeRemoved = true;
                     manager.refresh();
                 });
 

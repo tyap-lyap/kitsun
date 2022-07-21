@@ -1,5 +1,7 @@
 package ru.pinkgoosik.kitsun.schedule;
 
+import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+
 import java.util.*;
 
 public class Scheduler {
@@ -28,6 +30,7 @@ public class Scheduler {
                 PublishersScheduler.schedule();
                 QuiltUpdatesScheduler.schedule();
                 ModCardsScheduler.schedule();
+                KitsunDebugger.CACHE.clear();
             }
         }, 0, 60 * (60 * 1000));
 

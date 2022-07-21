@@ -93,7 +93,7 @@ public class AutoChannelsManager {
     }
 
     public void refresh() {
-        sessions.removeIf(session -> !ChannelUtils.exist(server, session.channel));
+        sessions.removeIf(session -> session.shouldBeRemoved);
         ServerData.get(server).save();
     }
 
@@ -101,6 +101,7 @@ public class AutoChannelsManager {
         public String created = Instant.now().toString();
         public String owner;
         public String channel;
+        public boolean shouldBeRemoved = false;
 
         public Session(String owner, String channel) {
             this.owner = owner;
