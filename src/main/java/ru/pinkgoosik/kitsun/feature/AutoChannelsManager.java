@@ -18,6 +18,7 @@ import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AutoChannelsManager {
     public String server;
@@ -93,8 +94,17 @@ public class AutoChannelsManager {
     }
 
     public void refresh() {
-        sessions.removeIf(session -> session.shouldBeRemoved);
-        ServerData.get(server).save();
+        AtomicBoolean removedSomething = new AtomicBoolean(false);
+        sessions.removeIf(session -> {
+            if(session.shouldBeRemoved) {
+                removedSomething.set(true);
+                return true;
+            }
+            return false;
+        });
+        if(removedSomething.get()) {
+            ServerData.get(server).save();
+        }
     }
 
     public static class Session {

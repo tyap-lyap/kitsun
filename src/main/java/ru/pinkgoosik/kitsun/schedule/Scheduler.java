@@ -27,10 +27,10 @@ public class Scheduler {
         timer1.schedule(new TimerTask() {
             @Override
             public void run() {
+                KitsunDebugger.CACHE.clear();
                 PublishersScheduler.schedule();
                 QuiltUpdatesScheduler.schedule();
                 ModCardsScheduler.schedule();
-                KitsunDebugger.CACHE.clear();
             }
         }, 0, 60 * (60 * 1000));
 
