@@ -30,6 +30,14 @@ public class Embeds {
         return embed.build();
     }
 
+    public static EmbedCreateSpec successSpec(String title, String text) {
+        var embed = EmbedCreateSpec.builder();
+        embed.title(title);
+        embed.description(text);
+        embed.color(KitsunColors.getGreen());
+        return embed.build();
+    }
+
     public static EmbedData success(String title, String text, String previewUrl) {
         var embed = EmbedData.builder();
         embed.title(title);

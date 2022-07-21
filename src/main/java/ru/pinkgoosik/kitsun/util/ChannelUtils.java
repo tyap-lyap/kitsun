@@ -6,6 +6,7 @@ import discord4j.core.object.entity.channel.VoiceChannel;
 import ru.pinkgoosik.kitsun.Bot;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChannelUtils {
@@ -36,7 +37,7 @@ public class ChannelUtils {
         return isVoiceChannel.get();
     }
 
-    public static int getMembers(VoiceChannel channel) {
+    public static Optional<Integer> getMembers(VoiceChannel channel) {
         List<VoiceState> states = channel.getVoiceStates().collectList().block();
         int members = 0;
         if(states != null) {
@@ -47,9 +48,8 @@ public class ChannelUtils {
                     }
                 }
             }
+            return Optional.of(members);
         }
-        return members;
+        return Optional.empty();
     }
-
-
 }

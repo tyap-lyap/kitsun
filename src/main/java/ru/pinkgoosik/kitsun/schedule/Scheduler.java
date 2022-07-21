@@ -15,27 +15,23 @@ public class Scheduler {
             }
         }, 0, 5 * (60 * 1000));
 
-        Timer secTimer = new Timer();
-        secTimer.schedule(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 AutoChannelsScheduler.schedule();
             }
         }, 0, 1000);
 
-        Timer timer1 = new Timer();
-        timer1.schedule(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 KitsunDebugger.CACHE.clear();
                 PublishersScheduler.schedule();
                 QuiltUpdatesScheduler.schedule();
-                ModCardsScheduler.schedule();
             }
         }, 0, 60 * (60 * 1000));
 
-        Timer timer2 = new Timer();
-        timer2.schedule(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 ModCardsScheduler.schedule();

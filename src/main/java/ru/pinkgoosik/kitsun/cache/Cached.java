@@ -54,8 +54,9 @@ public class Cached<T> {
 
     public void save() {
         try {
-            FileUtils.createDir(path);
-            try (FileWriter writer = new FileWriter(path + "/" + file)) {
+            String filePath = path.isBlank() ? this.file : this.path + "/" + this.file;
+            FileUtils.createDir(filePath);
+            try (FileWriter writer = new FileWriter(filePath)) {
                 writer.write(GSON.toJson(this.data));
             }
         }

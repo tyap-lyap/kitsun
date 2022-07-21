@@ -6,6 +6,7 @@ import discord4j.core.event.domain.channel.VoiceChannelDeleteEvent;
 import discord4j.core.event.domain.channel.VoiceChannelUpdateEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
@@ -13,11 +14,21 @@ import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.event.domain.role.RoleCreateEvent;
 import discord4j.core.event.domain.role.RoleDeleteEvent;
 import discord4j.core.event.domain.role.RoleUpdateEvent;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
+import discord4j.discordjson.json.ApplicationCommandRequest;
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.command.Commands;
+import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
+import ru.pinkgoosik.kitsun.cosmetics.FtpConnection;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
+import ru.pinkgoosik.kitsun.util.Embeds;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 import java.util.Optional;
@@ -30,6 +41,73 @@ public class DiscordEvents {
         String note = Bot.secrets.get().note;
         KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
         Scheduler.start();
+
+        long application = Bot.rest.getApplicationId().block();
+        long server = 854349856164020244L;
+
+        ApplicationCommandRequest register = ApplicationCommandRequest.builder()
+                .name("reg")
+                .description("Registers a player in the cosmetics system.")
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("nickname")
+                        .description("Your Minecraft nickname")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .required(true)
+                        .build()
+                ).build();
+        ApplicationCommandRequest unregister = ApplicationCommandRequest.builder()
+                .name("unreg")
+                .description("Unregisters a player from the system.")
+                .build();
+
+        Bot.rest.getApplicationService()
+                .createGuildApplicationCommand(application, server, register)
+                .subscribe();
+        Bot.rest.getApplicationService()
+                .createGuildApplicationCommand(application, server, unregister)
+                .subscribe();
+    }
+
+    public static void onCommandUse(ChatInputInteractionEvent event) {
+        if (event.getCommandName().equals("reg")) {
+            String name = event.getOption("nickname")
+                    .flatMap(ApplicationCommandInteractionOption::getValue)
+                    .map(ApplicationCommandInteractionOptionValue::asString)
+                    .get().replaceAll("[^a-zA-Z0-9_]", "");
+
+            event.getInteraction().getMember().ifPresent(member -> {
+
+                if(CosmeticsData.getEntry(member.getId().asString()).isPresent()) {
+                    event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("You already registered!")).build()).block();
+                    return;
+                }
+
+                if(CosmeticsData.getEntryByName(name).isPresent()) {
+                    event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("Player `" + name + "` is already registered!")).build()).block();
+                    return;
+                }
+                if(MojangAPI.getUuid(name).isPresent()) {
+                    CosmeticsData.register(member.getId().asString(), name, MojangAPI.getUuid(name).get());
+                    FtpConnection.updateData();
+                    event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.successSpec("Player Registering", "Player `" + name + "` is now registered! \nPlease checkout `!help` for more commands.")).build()).block();
+                }
+                else {
+                    event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("Player `" + name + "` is not found. Write down your Minecraft username.")).build()).block();
+                }
+            });
+        }
+        else if(event.getCommandName().equals("unreg")) {
+            event.getInteraction().getMember().ifPresent(member -> {
+                String memberId = member.getId().asString();
+                CosmeticsData.getEntry(memberId).ifPresentOrElse(entry -> {
+                    CosmeticsData.unregister(memberId);
+                    FtpConnection.updateData();
+                    String text = "Player " + entry.user.name + " is successfully unregistered. \nHope to see you soon later!";
+                    event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.successSpec("Player Unregistering", text)).build()).block();
+                }, () -> event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("You have not registered yet!")).build()).block());
+            });
+
+        }
     }
 
     public static void onMessageCreate(MessageCreateEvent event) {

@@ -7,6 +7,7 @@ import discord4j.core.event.domain.channel.VoiceChannelDeleteEvent;
 import discord4j.core.event.domain.channel.VoiceChannelUpdateEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
@@ -93,9 +94,14 @@ public class Bot {
                         DiscordEvents.onVoiceStateUpdate(event);
                         return Mono.empty();
                     }).then();
+                    Mono<Void> commandUse = gateway.on(ChatInputInteractionEvent.class, event -> {
+                        DiscordEvents.onCommandUse(event);
+                        return Mono.empty();
+                    }).then();
                     return Mono.when(connect, memberJoin, memberLeave, messageCreate,
                             messageUpdate, messageDelete, roleCreate, roleDelete,
-                            roleUpdate, voiceChannelUpdate, voiceChannelDelete, voiceStateUpdate);
+                            roleUpdate, voiceChannelUpdate, voiceChannelDelete, voiceStateUpdate,
+                            commandUse);
                 })
                 .block();
     }

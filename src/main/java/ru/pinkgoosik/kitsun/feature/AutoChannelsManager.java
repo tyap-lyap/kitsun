@@ -50,7 +50,8 @@ public class AutoChannelsManager {
         for(var session : this.sessions) {
             Channel chan = Bot.client.getChannelById(Snowflake.of(session.channel)).block();
             if(session.owner.equals(member.getId().asString()) && chan instanceof VoiceChannel channel) {
-                if (ChannelUtils.getMembers(channel) == 0) {
+                var members = ChannelUtils.getMembers(channel);
+                if (members.isPresent() && members.get() == 0) {
                     member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(Snowflake.of(session.channel)).build()).block();
                     return true;
                 }

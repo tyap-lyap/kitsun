@@ -24,7 +24,7 @@ public class MojangAPI {
         return Optional.empty();
     }
 
-    private static Optional<String> getUuid(String nickname) {
+    public static Optional<String> getUuid(String nickname) {
         try {
             URL url = new URL(URL_STRING.replace("%nickname%", nickname));
             URLConnection request = url.openConnection();

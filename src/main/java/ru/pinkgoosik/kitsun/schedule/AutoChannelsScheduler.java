@@ -48,7 +48,8 @@ public class AutoChannelsScheduler {
                 manager.sessions.forEach(session -> {
                     try {
                         if(Bot.client.getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel channel) {
-                            if (ChannelUtils.getMembers(channel) == 0) {
+                            var members = ChannelUtils.getMembers(channel);
+                            if (members.isPresent() && members.get() == 0) {
                                 channel.delete("Empty auto channel.").block();
                                 session.shouldBeRemoved = true;
                             }
