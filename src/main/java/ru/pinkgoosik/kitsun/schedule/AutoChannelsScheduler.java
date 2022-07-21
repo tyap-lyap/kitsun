@@ -51,20 +51,19 @@ public class AutoChannelsScheduler {
                             if (ChannelUtils.getMembers(channel) == 0) {
                                 channel.delete("Empty auto channel.").block();
                                 session.shouldBeRemoved = true;
-                                manager.refresh();
                             }
                         }
                     }
                     catch (ClientException e) {
                         if(e.getMessage().contains("Unknown Channel")) {
                             session.shouldBeRemoved = true;
-                            manager.refresh();
                         }
                         else {
                             KitsunDebugger.ping("Failed to delete auto channel duo to an exception:\n" + e);
                         }
                     }
                 });
+                manager.refresh();
             }));
         }
         catch(ClientException e) {

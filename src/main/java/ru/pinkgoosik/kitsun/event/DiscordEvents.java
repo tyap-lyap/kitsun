@@ -127,7 +127,6 @@ public class DiscordEvents {
                     var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
                     data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
                     session.shouldBeRemoved = true;
-                    manager.refresh();
                 });
 
                 if(manager.enabled) {
@@ -135,6 +134,7 @@ public class DiscordEvents {
                         manager.disable();
                     }
                 }
+                manager.refresh();
             }));
         }
         catch (Exception e) {
