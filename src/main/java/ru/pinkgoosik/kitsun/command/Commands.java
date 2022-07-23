@@ -17,6 +17,7 @@ import java.util.List;
 
 public class Commands {
     public static final List<Command> COMMANDS = new ArrayList<>();
+    public static final List<CommandNext> COMMANDS_NEXT = new ArrayList<>();
 
     public static void init() {
         add(new Help());
@@ -45,8 +46,18 @@ public class Commands {
 //        add(new PermissionGrant());
     }
 
+    public static void initNext() {
+        add(new ImportFabricCommand());
+
+        COMMANDS_NEXT.forEach(CommandNext::build);
+    }
+
     private static void add(Command command) {
         COMMANDS.add(command);
+    }
+
+    private static void add(CommandNext command) {
+        COMMANDS_NEXT.add(command);
     }
 
     public static void onMessageCreate(MessageCreateEvent event) {

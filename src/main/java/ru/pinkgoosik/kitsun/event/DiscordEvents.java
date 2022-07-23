@@ -23,6 +23,7 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
+import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
 import ru.pinkgoosik.kitsun.cosmetics.FtpConnection;
@@ -41,6 +42,7 @@ public class DiscordEvents {
         String note = Bot.secrets.get().note;
         KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
         Scheduler.start();
+        Commands.initNext();
 
         long application = Bot.rest.getApplicationId().block();
         long server = 854349856164020244L;
@@ -69,6 +71,11 @@ public class DiscordEvents {
     }
 
     public static void onCommandUse(ChatInputInteractionEvent event) {
+        Commands.COMMANDS_NEXT.forEach(commandNext -> {
+            if(event.getCommandName().equals(commandNext.getName())) {
+                commandNext.respond(event, new CommandHelper(event));
+            }
+        });
         if (event.getCommandName().equals("reg")) {
             String name = event.getOption("nickname")
                     .flatMap(ApplicationCommandInteractionOption::getValue)
