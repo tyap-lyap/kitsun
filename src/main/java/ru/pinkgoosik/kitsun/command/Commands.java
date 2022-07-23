@@ -33,8 +33,8 @@ public class Commands {
         add(LoggerEnabling.enable());
         add(LoggerEnabling.disable());
 
-        add(AutoChannelsEnabling.enable());
-        add(AutoChannelsEnabling.disable());
+//        add(AutoChannelsEnabling.enable());
+//        add(AutoChannelsEnabling.disable());
 
         add(QuiltUpdatesEnabling.enable());
         add(QuiltUpdatesEnabling.disable());
@@ -48,7 +48,7 @@ public class Commands {
 
     public static void initNext() {
         add(new ImportFabricCommand());
-
+        add(new ImportQuiltCommand());
         COMMANDS_NEXT.forEach(CommandNext::build);
     }
 

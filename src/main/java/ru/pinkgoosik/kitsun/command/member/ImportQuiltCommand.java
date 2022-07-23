@@ -7,22 +7,22 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.api.FabricMeta;
+import ru.pinkgoosik.kitsun.api.QuiltMeta;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.CommandNext;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
-public class ImportFabricCommand extends CommandNext {
+public class ImportQuiltCommand extends CommandNext {
 
     @Override
     public String getName() {
-        return "import-fabric";
+        return "import-quilt";
     }
 
     @Override
     public String getDescription() {
-        return "Fetches the latest versions of Fabric Loader, Yarn, and Fabric API.";
+        return "Fetches the latest versions of Quilt Loader, Quilt Mappings, and QSL.";
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ImportFabricCommand extends CommandNext {
         long application = Bot.rest.getApplicationId().block();
         long server = 854349856164020244L;
 
-        ApplicationCommandRequest importFabric = ApplicationCommandRequest.builder()
+        ApplicationCommandRequest importQuilt = ApplicationCommandRequest.builder()
                 .name(this.getName())
                 .description(this.getDescription())
                 .addOption(ApplicationCommandOptionData.builder()
@@ -41,7 +41,7 @@ public class ImportFabricCommand extends CommandNext {
                         .build()
                 ).build();
 
-        Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, importFabric).subscribe();
+        Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, importQuilt).subscribe();
     }
 
     @Override
@@ -51,24 +51,28 @@ public class ImportFabricCommand extends CommandNext {
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .get();
 
-        String fabricApiVersion = "null";
-        String fabricLoaderVersion = "null";
-        String yarnVersion = "null";
+        String qslVersion = "null";
+        String quiltLoaderVersion = "null";
+        String qmVersion = "null";
 
-        var fabricApi = ModrinthAPI.getVersions("fabric-api");
-        if(fabricApi.isPresent()) {
-            for(var ver : fabricApi.get()) {
+        var qsl = ModrinthAPI.getVersions("qsl");
+        if(qsl.isPresent()) {
+            for(var ver : qsl.get()) {
                 if(ver.gameVersions.contains(mcVersion)) {
-                    fabricApiVersion = ver.versionNumber;
+                    qslVersion = ver.versionNumber;
                     break;
                 }
             }
         }
-        var entries = FabricMeta.getFabricVersions(mcVersion);
+        var entries = QuiltMeta.getQuiltVersions(mcVersion);
         if(entries.isPresent()) {
-            fabricLoaderVersion = entries.get().get(0).loader.version;
-            yarnVersion = entries.get().get(0).mappings.version;
+            quiltLoaderVersion = entries.get().get(0).loader.version;
         }
-        helper.reply(Embeds.successSpec("Import Fabric", "minecraft_version = " + mcVersion + "\nyarn_mappings = " + yarnVersion + "\nfabric_loader = " + fabricLoaderVersion + "\nfabric_api = " + fabricApiVersion));
+        var mappings = QuiltMeta.getQuiltMappingsVersions(mcVersion);
+        if(mappings.isPresent()) {
+            qmVersion = mappings.get().get(0).version;
+        }
+
+        helper.reply(Embeds.successSpec("Import Quilt", "minecraft_version = " + mcVersion + "\nquilt_mappings = " + qmVersion + "\nquilt_loader = " + quiltLoaderVersion + "\nqsl_version = " + qslVersion));
     }
 }

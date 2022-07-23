@@ -23,6 +23,7 @@ import reactor.util.Loggers;
 import ru.pinkgoosik.kitsun.cache.Cached;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
+import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
 
 public class Bot {
@@ -34,6 +35,7 @@ public class Bot {
     public static void main(String[] args) {
         Commands.init();
         Bot.init();
+        CosmeticsData.fetchUpstream();
     }
 
     public static void init() {

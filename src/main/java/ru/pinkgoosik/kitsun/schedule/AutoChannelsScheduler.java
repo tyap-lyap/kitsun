@@ -78,7 +78,7 @@ public class AutoChannelsScheduler {
             }
         }
         catch (Exception e) {
-            KitsunDebugger.ping("Failed to schedule auto channels invalidation duo to an exception:\n" + e);
+            KitsunDebugger.report("Failed to schedule auto channels invalidation duo to an exception:\n" + e);
         }
     }
 }

@@ -27,7 +27,7 @@ public class FabricMeta {
             return Optional.of(new ArrayList<>(List.of(entries)));
         }
         catch (Exception e) {
-            KitsunDebugger.report("Failed to parse fabric versions of game version " + gameVersion + " due to an exception:\n" + e);
+            KitsunDebugger.report("Failed to parse fabric versions for game version " + gameVersion + " due to an exception:\n" + e);
         }
         return Optional.empty();
     }
