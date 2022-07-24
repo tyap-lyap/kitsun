@@ -47,9 +47,10 @@ public class Commands {
     }
 
     public static void initNext() {
+        add(RegisterCommands.reg());
+        add(RegisterCommands.unreg());
         add(new ImportFabricCommand());
         add(new ImportQuiltCommand());
-        COMMANDS_NEXT.forEach(CommandNext::build);
     }
 
     private static void add(Command command) {
