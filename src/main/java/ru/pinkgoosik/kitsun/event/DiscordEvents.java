@@ -38,11 +38,16 @@ public class DiscordEvents {
     }
 
     public static void onCommandUse(ChatInputInteractionEvent event) {
-        Commands.COMMANDS_NEXT.forEach(commandNext -> {
-            if(event.getCommandName().equals(commandNext.getName())) {
-                commandNext.respond(event, new CommandHelper(event));
-            }
-        });
+        try {
+            Commands.COMMANDS_NEXT.forEach(commandNext -> {
+                if(event.getCommandName().equals(commandNext.getName())) {
+                    commandNext.respond(event, new CommandHelper(event));
+                }
+            });
+        }
+        catch (Exception e) {
+            KitsunDebugger.report("Failed to proceed chat input interaction event due to an exception:\n" + e);
+        }
     }
 
     public static void onMessageCreate(MessageCreateEvent event) {

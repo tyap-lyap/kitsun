@@ -4,8 +4,11 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
+import discord4j.core.object.entity.Message;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
+import reactor.core.publisher.Mono;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.FabricMeta;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
@@ -50,7 +53,10 @@ public class ImportFabricCommand extends CommandNext {
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .get();
+        ctx.deferReply().then(proceed(mcVersion, ctx)).block();
+    }
 
+    public Mono<Message> proceed(String mcVersion, ChatInputInteractionEvent ctx) {
         String fabricApiVersion = "null";
         String fabricLoaderVersion = "null";
         String yarnVersion = "null";
@@ -69,6 +75,6 @@ public class ImportFabricCommand extends CommandNext {
             fabricLoaderVersion = entries.get().get(0).loader.version;
             yarnVersion = entries.get().get(0).mappings.version;
         }
-        helper.reply(Embeds.successSpec("Import Fabric", "minecraft_version = " + mcVersion + "\nyarn_mappings = " + yarnVersion + "\nfabric_loader = " + fabricLoaderVersion + "\nfabric_api = " + fabricApiVersion));
+        return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.successSpec("Import Fabric", "minecraft_version = " + mcVersion + "\nyarn_mappings = " + yarnVersion + "\nfabric_loader = " + fabricLoaderVersion + "\nfabric_api = " + fabricApiVersion)).build());
     }
 }

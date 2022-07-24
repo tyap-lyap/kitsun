@@ -15,8 +15,8 @@ public class FtpConnection {
     private static Channel channel;
 
     public static void updateData() {
-        connect();
-        createJson();
+        FtpConnection.connect();
+        FtpConnection.createJson();
         try {
             ChannelSftp channelSftp = (ChannelSftp)channel;
             channelSftp.cd(Bot.secrets.get().dir);

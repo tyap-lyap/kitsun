@@ -7,13 +7,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class CosmeticsData {
-    private static final String URL_STRING = "https://pinkgoosik-assets.akamaized.net/cosmetics/data.json";
+    private static final String URL_STRING = "https://pinkgoosik-assets.akamaized.net/cosmetics/data.json?_=%random%";
     public static final List<EntryData> ENTRIES = new ArrayList<>();
 
     public static void register(String discord, String name, String uuid) {
@@ -75,7 +72,9 @@ public class CosmeticsData {
 
     public static void fetchUpstream() {
         try {
-            URL url = new URL(URL_STRING);
+            String urlStr = URL_STRING;
+            urlStr = urlStr.replaceAll("%random%", random());
+            URL url = new URL(urlStr);
             URLConnection request = url.openConnection();
             request.connect();
             InputStream stream = request.getInputStream();
@@ -86,5 +85,10 @@ public class CosmeticsData {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static String random() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().replaceAll("_", "");
     }
 }

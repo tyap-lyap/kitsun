@@ -4,8 +4,11 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
+import discord4j.core.object.entity.Message;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
+import reactor.core.publisher.Mono;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
@@ -50,7 +53,10 @@ public class ImportQuiltCommand extends CommandNext {
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .get();
+        ctx.deferReply().then(proceed(mcVersion, ctx)).block();
+    }
 
+    public Mono<Message> proceed(String mcVersion, ChatInputInteractionEvent ctx) {
         String qslVersion = "null";
         String quiltLoaderVersion = "null";
         String qmVersion = "null";
@@ -73,6 +79,6 @@ public class ImportQuiltCommand extends CommandNext {
             qmVersion = mappings.get().get(0).version;
         }
 
-        helper.reply(Embeds.successSpec("Import Quilt", "minecraft_version = " + mcVersion + "\nquilt_mappings = " + qmVersion + "\nquilt_loader = " + quiltLoaderVersion + "\nqsl_version = " + qslVersion));
+        return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.successSpec("Import Quilt", "minecraft_version = " + mcVersion + "\nquilt_mappings = " + qmVersion + "\nquilt_loader = " + quiltLoaderVersion + "\nqsl_version = " + qslVersion)).build());
     }
 }
