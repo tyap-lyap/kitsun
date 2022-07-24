@@ -4,7 +4,9 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import reactor.core.publisher.Mono;
@@ -56,26 +58,24 @@ public class RegisterCommands {
                         .map(ApplicationCommandInteractionOptionValue::asString)
                         .get().replaceAll("[^a-zA-Z0-9_]", "");
 
-                ctx.getInteraction().getMember().ifPresent(member -> {
-                    ctx.deferReply().then(Mono.create(monoSink -> {
-                        if(CosmeticsData.getEntry(member.getId().asString()).isPresent()) {
-                            ctx.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("You already registered!")).build()).block();
-                            return;
-                        }
-                        if(CosmeticsData.getEntryByName(name).isPresent()) {
-                            ctx.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("Player `" + name + "` is already registered!")).build()).block();
-                            return;
-                        }
-                        if(MojangAPI.getUuid(name).isPresent()) {
-                            CosmeticsData.register(member.getId().asString(), name, MojangAPI.getUuid(name).get());
-                            FtpConnection.updateData();
-                            ctx.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.successSpec("Player Registering", "Player `" + name + "` is now registered! \nPlease checkout `!help` for more commands.")).build()).block();
-                        }
-                        else {
-                            ctx.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("Player `" + name + "` is not found. Write down your Minecraft username.")).build()).block();
-                        }
-                    })).block();
-                });
+                ctx.getInteraction().getMember().ifPresent(member -> ctx.deferReply().then(proceed(name, member, ctx)).block());
+            }
+
+            public Mono<Message> proceed(String name, Member member, ChatInputInteractionEvent ctx) {
+                if(CosmeticsData.getEntry(member.getId().asString()).isPresent()) {
+                    return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.errorSpec("You already registered!")).build());
+                }
+                if(CosmeticsData.getEntryByName(name).isPresent()) {
+                    return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.errorSpec("Player `" + name + "` is already registered!")).build());
+                }
+                if(MojangAPI.getUuid(name).isPresent()) {
+                    CosmeticsData.register(member.getId().asString(), name, MojangAPI.getUuid(name).get());
+                    FtpConnection.updateData();
+                    return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.successSpec("Player Registering", "Player `" + name + "` is now registered! \nPlease checkout `!help` for more commands.")).build());
+                }
+                else {
+                    return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.errorSpec("Player `" + name + "` is not found. Write down your Minecraft username.")).build());
+                }
             }
         };
     }
@@ -107,17 +107,21 @@ public class RegisterCommands {
 
             @Override
             public void respond(ChatInputInteractionEvent ctx, CommandHelper helper) {
-                ctx.getInteraction().getMember().ifPresent(member -> {
-                    ctx.deferReply().then(Mono.create(monoSink -> {
-                        String memberId = member.getId().asString();
-                        CosmeticsData.getEntry(memberId).ifPresentOrElse(entry -> {
-                            CosmeticsData.unregister(memberId);
-                            FtpConnection.updateData();
-                            String text = "Player " + entry.user.name + " is successfully unregistered. \nHope to see you soon later!";
-                            ctx.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.successSpec("Player Unregistering", text)).build()).block();
-                        }, () -> ctx.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(Embeds.errorSpec("You have not registered yet!")).build()).block());
-                    })).block();
-                });
+                ctx.getInteraction().getMember().ifPresent(member -> ctx.deferReply().then(proceed(member, ctx)).block());
+            }
+
+            public Mono<Message> proceed(Member member, ChatInputInteractionEvent ctx) {
+                String memberId = member.getId().asString();
+                var entry = CosmeticsData.getEntry(memberId);
+                if(entry.isPresent()) {
+                    CosmeticsData.unregister(memberId);
+                    FtpConnection.updateData();
+                    String text = "Player " + entry.get().user.name + " is successfully unregistered. \nHope to see you soon later!";
+                    return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.successSpec("Player Unregistering", text)).build());
+                }
+                else {
+                    return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.errorSpec("You have not registered yet!")).build());
+                }
             }
         };
     }

@@ -18,7 +18,7 @@ public class AutoChannelsScheduler {
     public static void schedule() {
         try {
             ServerUtils.forEach(data -> data.autoChannels.get(manager -> {
-                if(manager.enabled && manager.sessions.size() >= 1) {
+                if(manager.enabled) {
                     proceed(data, manager);
                 }
             }));
