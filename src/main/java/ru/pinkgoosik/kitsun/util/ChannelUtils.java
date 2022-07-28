@@ -11,45 +11,45 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChannelUtils {
 
-    public static boolean exist(String serverId, String channelId) {
-        AtomicBoolean channelExist = new AtomicBoolean(false);
+	public static boolean exist(String serverId, String channelId) {
+		AtomicBoolean channelExist = new AtomicBoolean(false);
 
-        Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
-            if(channelData.id().asString().equals(channelId)) {
-                channelExist.set(true);
-            }
-            return true;
-        }).block();
+		Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
+			if(channelData.id().asString().equals(channelId)) {
+				channelExist.set(true);
+			}
+			return true;
+		}).block();
 
-        return channelExist.get();
-    }
+		return channelExist.get();
+	}
 
-    public static boolean isVoiceChannel(String serverId, String channelId) {
-        AtomicBoolean isVoiceChannel = new AtomicBoolean(false);
+	public static boolean isVoiceChannel(String serverId, String channelId) {
+		AtomicBoolean isVoiceChannel = new AtomicBoolean(false);
 
-        Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
-            if(channelData.id().asString().equals(channelId) && !channelData.bitrate().isAbsent()) {
-                isVoiceChannel.set(true);
-            }
-            return true;
-        }).block();
+		Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
+			if(channelData.id().asString().equals(channelId) && !channelData.bitrate().isAbsent()) {
+				isVoiceChannel.set(true);
+			}
+			return true;
+		}).block();
 
-        return isVoiceChannel.get();
-    }
+		return isVoiceChannel.get();
+	}
 
-    public static Optional<Integer> getMembers(VoiceChannel channel) {
-        List<VoiceState> states = channel.getVoiceStates().collectList().block();
-        int members = 0;
-        if(states != null) {
-            for(var state : states) {
-                if(state.getChannelId().isPresent()) {
-                    if(state.getChannelId().get().asString().equals(channel.getId().asString())) {
-                        members++;
-                    }
-                }
-            }
-            return Optional.of(members);
-        }
-        return Optional.empty();
-    }
+	public static Optional<Integer> getMembers(VoiceChannel channel) {
+		List<VoiceState> states = channel.getVoiceStates().collectList().block();
+		int members = 0;
+		if(states != null) {
+			for(var state : states) {
+				if(state.getChannelId().isPresent()) {
+					if(state.getChannelId().get().asString().equals(channel.getId().asString())) {
+						members++;
+					}
+				}
+			}
+			return Optional.of(members);
+		}
+		return Optional.empty();
+	}
 }

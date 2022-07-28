@@ -18,111 +18,111 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ServerLogger {
-    public String server;
-    public boolean enabled = false;
-    public String channel = "";
+	public String server;
+	public boolean enabled = false;
+	public String channel = "";
 
-    public ServerLogger(String serverID) {
-        this.server = serverID;
-    }
+	public ServerLogger(String serverID) {
+		this.server = serverID;
+	}
 
-    public void enable(String channelID) {
-        this.enabled = true;
-        this.channel = channelID;
-    }
+	public void enable(String channelID) {
+		this.enabled = true;
+		this.channel = channelID;
+	}
 
-    public void disable() {
-        this.enabled = false;
-    }
+	public void disable() {
+		this.enabled = false;
+	}
 
-    public void ifEnabled(Consumer<ServerLogger> consumer) {
-        if(enabled) consumer.accept(this);
-    }
+	public void ifEnabled(Consumer<ServerLogger> consumer) {
+		if(enabled) consumer.accept(this);
+	}
 
-    public void onMemberJoin(Member member) {
-        var embed = EmbedData.builder();
-        embed.author(EmbedAuthorData.builder().name(member.getTag() + " joined").iconUrl(member.getAvatarUrl()).build());
-        embed.color(KitsunColors.getGreen().getRGB());
-        embed.timestamp(Instant.now().toString());
-        log(embed.build());
-    }
+	public void onMemberJoin(Member member) {
+		var embed = EmbedData.builder();
+		embed.author(EmbedAuthorData.builder().name(member.getTag() + " joined").iconUrl(member.getAvatarUrl()).build());
+		embed.color(KitsunColors.getGreen().getRGB());
+		embed.timestamp(Instant.now().toString());
+		log(embed.build());
+	}
 
-    public void onMemberLeave(Member member) {
-        var embed = EmbedData.builder();
-        embed.author(EmbedAuthorData.builder().name(member.getTag() + " left").iconUrl(member.getAvatarUrl()).build());
-        embed.color(KitsunColors.getRed().getRGB());
-        embed.timestamp(Instant.now().toString());
-        log(embed.build());
-    }
+	public void onMemberLeave(Member member) {
+		var embed = EmbedData.builder();
+		embed.author(EmbedAuthorData.builder().name(member.getTag() + " left").iconUrl(member.getAvatarUrl()).build());
+		embed.color(KitsunColors.getRed().getRGB());
+		embed.timestamp(Instant.now().toString());
+		log(embed.build());
+	}
 
-    public void onMessageUpdate(Message old, Message message) {
-        if(!old.getContent().equals(message.getContent()) && message.getAuthor().isPresent() && message.getGuildId().isPresent()) {
-            var embed = EmbedData.builder();
-            embed.title("Message Updated");
-            embed.url("https://discord.com/channels/" + message.getGuildId().get().asString() + "/" + message.getRestChannel().getId().asString() + "/" + message.getId().asString());
-            embed.addField(EmbedFieldData.builder().name("Channel").value("<#" + Objects.requireNonNull(message.getRestChannel().getData().block()).id().asString() + ">").inline(true).build());
-            embed.addField(EmbedFieldData.builder().name("Member").value("<@" + message.getAuthor().get().getId().asString() + ">").inline(true).build());
-            embed.addField(EmbedFieldData.builder().name("Before").value(old.getContent()).inline(false).build());
-            embed.addField(EmbedFieldData.builder().name("After").value(message.getContent()).inline(false).build());
-            embed.color(KitsunColors.getBlue().getRGB());
-            embed.timestamp(Instant.now().toString());
-            log(embed.build());
-        }
-    }
+	public void onMessageUpdate(Message old, Message message) {
+		if(!old.getContent().equals(message.getContent()) && message.getAuthor().isPresent() && message.getGuildId().isPresent()) {
+			var embed = EmbedData.builder();
+			embed.title("Message Updated");
+			embed.url("https://discord.com/channels/" + message.getGuildId().get().asString() + "/" + message.getRestChannel().getId().asString() + "/" + message.getId().asString());
+			embed.addField(EmbedFieldData.builder().name("Channel").value("<#" + Objects.requireNonNull(message.getRestChannel().getData().block()).id().asString() + ">").inline(true).build());
+			embed.addField(EmbedFieldData.builder().name("Member").value("<@" + message.getAuthor().get().getId().asString() + ">").inline(true).build());
+			embed.addField(EmbedFieldData.builder().name("Before").value(old.getContent()).inline(false).build());
+			embed.addField(EmbedFieldData.builder().name("After").value(message.getContent()).inline(false).build());
+			embed.color(KitsunColors.getBlue().getRGB());
+			embed.timestamp(Instant.now().toString());
+			log(embed.build());
+		}
+	}
 
-    public void onMessageDelete(Message message) {
-        if(message.getAuthor().isPresent()) {
-            var embed = EmbedData.builder();
-            embed.title("Message Deleted");
-            embed.addField(EmbedFieldData.builder().name("Channel").value("<#" + Objects.requireNonNull(message.getRestChannel().getData().block()).id().asString() + ">").inline(true).build());
-            embed.addField(EmbedFieldData.builder().name("Member").value("<@" + message.getAuthor().get().getId().asString() + ">").inline(true).build());
-            embed.addField(EmbedFieldData.builder().name("Message").value(message.getContent()).inline(false).build());
-            embed.color(KitsunColors.getRed().getRGB());
-            embed.timestamp(Instant.now().toString());
-            log(embed.build());
-        }
-    }
+	public void onMessageDelete(Message message) {
+		if(message.getAuthor().isPresent()) {
+			var embed = EmbedData.builder();
+			embed.title("Message Deleted");
+			embed.addField(EmbedFieldData.builder().name("Channel").value("<#" + Objects.requireNonNull(message.getRestChannel().getData().block()).id().asString() + ">").inline(true).build());
+			embed.addField(EmbedFieldData.builder().name("Member").value("<@" + message.getAuthor().get().getId().asString() + ">").inline(true).build());
+			embed.addField(EmbedFieldData.builder().name("Message").value(message.getContent()).inline(false).build());
+			embed.color(KitsunColors.getRed().getRGB());
+			embed.timestamp(Instant.now().toString());
+			log(embed.build());
+		}
+	}
 
-    public void onVoiceChannelNameUpdate(VoiceChannel old, VoiceChannel current) {
-        var embed = EmbedData.builder();
-        embed.title("Voice Channel Updated");
-        embed.addField(EmbedFieldData.builder().name("Before").value(old.getName()).inline(false).build());
-        embed.addField(EmbedFieldData.builder().name("After").value(current.getName()).inline(false).build());
-        embed.color(KitsunColors.getBlue().getRGB());
-        embed.timestamp(Instant.now().toString());
-        log(embed.build());
-    }
+	public void onVoiceChannelNameUpdate(VoiceChannel old, VoiceChannel current) {
+		var embed = EmbedData.builder();
+		embed.title("Voice Channel Updated");
+		embed.addField(EmbedFieldData.builder().name("Before").value(old.getName()).inline(false).build());
+		embed.addField(EmbedFieldData.builder().name("After").value(current.getName()).inline(false).build());
+		embed.color(KitsunColors.getBlue().getRGB());
+		embed.timestamp(Instant.now().toString());
+		log(embed.build());
+	}
 
-    public void onVoiceChannelDelete(AutoChannelsManager.@Nullable Session session, @Nullable Member owner, VoiceChannel voiceChannel) {
-        var embed = EmbedData.builder();
-        embed.title("Voice Channel Deleted");
-        embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
-        if(owner != null) {
-            embed.addField(EmbedFieldData.builder().name("Owner").value("<@" + owner.getId().asString() + ">").inline(true).build());
-        }
+	public void onVoiceChannelDelete(AutoChannelsManager.@Nullable Session session, @Nullable Member owner, VoiceChannel voiceChannel) {
+		var embed = EmbedData.builder();
+		embed.title("Voice Channel Deleted");
+		embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
+		if(owner != null) {
+			embed.addField(EmbedFieldData.builder().name("Owner").value("<@" + owner.getId().asString() + ">").inline(true).build());
+		}
 
-        if(session != null) {
-            Instant created = Instant.parse(session.created);
-            Instant now = Instant.now();
-            embed.addField(EmbedFieldData.builder().name("Lasted").value("**" + (int)ChronoUnit.MINUTES.between(created, now) + "** min").inline(false).build());
-        }
+		if(session != null) {
+			Instant created = Instant.parse(session.created);
+			Instant now = Instant.now();
+			embed.addField(EmbedFieldData.builder().name("Lasted").value("**" + (int) ChronoUnit.MINUTES.between(created, now) + "** min").inline(false).build());
+		}
 
-        embed.color(KitsunColors.getRed().getRGB());
-        embed.timestamp(Instant.now().toString());
-        log(embed.build());
-    }
+		embed.color(KitsunColors.getRed().getRGB());
+		embed.timestamp(Instant.now().toString());
+		log(embed.build());
+	}
 
-    public void onAutoChannelCreate(Member member, VoiceChannel voiceChannel) {
-        var embed = EmbedData.builder();
-        embed.title("Voice Channel Created");
-        embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
-        embed.addField(EmbedFieldData.builder().name("Member").value("<@" + member.getId().asString() + ">").inline(true).build());
-        embed.color(KitsunColors.getGreen().getRGB());
-        embed.timestamp(Instant.now().toString());
-        log(embed.build());
-    }
+	public void onAutoChannelCreate(Member member, VoiceChannel voiceChannel) {
+		var embed = EmbedData.builder();
+		embed.title("Voice Channel Created");
+		embed.addField(EmbedFieldData.builder().name("Channel").value(voiceChannel.getName()).inline(true).build());
+		embed.addField(EmbedFieldData.builder().name("Member").value("<@" + member.getId().asString() + ">").inline(true).build());
+		embed.color(KitsunColors.getGreen().getRGB());
+		embed.timestamp(Instant.now().toString());
+		log(embed.build());
+	}
 
-    private void log(ImmutableEmbedData embed) {
-        Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed).block();
-    }
+	private void log(ImmutableEmbedData embed) {
+		Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(embed).block();
+	}
 }

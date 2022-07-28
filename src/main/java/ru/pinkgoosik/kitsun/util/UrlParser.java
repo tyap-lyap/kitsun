@@ -8,13 +8,13 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class UrlParser {
-    private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
+	private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
 
-    public static <T> T get(String urlStr, Class<T> type) throws Exception {
-        URL url = new URL(urlStr);
-        URLConnection request = url.openConnection();
-        request.connect();
-        InputStreamReader reader = new InputStreamReader(request.getInputStream());
-        return GSON.fromJson(reader, type);
-    }
+	public static <T> T get(String urlStr, Class<T> type) throws Exception {
+		URL url = new URL(urlStr);
+		URLConnection request = url.openConnection();
+		request.connect();
+		InputStreamReader reader = new InputStreamReader(request.getInputStream());
+		return GSON.fromJson(reader, type);
+	}
 }

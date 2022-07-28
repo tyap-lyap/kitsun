@@ -18,63 +18,63 @@ import ru.pinkgoosik.kitsun.util.Embeds;
 
 public class ImportFabricCommand extends CommandNext {
 
-    @Override
-    public String getName() {
-        return "import-fabric";
-    }
+	@Override
+	public String getName() {
+		return "import-fabric";
+	}
 
-    @Override
-    public String getDescription() {
-        return "Fetches the latest versions of Fabric Loader, Yarn, and Fabric API.";
-    }
+	@Override
+	public String getDescription() {
+		return "Fetches the latest versions of Fabric Loader, Yarn, and Fabric API.";
+	}
 
-    @Override
-    public void build() {
-        long application = Bot.rest.getApplicationId().block();
-        long server = 854349856164020244L;
+	@Override
+	public void build() {
+		long application = Bot.rest.getApplicationId().block();
+		long server = 854349856164020244L;
 
-        ApplicationCommandRequest importFabric = ApplicationCommandRequest.builder()
-                .name(this.getName())
-                .description(this.getDescription())
-                .addOption(ApplicationCommandOptionData.builder()
-                        .name("version")
-                        .description("Minecraft version")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .required(true)
-                        .build()
-                ).build();
+		ApplicationCommandRequest importFabric = ApplicationCommandRequest.builder()
+				.name(this.getName())
+				.description(this.getDescription())
+				.addOption(ApplicationCommandOptionData.builder()
+						.name("version")
+						.description("Minecraft version")
+						.type(ApplicationCommandOption.Type.STRING.getValue())
+						.required(true)
+						.build()
+				).build();
 
-        Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, importFabric).subscribe();
-    }
+		Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, importFabric).subscribe();
+	}
 
-    @Override
-    public void respond(ChatInputInteractionEvent ctx, CommandHelper helper) {
-        String mcVersion = ctx.getOption("version")
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .get();
-        ctx.deferReply().then(proceed(mcVersion, ctx)).block();
-    }
+	@Override
+	public void respond(ChatInputInteractionEvent ctx, CommandHelper helper) {
+		String mcVersion = ctx.getOption("version")
+				.flatMap(ApplicationCommandInteractionOption::getValue)
+				.map(ApplicationCommandInteractionOptionValue::asString)
+				.get();
+		ctx.deferReply().then(proceed(mcVersion, ctx)).block();
+	}
 
-    public Mono<Message> proceed(String mcVersion, ChatInputInteractionEvent ctx) {
-        String fabricApiVersion = "null";
-        String fabricLoaderVersion = "null";
-        String yarnVersion = "null";
+	public Mono<Message> proceed(String mcVersion, ChatInputInteractionEvent ctx) {
+		String fabricApiVersion = "null";
+		String fabricLoaderVersion = "null";
+		String yarnVersion = "null";
 
-        var fabricApi = ModrinthAPI.getVersions("fabric-api");
-        if(fabricApi.isPresent()) {
-            for(var ver : fabricApi.get()) {
-                if(ver.gameVersions.contains(mcVersion)) {
-                    fabricApiVersion = ver.versionNumber;
-                    break;
-                }
-            }
-        }
-        var entries = FabricMeta.getFabricVersions(mcVersion);
-        if(entries.isPresent()) {
-            fabricLoaderVersion = entries.get().get(0).loader.version;
-            yarnVersion = entries.get().get(0).mappings.version;
-        }
-        return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.successSpec("Import Fabric", "minecraft_version = " + mcVersion + "\nyarn_mappings = " + yarnVersion + "\nfabric_loader = " + fabricLoaderVersion + "\nfabric_api = " + fabricApiVersion)).build());
-    }
+		var fabricApi = ModrinthAPI.getVersions("fabric-api");
+		if(fabricApi.isPresent()) {
+			for(var ver : fabricApi.get()) {
+				if(ver.gameVersions.contains(mcVersion)) {
+					fabricApiVersion = ver.versionNumber;
+					break;
+				}
+			}
+		}
+		var entries = FabricMeta.getFabricVersions(mcVersion);
+		if(entries.isPresent()) {
+			fabricLoaderVersion = entries.get().get(0).loader.version;
+			yarnVersion = entries.get().get(0).mappings.version;
+		}
+		return ctx.createFollowup(InteractionFollowupCreateSpec.builder().addEmbed(Embeds.successSpec("Import Fabric", "minecraft_version = " + mcVersion + "\nyarn_mappings = " + yarnVersion + "\nfabric_loader = " + fabricLoaderVersion + "\nfabric_api = " + fabricApiVersion)).build());
+	}
 }
