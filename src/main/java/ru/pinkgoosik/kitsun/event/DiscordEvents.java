@@ -15,9 +15,9 @@ import discord4j.core.event.domain.role.RoleCreateEvent;
 import discord4j.core.event.domain.role.RoleDeleteEvent;
 import discord4j.core.event.domain.role.RoleUpdateEvent;
 import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.discordjson.json.ApplicationCommandRequest;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
-import ru.pinkgoosik.kitsun.command.CommandNext;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
@@ -34,7 +34,18 @@ public class DiscordEvents {
 		KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
 		Scheduler.start();
 		Commands.initNext();
-		Commands.COMMANDS_NEXT.forEach(CommandNext::build);
+		long application = Bot.rest.getApplicationId().block();
+
+		Commands.COMMANDS_NEXT.forEach(command -> {
+			var builder = ApplicationCommandRequest.builder().name(command.getName()).description(command.getDescription());
+			builder = command.build(builder);
+			if(command.isTLExclusive()) {
+				Bot.rest.getApplicationService().createGuildApplicationCommand(application, 854349856164020244L, builder.build()).subscribe();
+			}
+			else {
+				Bot.rest.getApplicationService().createGlobalApplicationCommand(application, builder.build()).subscribe();
+			}
+		});
 	}
 
 	public static void onCommandUse(ChatInputInteractionEvent event) {

@@ -8,9 +8,8 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
 import reactor.core.publisher.Mono;
-import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.CommandNext;
@@ -33,22 +32,20 @@ public class RegisterCommands {
 			}
 
 			@Override
-			public void build() {
-				long application = Bot.rest.getApplicationId().block();
-				long server = 854349856164020244L;
+			public boolean isTLExclusive() {
+				return true;
+			}
 
-				ApplicationCommandRequest register = ApplicationCommandRequest.builder()
-						.name(this.getName())
-						.description(this.getDescription())
-						.addOption(ApplicationCommandOptionData.builder()
-								.name("nickname")
-								.description("Your Minecraft nickname")
-								.type(ApplicationCommandOption.Type.STRING.getValue())
-								.required(true)
-								.build()
-						).build();
-
-				Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, register).subscribe();
+			@Override
+			public ImmutableApplicationCommandRequest.Builder build(ImmutableApplicationCommandRequest.Builder builder) {
+				builder.addOption(ApplicationCommandOptionData.builder()
+						.name("nickname")
+						.description("Your Minecraft nickname")
+						.type(ApplicationCommandOption.Type.STRING.getValue())
+						.required(true)
+						.build()
+				);
+				return builder;
 			}
 
 			@Override
@@ -93,16 +90,13 @@ public class RegisterCommands {
 			}
 
 			@Override
-			public void build() {
-				long application = Bot.rest.getApplicationId().block();
-				long server = 854349856164020244L;
+			public boolean isTLExclusive() {
+				return true;
+			}
 
-				ApplicationCommandRequest unregister = ApplicationCommandRequest.builder()
-						.name(this.getName())
-						.description(this.getDescription())
-						.build();
-
-				Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, unregister).subscribe();
+			@Override
+			public ImmutableApplicationCommandRequest.Builder build(ImmutableApplicationCommandRequest.Builder builder) {
+				return builder;
 			}
 
 			@Override

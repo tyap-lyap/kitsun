@@ -66,9 +66,9 @@ public class AutoChannelsManager {
 		if(channelData == null || guild == null) return;
 
 		if(!channelData.parentId().isAbsent() && channelData.parentId().get().isPresent()) {
-			String memberName = member.getDisplayName();
+//			String memberName = member.getDisplayName();
 			String category = channelData.parentId().get().get().asString();
-			VoiceChannel channel = guild.createVoiceChannel(VoiceChannelCreateSpec.builder().name(memberName + "'s lounge").parentId(Snowflake.of(category)).build()).block();
+			VoiceChannel channel = guild.createVoiceChannel(VoiceChannelCreateSpec.builder().name("lounge | " + this.sessions.size() + 1).parentId(Snowflake.of(category)).build()).block();
 
 			if(channel != null) {
 				Snowflake memberId = member.getId();

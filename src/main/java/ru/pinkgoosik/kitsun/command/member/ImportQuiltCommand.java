@@ -7,9 +7,8 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
 import reactor.core.publisher.Mono;
-import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
@@ -29,22 +28,15 @@ public class ImportQuiltCommand extends CommandNext {
 	}
 
 	@Override
-	public void build() {
-		long application = Bot.rest.getApplicationId().block();
-		long server = 854349856164020244L;
-
-		ApplicationCommandRequest importQuilt = ApplicationCommandRequest.builder()
-				.name(this.getName())
-				.description(this.getDescription())
-				.addOption(ApplicationCommandOptionData.builder()
-						.name("version")
-						.description("Minecraft version")
-						.type(ApplicationCommandOption.Type.STRING.getValue())
-						.required(true)
-						.build()
-				).build();
-
-		Bot.rest.getApplicationService().createGuildApplicationCommand(application, server, importQuilt).subscribe();
+	public ImmutableApplicationCommandRequest.Builder build(ImmutableApplicationCommandRequest.Builder builder) {
+		builder.addOption(ApplicationCommandOptionData.builder()
+				.name("version")
+				.description("Minecraft version")
+				.type(ApplicationCommandOption.Type.STRING.getValue())
+				.required(true)
+				.build()
+		);
+		return builder;
 	}
 
 	@Override

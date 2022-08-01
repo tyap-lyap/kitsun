@@ -7,6 +7,7 @@ import discord4j.rest.entity.RestChannel;
 import discord4j.rest.http.client.ClientException;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
+import ru.pinkgoosik.kitsun.command.next.ModUpdatesCommands;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.Embeds;
@@ -20,12 +21,12 @@ public class Commands {
 	public static final List<CommandNext> COMMANDS_NEXT = new ArrayList<>();
 
 	public static void init() {
-		add(new Help());
+//		add(new Help());
 
-		add(KitsunCmdPrefix.build());
+//		add(KitsunCmdPrefix.build());
 
-		add(new PublisherAdd());
-		add(new PublisherRemove());
+//		add(new PublisherAdd());
+//		add(new PublisherRemove());
 
 		add(new MCUpdatesEnable());
 		add(new MCUpdatesDisable());
@@ -49,6 +50,8 @@ public class Commands {
 	public static void initNext() {
 		add(RegisterCommands.reg());
 		add(RegisterCommands.unreg());
+		add(ModUpdatesCommands.add());
+		add(ModUpdatesCommands.remove());
 		add(new ImportFabricCommand());
 		add(new ImportQuiltCommand());
 	}
