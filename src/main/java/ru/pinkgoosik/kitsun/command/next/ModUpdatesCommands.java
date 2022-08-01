@@ -66,7 +66,7 @@ public class ModUpdatesCommands {
 						.get().block();
 				if(channel != null) {
 					String channelId = channel.getId().asString();
-					ctx.deferReply().then(proceed(helper, slug, channelId)).block();
+					ctx.deferReply().withEphemeral(true).then(proceed(helper, slug, channelId)).block();
 				}
 			}
 
@@ -137,7 +137,7 @@ public class ModUpdatesCommands {
 						.flatMap(ApplicationCommandInteractionOption::getValue)
 						.map(ApplicationCommandInteractionOptionValue::asString)
 						.get();
-				ctx.deferReply().then(proceed(helper, slug)).block();
+				ctx.deferReply().withEphemeral(true).then(proceed(helper, slug)).block();
 			}
 
 			private Mono<Message> proceed(CommandHelper helper, String slug) {

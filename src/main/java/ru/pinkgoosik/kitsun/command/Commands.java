@@ -3,8 +3,10 @@ package ru.pinkgoosik.kitsun.command;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.entity.RestChannel;
 import discord4j.rest.http.client.ClientException;
+import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
 import ru.pinkgoosik.kitsun.command.next.ModUpdatesCommands;
@@ -62,6 +64,22 @@ public class Commands {
 
 	private static void add(CommandNext command) {
 		COMMANDS_NEXT.add(command);
+	}
+
+	public static void onConnect() {
+		Commands.initNext();
+		long application = Bot.rest.getApplicationId().block();
+
+		Commands.COMMANDS_NEXT.forEach(command -> {
+			var builder = ApplicationCommandRequest.builder().name(command.getName()).description(command.getDescription());
+			builder = command.build(builder);
+			if(command.isTLExclusive()) {
+				Bot.rest.getApplicationService().createGuildApplicationCommand(application, 854349856164020244L, builder.build()).subscribe();
+			}
+			else {
+				Bot.rest.getApplicationService().createGlobalApplicationCommand(application, builder.build()).subscribe();
+			}
+		});
 	}
 
 	public static void onMessageCreate(MessageCreateEvent event) {
