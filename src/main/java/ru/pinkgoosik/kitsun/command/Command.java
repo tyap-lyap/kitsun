@@ -30,7 +30,7 @@ public abstract class Command {
 
 	public boolean disallowed(CommandUseContext ctx, String permission) {
 		if(!ctx.accessManager.hasAccessTo(ctx.member, permission)) {
-			ctx.channel.createMessage(Embeds.error("Not enough permissions.")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("Not enough permissions.")).queue();
 			return true;
 		}
 		return false;

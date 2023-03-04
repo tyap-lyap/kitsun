@@ -1,17 +1,12 @@
 package ru.pinkgoosik.kitsun.schedule;
 
-import discord4j.common.util.Snowflake;
-import discord4j.core.object.VoiceState;
-import discord4j.core.object.entity.channel.VoiceChannel;
-import discord4j.rest.http.client.ClientException;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.feature.AutoChannelsManager;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
-
-import java.util.List;
 
 public class AutoChannelsScheduler {
 
@@ -30,23 +25,25 @@ public class AutoChannelsScheduler {
 
 	private static void proceed(ServerData data, AutoChannelsManager manager) {
 		try {
-			if(Bot.client.getChannelById(Snowflake.of(manager.parentChannel)).block() instanceof VoiceChannel channel) {
-				List<VoiceState> states = channel.getVoiceStates().collectList().block();
-				if(states != null) {
-					for(var state : states) {
-						var member = state.getMember().block();
-
-						if(member != null && state.getChannelId().isPresent()) {
-							if(state.getChannelId().get().asString().equals(channel.getId().asString())) {
+			if(Bot.jda.getGuildChannelById(manager.parentChannel) instanceof VoiceChannel channel) {
+				var members = channel.getMembers();
+				for (var member : members) {
+					var state = member.getVoiceState();
+					if(state != null) {
+						var stateChannel = state.getChannel();
+						if(stateChannel != null) {
+							if (stateChannel.getId().equals(channel.getId())) {
 								manager.onParentChannelJoin(member);
 								return;
 							}
 						}
+
 					}
+
 				}
 			}
 		}
-		catch(ClientException e) {
+		catch(Exception e) {
 			if(e.getMessage().contains("Unknown Channel")) {
 				manager.enabled = false;
 				ServerData.get(manager.server).autoChannels.save();
@@ -57,17 +54,20 @@ public class AutoChannelsScheduler {
 		}
 		manager.sessions.forEach(session -> {
 			try {
-				if(Bot.client.getChannelById(Snowflake.of(session.channel)).block() instanceof VoiceChannel channel) {
+				if(Bot.jda.getGuildChannelById(session.channel) instanceof VoiceChannel channel) {
 					var members = ChannelUtils.getMembers(channel);
 					if(members.isPresent() && members.get() == 0) {
-						var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
-						data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
-						channel.delete("Empty auto channel.").block();
-						session.shouldBeRemoved = true;
+						var guild = Bot.jda.getGuildById(data.server);
+						if (guild != null) {
+							var member = guild.getMemberById(session.owner);
+							data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
+							channel.delete().queue();
+							session.shouldBeRemoved = true;
+						}
 					}
 				}
 			}
-			catch(ClientException e) {
+			catch(Exception e) {
 				if(e.getMessage().contains("Unknown Channel")) {
 					session.shouldBeRemoved = true;
 				}

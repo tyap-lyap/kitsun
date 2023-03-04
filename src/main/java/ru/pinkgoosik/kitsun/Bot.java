@@ -1,110 +1,111 @@
 package ru.pinkgoosik.kitsun;
 
-import discord4j.core.DiscordClientBuilder;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.event.domain.VoiceStateUpdateEvent;
-import discord4j.core.event.domain.channel.VoiceChannelDeleteEvent;
-import discord4j.core.event.domain.channel.VoiceChannelUpdateEvent;
-import discord4j.core.event.domain.guild.MemberJoinEvent;
-import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.event.domain.lifecycle.ConnectEvent;
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.event.domain.message.MessageUpdateEvent;
-import discord4j.core.event.domain.role.RoleCreateEvent;
-import discord4j.core.event.domain.role.RoleDeleteEvent;
-import discord4j.core.event.domain.role.RoleUpdateEvent;
-import discord4j.gateway.intent.IntentSet;
-import discord4j.rest.RestClient;
-import reactor.core.publisher.Mono;
-import reactor.util.Logger;
-import reactor.util.Loggers;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
+import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.cache.Cached;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
 import ru.pinkgoosik.kitsun.event.DiscordEvents;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 public class Bot {
-	public static final Logger LOGGER = Loggers.getLogger("Kitsun");
+	public static final Logger LOGGER = LoggerFactory.getLogger("Kitsun");
 	public static Cached<Secrets> secrets = Cached.of("secrets", Secrets.class, () -> Secrets.DEFAULT);
-	public static RestClient rest;
-	public static GatewayDiscordClient client;
+	public static JDA jda;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Commands.init();
 		CosmeticsData.fetch();
 		Bot.init();
 	}
 
-	public static void init() {
+	public static void init() throws InterruptedException {
 		String token = secrets.get().token;
 		if(token.isBlank()) {
 			LOGGER.error("Token is blank");
+			secrets.save();
 			System.exit(0);
 		}
-		DiscordClientBuilder.create(token)
-				.build().gateway()
-				.setEnabledIntents(IntentSet.all())
-				.withGateway(gateway -> {
-					Mono<Void> connect = gateway.on(ConnectEvent.class, event -> {
-						DiscordEvents.onConnect(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> memberJoin = gateway.on(MemberJoinEvent.class, event -> {
-						DiscordEvents.onMemberJoin(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> memberLeave = gateway.on(MemberLeaveEvent.class, event -> {
-						DiscordEvents.onMemberLeave(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> messageCreate = gateway.on(MessageCreateEvent.class, event -> {
-						DiscordEvents.onMessageCreate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> messageUpdate = gateway.on(MessageUpdateEvent.class, event -> {
-						DiscordEvents.onMessageUpdate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> messageDelete = gateway.on(MessageDeleteEvent.class, event -> {
-						DiscordEvents.onMessageDelete(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> roleCreate = gateway.on(RoleCreateEvent.class, event -> {
-						DiscordEvents.onRoleCreate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> roleDelete = gateway.on(RoleDeleteEvent.class, event -> {
-						DiscordEvents.onRoleDelete(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> roleUpdate = gateway.on(RoleUpdateEvent.class, event -> {
-						DiscordEvents.onRoleUpdate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> voiceChannelUpdate = gateway.on(VoiceChannelUpdateEvent.class, event -> {
-						DiscordEvents.onVoiceChannelUpdate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> voiceChannelDelete = gateway.on(VoiceChannelDeleteEvent.class, event -> {
-						DiscordEvents.onVoiceChannelDelete(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> voiceStateUpdate = gateway.on(VoiceStateUpdateEvent.class, event -> {
-						DiscordEvents.onVoiceStateUpdate(event);
-						return Mono.empty();
-					}).then();
-					Mono<Void> commandUse = gateway.on(ChatInputInteractionEvent.class, event -> {
-						DiscordEvents.onCommandUse(event);
-						return Mono.empty();
-					}).then();
-					return Mono.when(connect, memberJoin, memberLeave, messageCreate,
-							messageUpdate, messageDelete, roleCreate, roleDelete,
-							roleUpdate, voiceChannelUpdate, voiceChannelDelete, voiceStateUpdate,
-							commandUse);
+
+		// TODO: make DiscordEvents extend ListenerAdapter
+		JDA jda = JDABuilder.createDefault(token)
+				.addEventListeners(new EventListener() {
+					@Override
+					public void onEvent(@NotNull GenericEvent event) {
+						if(event instanceof ReadyEvent readyEvent) {
+							DiscordEvents.onConnect(readyEvent);
+						}
+					}
 				})
-				.block();
+				.addEventListeners(new ListenerAdapter() {
+					@Override
+					public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+						super.onMessageReceived(event);
+						DiscordEvents.onMessageCreate(event);
+
+					}
+
+					@Override
+					public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
+						super.onMessageUpdate(event);
+						DiscordEvents.onMessageUpdate(event);
+					}
+
+					@Override
+					public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
+						super.onGuildMemberJoin(event);
+						DiscordEvents.onMemberJoin(event);
+					}
+
+					@Override
+					public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
+						super.onGuildMemberRemove(event);
+						DiscordEvents.onMemberLeave(event);
+					}
+
+					@Override
+					public void onChannelUpdateName(@NotNull ChannelUpdateNameEvent event) {
+						super.onChannelUpdateName(event);
+						if(event.getChannelType().equals(ChannelType.VOICE)) {
+							DiscordEvents.onVoiceChannelNameUpdate(event);
+						}
+					}
+
+					@Override
+					public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
+						super.onChannelDelete(event);
+						if(event.getChannelType().equals(ChannelType.VOICE)) {
+							DiscordEvents.onVoiceChannelDelete(event);
+						}
+					}
+
+					@Override
+					public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+						super.onSlashCommandInteraction(event);
+						DiscordEvents.onCommandUse(event);
+					}
+				})
+				.enableIntents(Arrays.asList(GatewayIntent.values()))
+				.build();
+
+		jda.awaitReady();
 	}
 }

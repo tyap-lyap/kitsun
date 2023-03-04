@@ -1,13 +1,19 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import discord4j.common.util.Snowflake;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import ru.pinkgoosik.kitsun.Bot;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class KitsunDebugger {
-	private static final String channel = "967506328190877726";
+	private static String debugChannel = "967506328190877726";
 	public static final ArrayList<String> CACHE = new ArrayList<>();
+
+	public static void onConnect(ReadyEvent event) {
+		if(event.getJDA().getSelfUser().getId().equals("935826731925913630")) debugChannel = "1081197875830206475";
+	}
 
 	public static void ping(String message) {
 		Bot.LOGGER.error(message);
@@ -28,7 +34,8 @@ public class KitsunDebugger {
 			if(reported.equals(text)) return;
 		}
 		try {
-			Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(text).block();
+			Objects.requireNonNull(Bot.jda.getChannelById(MessageChannelUnion.class, debugChannel)).sendMessage(text).queue();
+//			Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(text).block();
 			CACHE.add(text);
 		}
 		catch(Exception e) {

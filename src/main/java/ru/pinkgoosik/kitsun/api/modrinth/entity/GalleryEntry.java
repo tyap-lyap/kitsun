@@ -1,6 +1,6 @@
 package ru.pinkgoosik.kitsun.api.modrinth.entity;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class GalleryEntry {

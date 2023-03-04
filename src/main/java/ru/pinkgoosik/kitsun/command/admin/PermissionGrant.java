@@ -29,11 +29,11 @@ public class PermissionGrant extends Command {
 		if(disallowed(ctx, Permissions.PERMISSION_GRANT)) return;
 
 		if(!Permissions.LIST.contains(permission)) {
-			ctx.channel.createMessage(Embeds.error("Such permission doesn't exist.")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("Such permission doesn't exist.")).queue();
 			return;
 		}
 		ctx.accessManager.grant(roleId, permission);
 		String text = "`" + roleId + "` successfully granted with the `" + permission + "` permission.";
-		ctx.channel.createMessage(Embeds.success("Permission Grating", text)).block();
+		ctx.channel.sendMessageEmbeds(Embeds.success("Permission Grating", text)).queue();
 	}
 }

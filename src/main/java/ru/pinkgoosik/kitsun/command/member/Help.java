@@ -34,7 +34,7 @@ public class Help extends Command {
 	public void respond(CommandUseContext ctx) {
 		if(disallowed(ctx, Permissions.HELP)) return;
 		String page = ctx.args.get(0);
-		ctx.channel.createMessage(Embeds.info("Available Commands", build(page, ctx.config))).block();
+		ctx.channel.sendMessageEmbeds(Embeds.info("Available Commands", build(page, ctx.config))).queue();
 	}
 
 	private String build(String arg, ServerConfig config) {

@@ -1,8 +1,8 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import discord4j.common.util.Snowflake;
-import discord4j.discordjson.json.EmbedData;
-import discord4j.discordjson.json.EmbedThumbnailData;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
 import ru.pinkgoosik.kitsun.cache.ServerData;
@@ -50,17 +50,19 @@ public class QuiltUpdatesPublisher {
 
 	private void publish(String version) {
 		ServerData.get(server).save();
-		Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version)).block();
+		if(Bot.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
+			textChannel.sendMessageEmbeds(createEmbed(version)).queue();
+		}
 	}
 
-	private EmbedData createEmbed(String version) {
+	private MessageEmbed createEmbed(String version) {
 		String linksPart = "\n[Homepage](https://quiltmc.org) | [Source Code](https://github.com/QuiltMC/quilt-loader)";
 
-		return EmbedData.builder().title("New Quilt Loader Version")
-				.description("Quilt Loader " + version + " just got released!" + linksPart)
-				.thumbnail(EmbedThumbnailData.builder().url("https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_logo_dark.png?raw=true").build())
-				.color(KitsunColors.getCyan().getRGB())
-				.timestamp(Instant.now().toString())
+		return new EmbedBuilder().setTitle("New Quilt Loader Version")
+				.setDescription("Quilt Loader " + version + " just got released!" + linksPart)
+				.setThumbnail("https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_logo_dark.png?raw=true")
+				.setColor(KitsunColors.getCyan())
+				.setTimestamp(Instant.now())
 				.build();
 	}
 

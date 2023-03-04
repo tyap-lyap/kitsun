@@ -25,6 +25,6 @@ public class PermissionsList extends Command {
 		for(String permission : Permissions.LIST) {
 			text.append(permission).append("\n");
 		}
-		ctx.channel.createMessage(Embeds.info("Available Permissions", text.toString())).block();
+		ctx.channel.sendMessageEmbeds(Embeds.info("Available Permissions", text.toString())).queue();
 	}
 }

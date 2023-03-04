@@ -34,7 +34,7 @@ public class PublisherRemove extends Command {
 		if(disallowed(ctx, Permissions.CHANGELOG_PUBLISHER_REMOVE)) return;
 
 		if(slugArg.equals("empty")) {
-			ctx.channel.createMessage(Embeds.error("You have not specified a project slug!")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("You have not specified a project slug!")).queue();
 			return;
 		}
 		ModrinthAPI.getProject(slugArg).ifPresentOrElse(project -> {
@@ -50,12 +50,12 @@ public class PublisherRemove extends Command {
 				ctx.serverData.publishers.set(newOnes);
 				ctx.serverData.publishers.save();
 				String text = "All publisher of the `" + slugArg + "` project got removed.";
-				ctx.channel.createMessage(Embeds.success("Removing Changelog Publisher", text)).block();
+				ctx.channel.sendMessageEmbeds(Embeds.success("Removing Changelog Publisher", text)).queue();
 			}
 			else {
-				ctx.channel.createMessage(Embeds.error("`" + slugArg + "` project doesn't have any publishers.")).block();
+				ctx.channel.sendMessageEmbeds(Embeds.error("`" + slugArg + "` project doesn't have any publishers.")).queue();
 			}
-		}, () -> ctx.channel.createMessage(Embeds.error("Project `" + slugArg + "` is not found.")).block());
+		}, () -> ctx.channel.sendMessageEmbeds(Embeds.error("Project `" + slugArg + "` is not found.")).queue());
 	}
 
 	private static boolean hasPublishers(String projectId, ServerData serverData) {

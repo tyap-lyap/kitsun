@@ -1,10 +1,8 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import discord4j.common.util.Snowflake;
-import discord4j.discordjson.json.EmbedAuthorData;
-import discord4j.discordjson.json.EmbedData;
-import discord4j.discordjson.json.EmbedFooterData;
-import discord4j.discordjson.json.EmbedThumbnailData;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
 import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
@@ -60,12 +58,14 @@ public class ModUpdatesPublisher {
 
 	private void publish(ArrayList<ProjectVersion> versions) {
 		ProjectVersion modVersion = versions.get(0);
-		Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(modVersion)).block();
+		if(Bot.jda.getGuildChannelById(channel) instanceof StandardGuildMessageChannel messageChannel) {
+			messageChannel.sendMessageEmbeds(createEmbed(modVersion)).queue();
+		}
 		latestVersion = modVersion.id;
 		ServerData.get(server).save();
 	}
 
-	private EmbedData createEmbed(ProjectVersion version) {
+	private MessageEmbed createEmbed(ProjectVersion version) {
 		String changelogPart = "";
 
 		if(!version.changelog.isBlank() && version.changelog.length() < 5000) {
@@ -105,15 +105,14 @@ public class ModUpdatesPublisher {
 		if(cachedProject.slug.equals("qsl")) {
 			iconUrl = "https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_mini_icon_dark.png?raw=true";
 		}
-		return EmbedData.builder()
-				.author(EmbedAuthorData.builder().name(cachedProject.title).build())
-				.title(version.versionNumber + " " + versionType + minecraftVersions)
-				.url(cachedProject.getProjectUrl())
-				.description(changelogPart + linksPart)
-				.color(KitsunColors.getCyan().getRGB())
-				.thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-				.footer(EmbedFooterData.builder().text("Modrinth Project | " + cachedProject.license.name).iconUrl("https://i.imgur.com/abiIc1b.png").build())
-				.timestamp(Instant.parse(version.datePublished).toString())
+		return new EmbedBuilder()
+				.setAuthor(cachedProject.title)
+				.setTitle(version.versionNumber + " " + versionType + minecraftVersions, cachedProject.getProjectUrl())
+				.setDescription(changelogPart + linksPart)
+				.setColor(KitsunColors.getCyan().getRGB())
+				.setThumbnail(iconUrl)
+				.setFooter("Modrinth Project | " + cachedProject.license.name, "https://i.imgur.com/abiIc1b.png")
+				.setTimestamp(Instant.parse(version.datePublished))
 				.build();
 	}
 }

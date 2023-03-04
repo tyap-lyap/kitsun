@@ -1,57 +1,40 @@
 package ru.pinkgoosik.kitsun.util;
 
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.EmbedData;
-import discord4j.discordjson.json.EmbedThumbnailData;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class Embeds {
 
-	public static EmbedData error(String text) {
-		var embed = EmbedData.builder();
-		embed.title("Failed");
-		embed.description(text);
-		embed.color(KitsunColors.getRed().getRGB());
+	public static MessageEmbed error(String text) {
+		var embed = new EmbedBuilder();
+		embed.setTitle("Failed");
+		embed.setDescription(text);
+		embed.setColor(KitsunColors.getRed());
 		return embed.build();
 	}
 
-	public static EmbedCreateSpec errorSpec(String text) {
-		var embed = EmbedCreateSpec.builder();
-		embed.title("Failed");
-		embed.description(text);
-		embed.color(KitsunColors.getRed());
+	public static MessageEmbed success(String title, String text) {
+		var embed = new EmbedBuilder();
+		embed.setTitle(title);
+		embed.setDescription(text);
+		embed.setColor(KitsunColors.getGreen());
 		return embed.build();
 	}
 
-	public static EmbedData success(String title, String text) {
-		var embed = EmbedData.builder();
-		embed.title(title);
-		embed.description(text);
-		embed.color(KitsunColors.getGreen().getRGB());
+	public static MessageEmbed success(String title, String text, String previewUrl) {
+		var embed = new EmbedBuilder();
+		embed.setTitle(title);
+		embed.setDescription(text);
+		embed.setColor(KitsunColors.getGreen());
+		embed.setThumbnail(previewUrl);
 		return embed.build();
 	}
 
-	public static EmbedCreateSpec successSpec(String title, String text) {
-		var embed = EmbedCreateSpec.builder();
-		embed.title(title);
-		embed.description(text);
-		embed.color(KitsunColors.getGreen());
-		return embed.build();
-	}
-
-	public static EmbedData success(String title, String text, String previewUrl) {
-		var embed = EmbedData.builder();
-		embed.title(title);
-		embed.description(text);
-		embed.color(KitsunColors.getGreen().getRGB());
-		embed.thumbnail(EmbedThumbnailData.builder().url(previewUrl).build());
-		return embed.build();
-	}
-
-	public static EmbedData info(String title, String text) {
-		var embed = EmbedData.builder();
-		embed.title(title);
-		embed.description(text);
-		embed.color(KitsunColors.getBlue().getRGB());
+	public static MessageEmbed info(String title, String text) {
+		var embed = new EmbedBuilder();
+		embed.setTitle(title);
+		embed.setDescription(text);
+		embed.setColor(KitsunColors.getBlue());
 		return embed.build();
 	}
 }

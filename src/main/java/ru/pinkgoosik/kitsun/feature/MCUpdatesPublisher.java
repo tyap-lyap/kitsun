@@ -1,8 +1,8 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import discord4j.common.util.Snowflake;
-import discord4j.discordjson.json.EmbedData;
-import discord4j.discordjson.json.EmbedThumbnailData;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.mojang.PatchNotes;
 import ru.pinkgoosik.kitsun.api.mojang.VersionManifest;
@@ -71,15 +71,17 @@ public class MCUpdatesPublisher {
 
 	private void publish(String version, String type) {
 		ServerData.get(server).save();
-		Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createEmbed(version, type)).block();
+		if(Bot.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
+			textChannel.sendMessageEmbeds(createEmbed(version, type)).queue();
+		}
 		tryToPublishPatchNotes(version);
 	}
 
-	private EmbedData createEmbed(String version, String type) {
-		return EmbedData.builder().title("New Minecraft Version")
-				.description(type + " " + version + " just got released!")
-				.color(KitsunColors.getCyan().getRGB())
-				.timestamp(Instant.now().toString())
+	private MessageEmbed createEmbed(String version, String type) {
+		return new EmbedBuilder().setTitle("New Minecraft Version")
+				.setDescription(type + " " + version + " just got released!")
+				.setColor(KitsunColors.getCyan())
+				.setTimestamp(Instant.now())
 				.build();
 	}
 
@@ -91,15 +93,17 @@ public class MCUpdatesPublisher {
 	}
 
 	private void publishPatchNotesEntry(PatchNotes.PatchNotesEntry entry) {
-		Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(createPatchNotesEmbed(entry)).block();
+		if(Bot.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
+			textChannel.sendMessageEmbeds(createPatchNotesEmbed(entry)).queue();
+		}
 	}
 
-	private EmbedData createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {
-		return EmbedData.builder().title(entry.version + " Patch Notes")
-				.thumbnail(EmbedThumbnailData.builder().url(entry.image.getFullUrl()).build())
-				.description(entry.summary() + "\n[Full Patch Notes](" + QUILT_MC_PATCH_NOTES.replaceAll("%version%", entry.version) + ")")
-				.color(KitsunColors.getCyan().getRGB())
-				.timestamp(Instant.now().toString())
+	private MessageEmbed createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {
+		return new EmbedBuilder().setTitle(entry.version + " Patch Notes")
+				.setThumbnail(entry.image.getFullUrl())
+				.setDescription(entry.summary() + "\n[Full Patch Notes](" + QUILT_MC_PATCH_NOTES.replaceAll("%version%", entry.version) + ")")
+				.setColor(KitsunColors.getCyan())
+				.setTimestamp(Instant.now())
 				.build();
 	}
 }

@@ -1,7 +1,7 @@
 package ru.pinkgoosik.kitsun.permission;
 
-import discord4j.core.object.entity.Member;
-import discord4j.rest.util.Permission;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 
 import java.util.ArrayList;
@@ -21,14 +21,14 @@ public class PermissionsManager {
 
 	public boolean hasAccessTo(Member member, String permission) {
 		boolean isAdmin = false;
-		var permissionSet = member.getBasePermissions().blockOptional();
-		if(permissionSet.isPresent()) isAdmin = permissionSet.get().contains(Permission.ADMINISTRATOR);
+		var permissionSet = member.getPermissions();
+		isAdmin = permissionSet.contains(Permission.ADMINISTRATOR);
 
 		if(isAdmin) return true;
 		if(getPermissionsForEveryone().contains(permission)) return true;
 
 		ArrayList<String> roles = new ArrayList<>();
-		member.getRoleIds().forEach(snowflake -> roles.add(snowflake.asString()));
+		member.getRoles().forEach(role -> roles.add(role.getId()));
 		for(var entry : entries) {
 			if(roles.contains(entry.role) && entry.permissions.contains(permission)) return true;
 		}

@@ -35,25 +35,25 @@ public class PublisherAdd extends Command {
 		if(disallowed(ctx, Permissions.CHANGELOG_PUBLISHER_ADD)) return;
 
 		if(slug.equals("empty")) {
-			ctx.channel.createMessage(Embeds.error("You have not specified a project slug!")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("You have not specified a project slug!")).queue();
 			return;
 		}
 		if(channelIdArg.equals("empty")) {
-			ctx.channel.createMessage(Embeds.error("You have not specified a channel id!")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("You have not specified a channel id!")).queue();
 			return;
 		}
 		if(!ChannelUtils.exist(ctx.serverData.server, channelIdArg)) {
-			ctx.channel.createMessage(Embeds.error("Such channel doesn't exist!")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("Such channel doesn't exist!")).queue();
 			return;
 		}
 		if(ChannelUtils.isVoiceChannel(ctx.serverData.server, channelIdArg)) {
-			ctx.channel.createMessage(Embeds.error("You can't link publisher to a voice channel!")).block();
+			ctx.channel.sendMessageEmbeds(Embeds.error("You can't link publisher to a voice channel!")).queue();
 			return;
 		}
 		ModrinthAPI.getProject(slug).ifPresentOrElse(project -> {
 			for(var publisher : ctx.serverData.publishers.get()) {
 				if(publisher.channel.equals(channelIdArg) && publisher.project.equals(project.id)) {
-					ctx.channel.createMessage(Embeds.error("This channel already has a publisher of the `" + slug + "` project.")).block();
+					ctx.channel.sendMessageEmbeds(Embeds.error("This channel already has a publisher of the `" + slug + "` project.")).queue();
 					return;
 				}
 			}
@@ -64,8 +64,8 @@ public class PublisherAdd extends Command {
 			ctx.serverData.publishers.save();
 
 			String text = "Changelog publisher for the project `" + slug + "` got successfully created! Make sure bot has permission to send messages in this channel otherwise it wont work.";
-			ctx.channel.createMessage(Embeds.success("Creating Changelog Publisher", text)).block();
+			ctx.channel.sendMessageEmbeds(Embeds.success("Creating Changelog Publisher", text)).queue();
 
-		}, () -> ctx.channel.createMessage(Embeds.error("Project `" + slug + "` is not found.")).block());
+		}, () -> ctx.channel.sendMessageEmbeds(Embeds.error("Project `" + slug + "` is not found.")).queue());
 	}
 }

@@ -1,20 +1,15 @@
 package ru.pinkgoosik.kitsun.event;
 
-import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.VoiceStateUpdateEvent;
-import discord4j.core.event.domain.channel.VoiceChannelDeleteEvent;
-import discord4j.core.event.domain.channel.VoiceChannelUpdateEvent;
-import discord4j.core.event.domain.guild.MemberJoinEvent;
-import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.event.domain.lifecycle.ConnectEvent;
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.event.domain.message.MessageUpdateEvent;
-import discord4j.core.event.domain.role.RoleCreateEvent;
-import discord4j.core.event.domain.role.RoleDeleteEvent;
-import discord4j.core.event.domain.role.RoleUpdateEvent;
-import discord4j.core.object.entity.channel.VoiceChannel;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
+import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
+import org.apache.commons.collections4.map.HashedMap;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.Commands;
@@ -22,23 +17,23 @@ import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
-import java.util.Optional;
+import java.util.Map;
 
 public class DiscordEvents {
 
-	public static void onConnect(ConnectEvent event) {
-		Bot.rest = event.getClient().getRestClient();
-		Bot.client = event.getClient();
+	public static void onConnect(ReadyEvent event) {
+		Bot.jda = event.getJDA();
 		String note = Bot.secrets.get().note;
+		KitsunDebugger.onConnect(event);
 		KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
 		Scheduler.start();
 		Commands.onConnect();
 	}
 
-	public static void onCommandUse(ChatInputInteractionEvent event) {
+	public static void onCommandUse(SlashCommandInteractionEvent event) {
 		try {
 			Commands.COMMANDS_NEXT.forEach(commandNext -> {
-				if(event.getCommandName().equals(commandNext.getName())) {
+				if(event.getInteraction().getName().equals(commandNext.getName())) {
 					commandNext.respond(event, new CommandHelper(event));
 				}
 			});
@@ -48,19 +43,23 @@ public class DiscordEvents {
 		}
 	}
 
-	public static void onMessageCreate(MessageCreateEvent event) {
+	private static Map<String, CachedMessage> cachedMessages = new HashedMap<>();
+
+	public record CachedMessage(String id, String memberId, String channelId, String contentRaw){}
+
+	public static void onMessageCreate(MessageReceivedEvent event) {
+		cachedMessages.put(event.getMessageId(), new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getChannel().getId(),event.getMessage().getContentRaw()));
 		Commands.onMessageCreate(event);
 	}
 
 	public static void onMessageUpdate(MessageUpdateEvent event) {
 		try {
-			var newMessage = event.getMessage().blockOptional();
-			var oldMessage = event.getOld();
-			var guildId = event.getGuildId();
+			var newMessage = event.getMessage();
+			var oldMessage = cachedMessages.get(event.getMessageId());
+			if(oldMessage == null) return;
+			var guildId = event.getGuild().getId();
 
-			if(guildId.isPresent() && oldMessage.isPresent() && newMessage.isPresent()) {
-				ServerUtils.runFor(guildId.get(), data -> data.logger.get().ifEnabled(log -> log.onMessageUpdate(oldMessage.get(), newMessage.get())));
-			}
+			ServerUtils.runFor(guildId, data -> data.logger.get().ifEnabled(log -> log.onMessageUpdate(oldMessage, newMessage)));
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed message update event due to an exception:\n" + e);
@@ -69,27 +68,29 @@ public class DiscordEvents {
 
 	public static void onMessageDelete(MessageDeleteEvent event) {
 		try {
-			var guildId = event.getGuildId();
-			var message = event.getMessage();
+			var guildId = event.getGuild().getId();
+			var messageId = event.getMessageId();
 
-			if(guildId.isPresent() && message.isPresent()) {
-				if(message.get().getAuthor().isPresent() && !message.get().getAuthor().get().isBot()) {
-					ServerUtils.runFor(guildId.get(), data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(message.get())));
-				}
-			}
+			ServerUtils.runFor(guildId, data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(cachedMessages.get(messageId))));
+
+//			if(guildId.isPresent() && message.isPresent()) {
+//				if(message.get().getAuthor().isPresent() && !message.get().getAuthor().get().isBot()) {
+//					ServerUtils.runFor(guildId.get(), data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(message.get())));
+//				}
+//			}
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed message delete event due to an exception:\n" + e);
 		}
 	}
 
-	public static void onMemberJoin(MemberJoinEvent event) {
+	public static void onMemberJoin(GuildMemberJoinEvent event) {
 		try {
-			ServerUtils.runFor(event.getGuildId(), data -> {
+			ServerUtils.runFor(event.getGuild().getId(), data -> {
 				data.logger.get().ifEnabled(log -> log.onMemberJoin(event.getMember()));
-				if(!data.config.get().general.memberRoleId.isBlank()) {
-					event.getMember().addRole(Snowflake.of(data.config.get().general.memberRoleId)).block();
-				}
+//				if(!data.config.get().general.memberRoleId.isBlank()) {
+//					event.getMember().addRole(Snowflake.of(data.config.get().general.memberRoleId)).block();
+//				}
 			});
 		}
 		catch(Exception e) {
@@ -97,52 +98,58 @@ public class DiscordEvents {
 		}
 	}
 
-	public static void onMemberLeave(MemberLeaveEvent event) {
+	public static void onMemberLeave(GuildMemberRemoveEvent event) {
 		try {
-			event.getMember().ifPresent(member -> ServerUtils.runFor(event.getGuildId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(member))));
+			ServerUtils.runFor(event.getGuild().getId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(event.getMember())));
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed member leave event due to an exception:\n" + e);
 		}
 	}
 
-	public static void onRoleCreate(RoleCreateEvent event) {
+//	public static void onRoleCreate(RoleCreateEvent event) {
+//
+//	}
+//
+//	public static void onRoleDelete(RoleDeleteEvent event) {
+//
+//	}
+//
+//	public static void onRoleUpdate(RoleUpdateEvent event) {
+//
+//	}
 
-	}
-
-	public static void onRoleDelete(RoleDeleteEvent event) {
-
-	}
-
-	public static void onRoleUpdate(RoleUpdateEvent event) {
-
-	}
-
-	public static void onVoiceChannelUpdate(VoiceChannelUpdateEvent event) {
+	public static void onVoiceChannelNameUpdate(ChannelUpdateNameEvent event) {
 		try {
-			VoiceChannel current = event.getCurrent();
-			Optional<VoiceChannel> old = event.getOld();
-			old.ifPresent(oldChannel -> ServerUtils.runFor(current.getGuildId(), data -> {
-				if(!oldChannel.getName().equals(current.getName())) {
-					data.logger.get().ifEnabled(log -> log.onVoiceChannelNameUpdate(oldChannel, current));
-				}
-			}));
+			var currentName = event.getNewValue();
+			var oldName = event.getOldValue();
+			if(oldName != null) {
+				ServerUtils.runFor(event.getGuild().getId(), data -> {
+					if(!oldName.equals(currentName)) {
+						data.logger.get().ifEnabled(log -> log.onVoiceChannelNameUpdate(oldName, currentName));
+					}
+				});
+			}
+
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed voice channel update event due to an exception:\n" + e);
 		}
 	}
 
-	public static void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
+	public static void onVoiceChannelDelete(ChannelDeleteEvent event) {
 		try {
-			VoiceChannel channel = event.getChannel();
-			String channelId = channel.getId().asString();
+			var channel = event.getChannel();
+			String channelId = channel.getId();
 
 			ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
 				manager.getSession(channelId).ifPresent(session -> {
-					var member = Bot.client.getMemberById(Snowflake.of(data.server), Snowflake.of(session.owner)).block();
-					data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
-					session.shouldBeRemoved = true;
+					var guild = Bot.jda.getGuildById(data.server);
+					if(guild != null) {
+						var member = guild.getMemberById(session.owner);
+						data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
+						session.shouldBeRemoved = true;
+					}
 				});
 
 				if(manager.enabled) {
@@ -158,7 +165,7 @@ public class DiscordEvents {
 		}
 	}
 
-	public static void onVoiceStateUpdate(VoiceStateUpdateEvent event) {
-
-	}
+//	public static void onVoiceStateUpdate(VoiceStateUpdateEvent event) {
+//
+//	}
 }

@@ -1,11 +1,9 @@
 package ru.pinkgoosik.kitsun.command;
 
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.Message;
-import discord4j.discordjson.json.ApplicationCommandRequest;
-import discord4j.rest.entity.RestChannel;
-import discord4j.rest.http.client.ClientException;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
@@ -17,6 +15,7 @@ import ru.pinkgoosik.kitsun.util.SelfUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Commands {
 	public static final List<Command> COMMANDS = new ArrayList<>();
@@ -27,8 +26,8 @@ public class Commands {
 
 //		add(KitsunCmdPrefix.build());
 
-//		add(new PublisherAdd());
-//		add(new PublisherRemove());
+		add(new PublisherAdd());
+		add(new PublisherRemove());
 
 		add(new MCUpdatesEnable());
 		add(new MCUpdatesDisable());
@@ -68,38 +67,58 @@ public class Commands {
 
 	public static void onConnect() {
 		Commands.initNext();
-		long application = Bot.rest.getApplicationId().block();
+//		long application = Bot.rest.getApplicationId().block();
+
+		ArrayList<CommandData> tlCommands = new ArrayList<>();
+		ArrayList<CommandData> globalCommands = new ArrayList<>();
 
 		Commands.COMMANDS_NEXT.forEach(command -> {
-			var builder = ApplicationCommandRequest.builder().name(command.getName()).description(command.getDescription());
-			builder = command.build(builder);
+			var data = command.build();
 			if(command.isTLExclusive()) {
-				Bot.rest.getApplicationService().createGuildApplicationCommand(application, 854349856164020244L, builder.build()).subscribe();
+				tlCommands.add(data);
+//				Bot.rest.getApplicationService().createGuildApplicationCommand(application, 854349856164020244L, builder.build()).subscribe();
 			}
 			else {
-				Bot.rest.getApplicationService().createGlobalApplicationCommand(application, builder.build()).subscribe();
+				globalCommands.add(data);
 			}
 		});
+
+		Bot.jda.updateCommands().addCommands(globalCommands).queue();
+		var guild = Bot.jda.getGuildById(854349856164020244L);
+
+		if(guild != null) {
+			guild.updateCommands().addCommands(tlCommands).queue();
+		}
 	}
 
-	public static void onMessageCreate(MessageCreateEvent event) {
+	public static void onMessageCreate(MessageReceivedEvent event) {
 		try {
-			event.getGuildId().ifPresent(serverId -> event.getMember().ifPresent(member -> {
-				Message message = event.getMessage();
-				RestChannel channel = message.getRestChannel();
-				ServerData serverData = ServerData.get(serverId.asString());
+			var serverId = event.getGuild().getId();
+			var member = event.getMember();
+			var message = event.getMessage();
+			var channel = event.getChannel();
+			ServerData serverData = ServerData.get(serverId);
 
-				if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
-					proceed(message.getContent(), member, channel, serverData);
-				}
-			}));
+			if(!event.getAuthor().isBot()) {
+				proceed(message.getContentDisplay(), member, channel, serverData);
+			}
+
+//			event.getGuildId().ifPresent(serverId -> event.getMember().ifPresent(member -> {
+//				Message message = event.getMessage();
+//				RestChannel channel = message.getRestChannel();
+//				ServerData serverData = ServerData.get(serverId.asString());
+//
+//				if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
+//					proceed(message.getContent(), member, channel, serverData);
+//				}
+//			}));
 		}
 		catch(Exception e) {
 			KitsunDebugger.ping("Failed to proceed commands event duo to an exception:\n" + e);
 		}
 	}
 
-	private static void proceed(String content, Member member, RestChannel restChannel, ServerData serverData) {
+	private static void proceed(String content, Member member, MessageChannelUnion restChannel, ServerData serverData) {
 		String commandPrefix = serverData.config.get().general.commandPrefix;
 		String botPing = "<@" + SelfUtils.getId() + "> ";
 		for(Command command : Commands.COMMANDS) {
@@ -110,17 +129,19 @@ public class Commands {
 				try {
 					command.respond(context);
 				}
-				catch(ClientException e) {
+				catch(Exception e) {
 					if(e.getMessage().contains("Missing Permissions")) {
-						var privateChannel = member.getPrivateChannel().block();
-						if(privateChannel != null) {
-							try {
-								privateChannel.createMessage(Embeds.errorSpec("Bot doesn't have permission to send messages in this channel! If you are a server admin provide bot required permission.")).block();
+						member.getUser().openPrivateChannel().queue(privateChannel -> {
+							if(privateChannel != null) {
+								try {
+									privateChannel.sendMessageEmbeds(Embeds.error("Bot doesn't have permission to send messages in this channel! If you are a server admin provide bot required permission.")).queue();
+								}
+								catch(Exception b) {
+									KitsunDebugger.report("Failed to report to an user about missing permission duo to an exception:\n" + b);
+								}
 							}
-							catch(Exception b) {
-								KitsunDebugger.report("Failed to report to an user about missing permission duo to an exception:\n" + b);
-							}
-						}
+						});
+
 					}
 					else {
 						KitsunDebugger.ping("Failed to respond to command duo to an exception:\n" + e + "\nCommand: " + command.getName() + "\nArguments: " + context.args);

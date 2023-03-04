@@ -1,9 +1,9 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import discord4j.common.util.Snowflake;
-import discord4j.discordjson.json.*;
-import discord4j.rest.entity.RestMessage;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
@@ -13,7 +13,6 @@ import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
 
 public class ModCard {
 	//Discord server's id
@@ -31,7 +30,7 @@ public class ModCard {
 
 	public boolean shouldBeRemoved = false;
 
-	public ModCard(String serverId, @Nullable CurseForgeMod mod, @Nullable ModrinthProject project, String channelId, String messageId) {
+	public ModCard(String serverId, CurseForgeMod mod, ModrinthProject project, String channelId, String messageId) {
 		this.server = serverId;
 		if(mod != null) {
 			this.curseforge = mod.data.getStringId();
@@ -48,60 +47,52 @@ public class ModCard {
 	}
 
 	public void update() {
-		var message = this.getMessage();
-		if(message.isPresent()) {
-			if(this.hasCurseforgePage && this.hasModrinthPage) {
-				var project = ModrinthAPI.getProject(this.modrinth);
-				var mod = CurseForgeAPI.getMod(this.curseforge);
-				if(mod.isPresent() && project.isPresent()) {
-					//slugs can be changed anytime
-					this.curseforgeSlug = mod.get().data.slug;
-					this.modrinthSlug = project.get().slug;
-					this.updateMessage(message.get(), project.get(), mod.get());
+		if(Bot.jda.getGuildChannelById(this.channel) instanceof MessageChannel messageChannel) {
+			messageChannel.retrieveMessageById(this.message).queue(message -> {
+				if(this.hasCurseforgePage && this.hasModrinthPage) {
+					var project = ModrinthAPI.getProject(this.modrinth);
+					var mod = CurseForgeAPI.getMod(this.curseforge);
+					if(mod.isPresent() && project.isPresent()) {
+						//slugs can be changed anytime
+						this.curseforgeSlug = mod.get().data.slug;
+						this.modrinthSlug = project.get().slug;
+						this.updateMessage(message, project.get(), mod.get());
+					}
 				}
-			}
-			else if(this.hasModrinthPage) {
-				var project = ModrinthAPI.getProject(this.modrinth);
-				if(project.isPresent()) {
-					this.modrinthSlug = project.get().slug;
-					this.updateMessage(message.get(), project.get(), null);
+				else if(this.hasModrinthPage) {
+					var project = ModrinthAPI.getProject(this.modrinth);
+					if(project.isPresent()) {
+						this.modrinthSlug = project.get().slug;
+						this.updateMessage(message, project.get(), null);
+					}
 				}
-			}
-			else if(this.hasCurseforgePage) {
-				var mod = CurseForgeAPI.getMod(this.curseforge);
-				if(mod.isPresent()) {
-					this.curseforgeSlug = mod.get().data.slug;
-					this.updateMessage(message.get(), null, mod.get());
+				else if(this.hasCurseforgePage) {
+					var mod = CurseForgeAPI.getMod(this.curseforge);
+					if(mod.isPresent()) {
+						this.curseforgeSlug = mod.get().data.slug;
+						this.updateMessage(message, null, mod.get());
+					}
 				}
-			}
+			}, throwable -> {
+				KitsunDebugger.report("Failed to get " + this.modrinthSlug + " card's message due to an exception:\n" + throwable);
+			});
 		}
+
 	}
 
-	private void updateMessage(RestMessage message, ModrinthProject project, @Nullable CurseForgeMod mod) {
-		try {
-			message.edit(MessageEditRequest.builder().embedOrNull(this.createEmbed(project, mod)).build()).block();
-		}
-		catch(Exception e) {
-			if(e.getMessage().contains("Unknown Message")) {
+	private void updateMessage(Message message, ModrinthProject project, CurseForgeMod mod) {
+		message.editMessageEmbeds(this.createEmbed(project, mod)).queue(m -> {}, throwable -> {
+
+			if(throwable.getMessage().contains("Unknown Message")) {
 				this.shouldBeRemoved = true;
 			}
 			else {
-				KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + e);
+				KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + throwable);
 			}
-		}
+		});
 	}
 
-	public Optional<RestMessage> getMessage() {
-		try {
-			return Optional.of(Bot.rest.getChannelById(Snowflake.of(this.channel)).getRestMessage(Snowflake.of(this.message)));
-		}
-		catch(Exception e) {
-			KitsunDebugger.report("Failed to get " + this.modrinthSlug + " card's message due to an exception:\n" + e);
-			return Optional.empty();
-		}
-	}
-
-	public EmbedData createEmbed(@Nullable ModrinthProject project, @Nullable CurseForgeMod mod) {
+	public MessageEmbed createEmbed(ModrinthProject project, CurseForgeMod mod) {
 		int downloads = 0;
 		if(project != null) downloads = downloads + project.downloads;
 		if(mod != null) downloads = downloads + mod.data.downloadCount;
@@ -197,15 +188,15 @@ public class ModCard {
 			instant = Instant.parse(project.published);
 		}
 
-		return EmbedData.builder()
-				.title(title + mcVersion)
-				.description(description)
-				.addField(EmbedFieldData.builder().name("Statistics").value(stats).inline(false).build())
-				.addField(EmbedFieldData.builder().name("Resources").value(links).inline(false).build())
-				.color(KitsunColors.getCyan().getRGB())
-				.thumbnail(EmbedThumbnailData.builder().url(iconUrl).build())
-				.footer(EmbedFooterData.builder().text("Minecraft Mod" + license).build())
-				.timestamp(instant.toString())
+		return new EmbedBuilder()
+				.setTitle(title + mcVersion)
+				.setDescription(description)
+				.addField(new MessageEmbed.Field("Statistics", stats, false))
+				.addField(new MessageEmbed.Field("Resources", links, false))
+				.setColor(KitsunColors.getCyan())
+				.setThumbnail(iconUrl)
+				.setFooter("Minecraft Mod" + license)
+				.setTimestamp(instant)
 				.build();
 	}
 

@@ -1,7 +1,7 @@
 package ru.pinkgoosik.kitsun.api.modrinth.entity;
 
 import com.google.gson.annotations.SerializedName;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 
 import java.util.ArrayList;

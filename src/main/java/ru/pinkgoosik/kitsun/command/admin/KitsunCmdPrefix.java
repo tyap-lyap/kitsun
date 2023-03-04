@@ -15,16 +15,16 @@ public class KitsunCmdPrefix {
 				.respond(ctx -> {
 					String prefixArg = ctx.args.get(0);
 					if(ctx.serverData.config.get().general.commandPrefix.equals(prefixArg)) {
-						ctx.channel.createMessage(Embeds.error("The prefix is " + prefixArg + " already!")).block();
+						ctx.channel.sendMessageEmbeds(Embeds.error("The prefix is " + prefixArg + " already!")).queue();
 						return;
 					}
 					if(prefixArg.equals("empty")) {
-						ctx.channel.createMessage(Embeds.error("You have not specified prefix!")).block();
+						ctx.channel.sendMessageEmbeds(Embeds.error("You have not specified prefix!")).queue();
 						return;
 					}
 					ctx.serverData.config.get().general.commandPrefix = prefixArg;
 					ctx.serverData.config.save();
-					ctx.channel.createMessage(Embeds.success("Prefix Changing", "Prefix successfully changed!")).block();
+					ctx.channel.sendMessageEmbeds(Embeds.success("Prefix Changing", "Prefix successfully changed!")).queue();
 
 				}).build();
 	}

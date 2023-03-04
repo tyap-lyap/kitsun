@@ -1,55 +1,70 @@
 package ru.pinkgoosik.kitsun.util;
 
-import discord4j.common.util.Snowflake;
-import discord4j.core.object.VoiceState;
-import discord4j.core.object.entity.channel.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ru.pinkgoosik.kitsun.Bot;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChannelUtils {
 
 	public static boolean exist(String serverId, String channelId) {
-		AtomicBoolean channelExist = new AtomicBoolean(false);
+		var guild = Bot.jda.getGuildById(serverId);
 
-		Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
-			if(channelData.id().asString().equals(channelId)) {
-				channelExist.set(true);
-			}
-			return true;
-		}).block();
+		if(guild != null) {
+			var channel = guild.getGuildChannelById(channelId);
+			return channel != null;
+		}
+		return false;
 
-		return channelExist.get();
+//		AtomicBoolean channelExist = new AtomicBoolean(false);
+//
+//		Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
+//			if(channelData.id().asString().equals(channelId)) {
+//				channelExist.set(true);
+//			}
+//			return true;
+//		}).block();
+//
+//		return channelExist.get();
 	}
 
 	public static boolean isVoiceChannel(String serverId, String channelId) {
-		AtomicBoolean isVoiceChannel = new AtomicBoolean(false);
+		var guild = Bot.jda.getGuildById(serverId);
 
-		Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
-			if(channelData.id().asString().equals(channelId) && !channelData.bitrate().isAbsent()) {
-				isVoiceChannel.set(true);
-			}
-			return true;
-		}).block();
+		if(guild != null) {
+			var channel = guild.getGuildChannelById(channelId);
+			return channel instanceof VoiceChannel;
+		}
+		return false;
 
-		return isVoiceChannel.get();
+//		AtomicBoolean isVoiceChannel = new AtomicBoolean(false);
+
+//		Bot.rest.getGuildById(Snowflake.of(serverId)).getChannels().all(channelData -> {
+//			if(channelData.id().asString().equals(channelId) && !channelData.bitrate().isAbsent()) {
+//				isVoiceChannel.set(true);
+//			}
+//			return true;
+//		}).block();
+//
+//		return isVoiceChannel.get();
 	}
 
 	public static Optional<Integer> getMembers(VoiceChannel channel) {
-		List<VoiceState> states = channel.getVoiceStates().collectList().block();
-		int members = 0;
-		if(states != null) {
-			for(var state : states) {
-				if(state.getChannelId().isPresent()) {
-					if(state.getChannelId().get().asString().equals(channel.getId().asString())) {
-						members++;
+		var members = channel.getMembers();
+		int membersCount = 0;
+
+		for (var member : members) {
+			var state = member.getVoiceState();
+			if (state != null) {
+				var stateChannel = state.getChannel();
+				if (stateChannel != null) {
+					if (stateChannel.getId().equals(channel.getId())) {
+						membersCount++;
 					}
 				}
+
 			}
-			return Optional.of(members);
 		}
-		return Optional.empty();
+		return Optional.of(membersCount);
 	}
 }

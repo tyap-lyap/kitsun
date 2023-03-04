@@ -1,6 +1,5 @@
 package ru.pinkgoosik.kitsun.schedule;
 
-import discord4j.rest.http.client.ClientException;
 import ru.pinkgoosik.kitsun.feature.ModUpdatesPublisher;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.cache.ServerData;
@@ -17,14 +16,6 @@ public class PublishersScheduler {
 	public static void schedule() {
 		try {
 			ServerUtils.forEach(PublishersScheduler::proceed);
-		}
-		catch(ClientException e) {
-			if(e.getMessage().contains("Missing Permissions")) {
-
-			}
-			else {
-				KitsunDebugger.ping("Failed to schedule mod changelog publishers duo to an exception:\n" + e);
-			}
 		}
 		catch(Exception e) {
 			KitsunDebugger.ping("Failed to schedule mod changelog publishers duo to an exception:\n" + e);

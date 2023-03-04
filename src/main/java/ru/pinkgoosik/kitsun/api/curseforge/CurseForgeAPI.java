@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.Optional;
 
 public class CurseForgeAPI {
-	public static final String API_URL = "https://cfproxy.fly.dev/v1";
+	public static final String API_URL = "https://api.curse.tools/v1/cf";
 	public static final String API_MOD_URL = API_URL + "/mods/%id%";
 
 	public static Optional<CurseForgeMod> getMod(String id) {
