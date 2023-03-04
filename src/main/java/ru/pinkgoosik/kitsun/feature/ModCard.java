@@ -46,6 +46,34 @@ public class ModCard {
 		this.message = messageId;
 	}
 
+	public void update(Message message) {
+		if(this.hasCurseforgePage && this.hasModrinthPage) {
+			var project = ModrinthAPI.getProject(this.modrinth);
+			var mod = CurseForgeAPI.getMod(this.curseforge);
+			if(mod.isPresent() && project.isPresent()) {
+				//slugs can be changed anytime
+				this.curseforgeSlug = mod.get().data.slug;
+				this.modrinthSlug = project.get().slug;
+				this.updateMessage(message, project.get(), mod.get());
+			}
+		}
+		else if(this.hasModrinthPage) {
+			var project = ModrinthAPI.getProject(this.modrinth);
+			if(project.isPresent()) {
+				this.modrinthSlug = project.get().slug;
+				this.updateMessage(message, project.get(), null);
+			}
+		}
+		else if(this.hasCurseforgePage) {
+			var mod = CurseForgeAPI.getMod(this.curseforge);
+			if(mod.isPresent()) {
+				this.curseforgeSlug = mod.get().data.slug;
+				this.updateMessage(message, null, mod.get());
+			}
+		}
+	}
+
+	@Deprecated
 	public void update() {
 		if(Bot.jda.getGuildChannelById(this.channel) instanceof MessageChannel messageChannel) {
 			messageChannel.retrieveMessageById(this.message).queue(message -> {

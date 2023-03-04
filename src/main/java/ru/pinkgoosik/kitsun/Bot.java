@@ -38,9 +38,9 @@ public class Bot {
 	}
 
 	public static void init() throws InterruptedException {
-		String token = secrets.get().token;
+		String token = secrets.get().discordToken;
 		if(token.isBlank()) {
-			LOGGER.error("Token is blank");
+			LOGGER.error("Discord token is blank, please modify secrets.json");
 			secrets.save();
 			System.exit(0);
 		}

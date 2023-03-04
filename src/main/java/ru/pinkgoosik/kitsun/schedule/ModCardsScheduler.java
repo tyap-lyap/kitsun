@@ -1,12 +1,16 @@
 package ru.pinkgoosik.kitsun.schedule;
 
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.feature.ModCard;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ModCardsScheduler {
 
@@ -21,7 +25,23 @@ public class ModCardsScheduler {
 
 	private static void proceed(ServerData data) {
 		ArrayList<ModCard> modCards = new ArrayList<>(List.of(data.modCards.get()));
-		modCards.forEach(ModCard::update);
+//		modCards.forEach(ModCard::update);
+
+		int index = -1;
+		for(var card : modCards) {
+			index++;
+
+			if(Bot.jda.getGuildChannelById(card.channel) instanceof MessageChannel messageChannel) {
+				messageChannel.retrieveMessageById(card.message).queueAfter(index * 10L, TimeUnit.SECONDS, message -> {
+					card.update(message);
+					Bot.LOGGER.info(card.modrinthSlug + " card successfully updated!");
+				}, throwable -> {
+					KitsunDebugger.report("Failed to get " + card.modrinthSlug + " card's message due to an exception:\n" + throwable);
+				});
+			}
+
+		}
+
 		modCards.removeIf(card -> card.shouldBeRemoved);
 		data.modCards.set(modCards.toArray(new ModCard[0]));
 		data.modCards.save();
