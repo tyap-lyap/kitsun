@@ -3,12 +3,12 @@ package ru.pinkgoosik.kitsun.command.admin;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
-import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.Command;
 import ru.pinkgoosik.kitsun.command.CommandBuilder;
 import ru.pinkgoosik.kitsun.feature.ModCard;
 import ru.pinkgoosik.kitsun.permission.Permissions;
 import ru.pinkgoosik.kitsun.util.Embeds;
+import ru.pinkgoosik.kitsun.api.Modrinth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class ModCardCommands {
 						return;
 					}
 					var curseforgeMod = CurseForgeAPI.getMod(curseforgeIdArg);
-					var modrinthProject = ModrinthAPI.getProject(modrinthSlugArg);
+					var modrinthProject = Modrinth.getProject(modrinthSlugArg);
 
 					if(modrinthProject.isEmpty()) {
 						ctx.channel.sendMessageEmbeds(Embeds.error("Such modrinth project doesn't exist!")).queue();
@@ -114,7 +114,7 @@ public class ModCardCommands {
 						ctx.channel.sendMessageEmbeds(Embeds.error("You have not specified a modrinth project slug!")).queue();
 						return;
 					}
-					var modrinthProject = ModrinthAPI.getProject(modrinthSlugArg);
+					var modrinthProject = Modrinth.getProject(modrinthSlugArg);
 
 					if(modrinthProject.isEmpty()) {
 						ctx.channel.sendMessageEmbeds(Embeds.error("Such modrinth project doesn't exist!")).queue();

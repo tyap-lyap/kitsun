@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Deprecated
 public class ModrinthAPI {
 	public static final String PROJECT_URL = "https://modrinth.com/%project_type%/%slug%";
 	public static final String API_URL = "https://api.modrinth.com/v2";

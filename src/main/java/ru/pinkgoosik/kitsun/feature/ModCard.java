@@ -1,5 +1,6 @@
 package ru.pinkgoosik.kitsun.feature;
 
+import masecla.modrinth4j.model.project.Project;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -7,9 +8,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
-import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
-import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
+import ru.pinkgoosik.kitsun.api.Modrinth;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -30,7 +30,7 @@ public class ModCard {
 
 	public boolean shouldBeRemoved = false;
 
-	public ModCard(String serverId, CurseForgeMod mod, ModrinthProject project, String channelId, String messageId) {
+	public ModCard(String serverId, CurseForgeMod mod, Project project, String channelId, String messageId) {
 		this.server = serverId;
 		if(mod != null) {
 			this.curseforge = mod.data.getStringId();
@@ -38,8 +38,8 @@ public class ModCard {
 			this.hasCurseforgePage = true;
 		}
 		if(project != null) {
-			this.modrinth = project.id;
-			this.modrinthSlug = project.slug;
+			this.modrinth = project.getId();
+			this.modrinthSlug = project.getSlug();
 			this.hasModrinthPage = true;
 		}
 		this.channel = channelId;
@@ -48,19 +48,19 @@ public class ModCard {
 
 	public void update(Message message) {
 		if(this.hasCurseforgePage && this.hasModrinthPage) {
-			var project = ModrinthAPI.getProject(this.modrinth);
+			var project = Modrinth.getProject(this.modrinth);
 			var mod = CurseForgeAPI.getMod(this.curseforge);
 			if(mod.isPresent() && project.isPresent()) {
 				//slugs can be changed anytime
 				this.curseforgeSlug = mod.get().data.slug;
-				this.modrinthSlug = project.get().slug;
+				this.modrinthSlug = project.get().getSlug();
 				this.updateMessage(message, project.get(), mod.get());
 			}
 		}
 		else if(this.hasModrinthPage) {
-			var project = ModrinthAPI.getProject(this.modrinth);
+			var project = Modrinth.getProject(this.modrinth);
 			if(project.isPresent()) {
-				this.modrinthSlug = project.get().slug;
+				this.modrinthSlug = project.get().getSlug();
 				this.updateMessage(message, project.get(), null);
 			}
 		}
@@ -78,19 +78,19 @@ public class ModCard {
 		if(Bot.jda.getGuildChannelById(this.channel) instanceof MessageChannel messageChannel) {
 			messageChannel.retrieveMessageById(this.message).queue(message -> {
 				if(this.hasCurseforgePage && this.hasModrinthPage) {
-					var project = ModrinthAPI.getProject(this.modrinth);
+					var project = Modrinth.getProject(this.modrinth);
 					var mod = CurseForgeAPI.getMod(this.curseforge);
 					if(mod.isPresent() && project.isPresent()) {
 						//slugs can be changed anytime
 						this.curseforgeSlug = mod.get().data.slug;
-						this.modrinthSlug = project.get().slug;
+						this.modrinthSlug = project.get().getSlug();
 						this.updateMessage(message, project.get(), mod.get());
 					}
 				}
 				else if(this.hasModrinthPage) {
-					var project = ModrinthAPI.getProject(this.modrinth);
+					var project = Modrinth.getProject(this.modrinth);
 					if(project.isPresent()) {
-						this.modrinthSlug = project.get().slug;
+						this.modrinthSlug = project.get().getSlug();
 						this.updateMessage(message, project.get(), null);
 					}
 				}
@@ -108,7 +108,7 @@ public class ModCard {
 
 	}
 
-	private void updateMessage(Message message, ModrinthProject project, CurseForgeMod mod) {
+	private void updateMessage(Message message, Project project, CurseForgeMod mod) {
 		message.editMessageEmbeds(this.createEmbed(project, mod)).queue(m -> {}, throwable -> {
 
 			if(throwable.getMessage().contains("Unknown Message")) {
@@ -120,17 +120,17 @@ public class ModCard {
 		});
 	}
 
-	public MessageEmbed createEmbed(ModrinthProject project, CurseForgeMod mod) {
+	public MessageEmbed createEmbed(Project project, CurseForgeMod mod) {
 		int downloads = 0;
-		if(project != null) downloads = downloads + project.downloads;
+		if(project != null) downloads = downloads + project.getDownloads();
 		if(mod != null) downloads = downloads + mod.data.downloadCount;
 
-		String modrinthLink = project != null ? project.getProjectUrl() : "";
+		String modrinthLink = project != null ? Modrinth.getUrl(project) : "";
 
 		String iconUrl = "";
 
 		if(project != null) {
-			iconUrl = project.iconUrl != null ? project.iconUrl : "https://i.imgur.com/rM5bzkK.png";
+			iconUrl = project.getIconUrl() != null ? project.getIconUrl() : "https://i.imgur.com/rM5bzkK.png";
 		}
 		else if(mod != null) {
 			iconUrl = mod.data.links.websiteUrl;
@@ -138,15 +138,15 @@ public class ModCard {
 
 		String description = "";
 
-		if(project != null) description = compact(project.description);
+		if(project != null) description = compact(project.getDescription());
 		if(mod != null) description = compact(mod.data.summary);
 
 		String stats = "Downloads: **" + commas(downloads) + "**";
-		if(project != null) stats = stats + " | Followers: **" + commas(project.followers) + "**";
+		if(project != null) stats = stats + " | Followers: **" + commas(project.getFollowers()) + "**";
 
 		if(project != null) {
-			Instant updated = Instant.parse(project.updated);
-			Instant created = Instant.parse(project.published);
+			Instant updated = project.getUpdated();
+			Instant created = project.getPublished();
 			Instant now = Instant.now();
 
 			stats = stats + "\nUpdated: **" + commas((int) ChronoUnit.DAYS.between(updated, now)) + "** days ago";
@@ -167,20 +167,20 @@ public class ModCard {
 			links = links + " | [CurseForge](" + mod.data.links.websiteUrl + ")";
 		}
 
-		if(project != null && project.sourceUrl != null) {
-			links = links + " | [Source](" + project.sourceUrl + ")";
+		if(project != null && project.getSourceUrl() != null) {
+			links = links + " | [Source](" + project.getSourceUrl() + ")";
 		}
 		else if(mod != null && mod.data.links.sourceUrl != null && !mod.data.links.sourceUrl.isBlank()) {
 			links = links + " | [Source](" + mod.data.links.sourceUrl + ")";
 		}
-		if(project != null && project.issuesUrl != null) {
-			links = links + " | [Issues](" + project.issuesUrl + ")";
+		if(project != null && project.getIssuesUrl() != null) {
+			links = links + " | [Issues](" + project.getIssuesUrl() + ")";
 		}
 		else if(mod != null && mod.data.links.issuesUrl != null && !mod.data.links.issuesUrl.isBlank()) {
 			links = links + " | [Issues](" + mod.data.links.issuesUrl + ")";
 		}
-		if(project != null && project.wikiUrl != null) {
-			links = links + " | [Wiki](" + project.wikiUrl + ")";
+		if(project != null && project.getWikiUrl() != null) {
+			links = links + " | [Wiki](" + project.getWikiUrl() + ")";
 		}
 		else if(mod != null && mod.data.links.wikiUrl != null && !mod.data.links.wikiUrl.isBlank()) {
 			links = links + " | [Wiki](" + mod.data.links.wikiUrl + ")";
@@ -188,13 +188,13 @@ public class ModCard {
 
 		String mcVersion = "";
 		if(project != null) {
-			var versions = ModrinthAPI.getVersions(project.slug);
+			var versions = Modrinth.getVersions(project.getSlug());
 			if(versions.isPresent()) {
-				mcVersion = " for " + versions.get().get(0).gameVersions.get(0);
-				var first = versions.get().get(versions.get().size() - 1).gameVersions.get(0);
+				mcVersion = " for " + versions.get().get(0).getGameVersions().get(0);
+				var first = versions.get().get(versions.get().size() - 1).getGameVersions().get(0);
 
-				if(!first.equals(versions.get().get(0).gameVersions.get(0))) {
-					mcVersion = " for " + first + " - " + versions.get().get(0).gameVersions.get(0);
+				if(!first.equals(versions.get().get(0).getGameVersions().get(0))) {
+					mcVersion = " for " + first + " - " + versions.get().get(0).getGameVersions().get(0);
 				}
 			}
 		}
@@ -202,7 +202,7 @@ public class ModCard {
 		String title = "";
 
 		if(project != null) {
-			title = project.title;
+			title = project.getTitle();
 		}
 		else if(mod != null) {
 			title = mod.data.name;
@@ -212,8 +212,8 @@ public class ModCard {
 		Instant instant = Instant.now();
 
 		if(project != null) {
-			license = " | " + project.license.name;
-			instant = Instant.parse(project.published);
+			license = " | " + project.getLicense().getName();
+			instant = project.getPublished();
 		}
 
 		return new EmbedBuilder()
