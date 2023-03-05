@@ -24,7 +24,7 @@ public class RegisterCommands {
 
 			@Override
 			public String getDescription() {
-				return "Registers player in the cosmetics system.";
+				return "Links your Discord account and Minecraft nickname.";
 			}
 
 			@Override
@@ -35,7 +35,7 @@ public class RegisterCommands {
 			@Override
 			public SlashCommandData build() {
 				var data = Commands.slash(getName(), getDescription());
-				data.addOption(OptionType.STRING, "nickname", "Your Minecraft nickname", true);
+				data.addOption(OptionType.STRING, "nickname", "Your Minecraft nickname.", true);
 				return data;
 			}
 
@@ -61,14 +61,12 @@ public class RegisterCommands {
 					if(MojangAPI.getUuid(name).isPresent()) {
 						CosmeticsData.register(member.getId(), name, MojangAPI.getUuid(name).get());
 						FtpConnection.updateData();
-						helper.followup(Embeds.success("Player Registering", "Player `" + name + "` is now registered! \nPlease checkout `!help` for more commands."));
+						helper.followup(Embeds.success("Player Registration", "You've been successfully registered. Use `/unreg` command if you'd like to unregister or change your nickname."));
 					}
 					else {
 						helper.followup(Embeds.error("Player `" + name + "` is not found. Write down your Minecraft username."));
 					}
 				}
-
-
 			}
 		};
 	}
@@ -82,7 +80,7 @@ public class RegisterCommands {
 
 			@Override
 			public String getDescription() {
-				return "Unregisters player from the cosmetics system.";
+				return "Unlinks your Discord account and Minecraft nickname.";
 			}
 
 			@Override

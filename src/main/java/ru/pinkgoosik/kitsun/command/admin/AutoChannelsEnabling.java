@@ -11,6 +11,7 @@ import ru.pinkgoosik.kitsun.util.Embeds;
 
 import java.util.Objects;
 
+@Deprecated
 public class AutoChannelsEnabling {
 
 	public static Command enable() {

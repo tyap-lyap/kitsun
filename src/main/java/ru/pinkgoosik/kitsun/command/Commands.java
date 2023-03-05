@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
+import ru.pinkgoosik.kitsun.command.next.AutoChannelsEnableNext;
+import ru.pinkgoosik.kitsun.command.next.EmbedCommand;
 import ru.pinkgoosik.kitsun.command.next.ModUpdatesCommands;
 import ru.pinkgoosik.kitsun.command.next.ModrinthCommand;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
@@ -35,9 +37,6 @@ public class Commands {
 		add(LoggerEnabling.enable());
 		add(LoggerEnabling.disable());
 
-//        add(AutoChannelsEnabling.enable());
-//        add(AutoChannelsEnabling.disable());
-
 		add(QuiltUpdatesEnabling.enable());
 		add(QuiltUpdatesEnabling.disable());
 		add(ModCardCommands.add());
@@ -56,6 +55,8 @@ public class Commands {
 		add(new ImportFabricCommand());
 		add(new ImportQuiltCommand());
 		add(new ModrinthCommand());
+		add(new AutoChannelsEnableNext());
+		add(new EmbedCommand());
 	}
 
 	private static void add(Command command) {

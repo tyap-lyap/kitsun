@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.collections4.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
@@ -37,8 +38,8 @@ public class DiscordEventsListener extends ListenerAdapter {
 	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 		try {
 			Commands.COMMANDS_NEXT.forEach(commandNext -> {
-				if(event.getInteraction().getName().equals(commandNext.getName())) {
-					commandNext.respond(event, new CommandHelper(event));
+				if(event.getInteraction().getName().equals(commandNext.getName()) && event.getGuild() != null) {
+					commandNext.respond(event, new CommandHelper(event, ServerData.get(event.getGuild().getId())));
 				}
 			});
 		}
