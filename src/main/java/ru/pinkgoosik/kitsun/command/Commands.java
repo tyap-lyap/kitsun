@@ -8,6 +8,7 @@ import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
 import ru.pinkgoosik.kitsun.command.next.ModUpdatesCommands;
+import ru.pinkgoosik.kitsun.command.next.ModrinthCommand;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.Embeds;
@@ -15,7 +16,6 @@ import ru.pinkgoosik.kitsun.util.SelfUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Commands {
 	public static final List<Command> COMMANDS = new ArrayList<>();
@@ -55,6 +55,7 @@ public class Commands {
 		add(ModUpdatesCommands.remove());
 		add(new ImportFabricCommand());
 		add(new ImportQuiltCommand());
+		add(new ModrinthCommand());
 	}
 
 	private static void add(Command command) {
@@ -67,7 +68,6 @@ public class Commands {
 
 	public static void onConnect() {
 		Commands.initNext();
-//		long application = Bot.rest.getApplicationId().block();
 
 		ArrayList<CommandData> tlCommands = new ArrayList<>();
 		ArrayList<CommandData> globalCommands = new ArrayList<>();
@@ -76,7 +76,6 @@ public class Commands {
 			var data = command.build();
 			if(command.isTLExclusive()) {
 				tlCommands.add(data);
-//				Bot.rest.getApplicationService().createGuildApplicationCommand(application, 854349856164020244L, builder.build()).subscribe();
 			}
 			else {
 				globalCommands.add(data);
@@ -102,16 +101,6 @@ public class Commands {
 			if(!event.getAuthor().isBot()) {
 				proceed(message.getContentDisplay(), member, channel, serverData);
 			}
-
-//			event.getGuildId().ifPresent(serverId -> event.getMember().ifPresent(member -> {
-//				Message message = event.getMessage();
-//				RestChannel channel = message.getRestChannel();
-//				ServerData serverData = ServerData.get(serverId.asString());
-//
-//				if(!(message.getAuthor().isPresent() && message.getAuthor().get().isBot())) {
-//					proceed(message.getContent(), member, channel, serverData);
-//				}
-//			}));
 		}
 		catch(Exception e) {
 			KitsunDebugger.ping("Failed to proceed commands event duo to an exception:\n" + e);

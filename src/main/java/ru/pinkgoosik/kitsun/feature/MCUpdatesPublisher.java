@@ -101,7 +101,7 @@ public class MCUpdatesPublisher {
 	private MessageEmbed createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {
 		return new EmbedBuilder().setTitle(entry.version + " Patch Notes")
 				.setThumbnail(entry.image.getFullUrl())
-				.setDescription(entry.summary() + "\n[Full Patch Notes](" + QUILT_MC_PATCH_NOTES.replaceAll("%version%", entry.version) + ")")
+				.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + QUILT_MC_PATCH_NOTES.replaceAll("%version%", entry.version) + ")")
 				.setColor(KitsunColors.getCyan())
 				.setTimestamp(Instant.now())
 				.build();

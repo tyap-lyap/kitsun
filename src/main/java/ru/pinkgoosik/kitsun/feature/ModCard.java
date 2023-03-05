@@ -109,7 +109,7 @@ public class ModCard {
 	}
 
 	private void updateMessage(Message message, Project project, CurseForgeMod mod) {
-		message.editMessageEmbeds(this.createEmbed(project, mod)).queue(m -> {}, throwable -> {
+		message.editMessageEmbeds(ModCard.createEmbed(project, mod)).queue(m -> {}, throwable -> {
 
 			if(throwable.getMessage().contains("Unknown Message")) {
 				this.shouldBeRemoved = true;
@@ -120,7 +120,7 @@ public class ModCard {
 		});
 	}
 
-	public MessageEmbed createEmbed(Project project, CurseForgeMod mod) {
+	public static MessageEmbed createEmbed(Project project, CurseForgeMod mod) {
 		int downloads = 0;
 		if(project != null) downloads = downloads + project.getDownloads();
 		if(mod != null) downloads = downloads + mod.data.downloadCount;
@@ -228,7 +228,7 @@ public class ModCard {
 				.build();
 	}
 
-	public String commas(int value) {
+	public static String commas(int value) {
 		String num = Integer.toString(value);
 
 		StringBuilder result = new StringBuilder();
@@ -243,7 +243,7 @@ public class ModCard {
 		return result.deleteCharAt(result.length() - 1).toString();
 	}
 
-	public String compact(String text) {
+	public static String compact(String text) {
 		String[] words = text.split(" ");
 
 		StringBuilder line = new StringBuilder();

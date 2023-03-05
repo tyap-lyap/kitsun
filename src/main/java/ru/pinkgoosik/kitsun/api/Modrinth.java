@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class Modrinth {
-	public static final String PROJECT_URL = "https://modrinth.com/%project_type%/%slug%";
+	public static final String PROJECT_URL = "https://modrinth.com/project/%slug%";
 	public static final ModrinthAPI API = ModrinthAPI.rateLimited(
 			UserAgent.builder().authorUsername("tyap-lyap").projectName("kitsun").projectVersion("latest").build(),
 			Bot.secrets.get().modrinthApiKey);
@@ -49,8 +49,6 @@ public class Modrinth {
 	}
 
 	public static String getUrl(Project project) {
-		String url = PROJECT_URL.replace("%slug%", project.getSlug());
-		url = url.replace("%project_type%", project.getProjectType().toString().toLowerCase());
-		return url;
+		return PROJECT_URL.replace("%slug%", project.getSlug());
 	}
 }

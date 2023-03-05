@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.event.DiscordEvents;
+import ru.pinkgoosik.kitsun.event.DiscordEventsListener;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.time.Instant;
@@ -57,7 +57,7 @@ public class ServerLogger {
 		}
 	}
 
-	public void onMessageUpdate(DiscordEvents.CachedMessage old, Message message) {
+	public void onMessageUpdate(DiscordEventsListener.CachedMessage old, Message message) {
 		if(!old.contentRaw().equals(message.getContentRaw())) {
 			var embed = new EmbedBuilder();
 			embed.setTitle("Message Updated", "https://discord.com/channels/" + message.getGuild().getId() + "/" + message.getChannel().getId() + "/" + message.getId());
@@ -71,7 +71,7 @@ public class ServerLogger {
 		}
 	}
 
-	public void onMessageDelete(DiscordEvents.CachedMessage message) {
+	public void onMessageDelete(DiscordEventsListener.CachedMessage message) {
 		var embed = new EmbedBuilder();
 		embed.setTitle("Message Deleted");
 		embed.addField(new MessageEmbed.Field("Channel", "<#" + message.channelId() + ">", true));

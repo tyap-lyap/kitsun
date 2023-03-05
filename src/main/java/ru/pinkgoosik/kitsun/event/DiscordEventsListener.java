@@ -1,5 +1,6 @@
 package ru.pinkgoosik.kitsun.event;
 
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -9,7 +10,9 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.collections4.map.HashedMap;
+import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.Commands;
@@ -19,7 +22,7 @@ import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 import java.util.Map;
 
-public class DiscordEvents {
+public class DiscordEventsListener extends ListenerAdapter {
 
 	public static void onConnect(ReadyEvent event) {
 		Bot.jda = event.getJDA();
@@ -30,7 +33,8 @@ public class DiscordEvents {
 		Commands.onConnect();
 	}
 
-	public static void onCommandUse(SlashCommandInteractionEvent event) {
+	@Override
+	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 		try {
 			Commands.COMMANDS_NEXT.forEach(commandNext -> {
 				if(event.getInteraction().getName().equals(commandNext.getName())) {
@@ -43,16 +47,18 @@ public class DiscordEvents {
 		}
 	}
 
-	private static Map<String, CachedMessage> cachedMessages = new HashedMap<>();
+	static Map<String, CachedMessage> cachedMessages = new HashedMap<>();
 
 	public record CachedMessage(String id, String memberId, String channelId, String contentRaw){}
 
-	public static void onMessageCreate(MessageReceivedEvent event) {
+	@Override
+	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		cachedMessages.put(event.getMessageId(), new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getChannel().getId(),event.getMessage().getContentRaw()));
 		Commands.onMessageCreate(event);
 	}
 
-	public static void onMessageUpdate(MessageUpdateEvent event) {
+	@Override
+	public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
 		try {
 			var newMessage = event.getMessage();
 			var oldMessage = cachedMessages.get(event.getMessageId());
@@ -66,7 +72,7 @@ public class DiscordEvents {
 		}
 	}
 
-	public static void onMessageDelete(MessageDeleteEvent event) {
+	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
 		try {
 			var guildId = event.getGuild().getId();
 			var messageId = event.getMessageId();
@@ -84,7 +90,8 @@ public class DiscordEvents {
 		}
 	}
 
-	public static void onMemberJoin(GuildMemberJoinEvent event) {
+	@Override
+	public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
 		try {
 			ServerUtils.runFor(event.getGuild().getId(), data -> {
 				data.logger.get().ifEnabled(log -> log.onMemberJoin(event.getMember()));
@@ -98,7 +105,8 @@ public class DiscordEvents {
 		}
 	}
 
-	public static void onMemberLeave(GuildMemberRemoveEvent event) {
+	@Override
+	public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
 		try {
 			ServerUtils.runFor(event.getGuild().getId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(event.getMember())));
 		}
@@ -107,65 +115,56 @@ public class DiscordEvents {
 		}
 	}
 
-//	public static void onRoleCreate(RoleCreateEvent event) {
-//
-//	}
-//
-//	public static void onRoleDelete(RoleDeleteEvent event) {
-//
-//	}
-//
-//	public static void onRoleUpdate(RoleUpdateEvent event) {
-//
-//	}
-
-	public static void onVoiceChannelNameUpdate(ChannelUpdateNameEvent event) {
-		try {
-			var currentName = event.getNewValue();
-			var oldName = event.getOldValue();
-			if(oldName != null) {
-				ServerUtils.runFor(event.getGuild().getId(), data -> {
-					if(!oldName.equals(currentName)) {
-						data.logger.get().ifEnabled(log -> log.onVoiceChannelNameUpdate(oldName, currentName));
-					}
-				});
-			}
-
-		}
-		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed voice channel update event due to an exception:\n" + e);
-		}
-	}
-
-	public static void onVoiceChannelDelete(ChannelDeleteEvent event) {
-		try {
-			var channel = event.getChannel();
-			String channelId = channel.getId();
-
-			ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
-				manager.getSession(channelId).ifPresent(session -> {
-					var guild = Bot.jda.getGuildById(data.server);
-					if(guild != null) {
-						var member = guild.getMemberById(session.owner);
-						data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
-						session.shouldBeRemoved = true;
-					}
-				});
-
-				if(manager.enabled) {
-					if(manager.parentChannel.equals(channelId)) {
-						manager.disable();
-					}
+	@Override
+	public void onChannelUpdateName(@NotNull ChannelUpdateNameEvent event) {
+		if(event.getChannelType().equals(ChannelType.VOICE)) {
+			try {
+				var currentName = event.getNewValue();
+				var oldName = event.getOldValue();
+				if(oldName != null) {
+					ServerUtils.runFor(event.getGuild().getId(), data -> {
+						if(!oldName.equals(currentName)) {
+							data.logger.get().ifEnabled(log -> log.onVoiceChannelNameUpdate(oldName, currentName));
+						}
+					});
 				}
-				manager.refresh();
-			}));
-		}
-		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
+
+			}
+			catch(Exception e) {
+				KitsunDebugger.report("Failed to proceed voice channel update event due to an exception:\n" + e);
+			}
 		}
 	}
 
-//	public static void onVoiceStateUpdate(VoiceStateUpdateEvent event) {
-//
-//	}
+	@Override
+	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
+		super.onChannelDelete(event);
+		if(event.getChannelType().equals(ChannelType.VOICE)) {
+			try {
+				var channel = event.getChannel();
+				String channelId = channel.getId();
+
+				ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
+					manager.getSession(channelId).ifPresent(session -> {
+						var guild = Bot.jda.getGuildById(data.server);
+						if(guild != null) {
+							var member = guild.getMemberById(session.owner);
+							data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
+							session.shouldBeRemoved = true;
+						}
+					});
+
+					if(manager.enabled) {
+						if(manager.parentChannel.equals(channelId)) {
+							manager.disable();
+						}
+					}
+					manager.refresh();
+				}));
+			}
+			catch(Exception e) {
+				KitsunDebugger.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
+			}
+		}
+	}
 }
