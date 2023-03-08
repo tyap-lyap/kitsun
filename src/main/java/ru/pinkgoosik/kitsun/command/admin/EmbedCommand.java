@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.command.next;
+package ru.pinkgoosik.kitsun.command.admin;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -7,14 +7,14 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
-import ru.pinkgoosik.kitsun.command.CommandNext;
+import ru.pinkgoosik.kitsun.command.KitsunCommand;
 import ru.pinkgoosik.kitsun.util.Embeds;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.awt.*;
 import java.util.Objects;
 
-public class EmbedCommand extends CommandNext {
+public class EmbedCommand extends KitsunCommand {
 	@Override
 	public String getName() {
 		return "embed";

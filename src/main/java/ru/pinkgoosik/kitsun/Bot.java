@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import ru.pinkgoosik.kitsun.cache.Cached;
-import ru.pinkgoosik.kitsun.command.Commands;
 import ru.pinkgoosik.kitsun.config.Secrets;
 import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
 import ru.pinkgoosik.kitsun.event.DiscordEventsListener;
@@ -22,7 +21,6 @@ public class Bot {
 	public static JDA jda;
 
 	public static void main(String[] args) throws Exception {
-		Commands.init();
 		CosmeticsData.fetch();
 		Bot.init();
 	}
@@ -31,7 +29,6 @@ public class Bot {
 		String token = secrets.get().discordToken;
 		if(token.isBlank()) {
 			LOGGER.error("Discord token is blank, please modify secrets.json");
-			secrets.save();
 			System.exit(0);
 		}
 

@@ -1,19 +1,19 @@
 package ru.pinkgoosik.kitsun.feature;
 
+import masecla.modrinth4j.model.project.Project;
+import masecla.modrinth4j.model.user.ModrinthUser;
+import masecla.modrinth4j.model.version.ProjectVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthUser;
-import ru.pinkgoosik.kitsun.api.modrinth.entity.ProjectVersion;
-import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
-import ru.pinkgoosik.kitsun.api.modrinth.entity.ModrinthProject;
+import ru.pinkgoosik.kitsun.api.Modrinth;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class ModUpdatesPublisher {
 	/**
@@ -33,7 +33,7 @@ public class ModUpdatesPublisher {
 	 */
 	public String latestVersion = "";
 
-	public transient ModrinthProject cachedProject = null;
+	public transient Project cachedProject = null;
 
 	public ModUpdatesPublisher(String serverID, String channelID, String projectID) {
 		this.server = serverID;
@@ -41,78 +41,76 @@ public class ModUpdatesPublisher {
 		this.project = projectID;
 	}
 
-	public void check() {
+	public void check(long delay) {
 		if(cachedProject == null) {
-			ModrinthAPI.getProject(this.project).ifPresent(proj -> this.cachedProject = proj);
+			Modrinth.getProject(this.project).ifPresent(proj -> this.cachedProject = proj);
 		}
-		Optional<ArrayList<ProjectVersion>> versions = ModrinthAPI.getVersions(this.project);
+		Optional<ArrayList<ProjectVersion>> versions = Modrinth.getVersions(this.project);
 		if(versions.isPresent()) {
-			if(updated(versions.get())) publish(versions.get());
+			if(updated(versions.get())) publish(versions.get(), delay);
 		}
 	}
 
 	private boolean updated(ArrayList<ProjectVersion> versions) {
-		String latest = versions.get(0).id;
+		String latest = versions.get(versions.size() - 1).getId();
 		return !latest.isEmpty() && !latestVersion.equals(latest);
 	}
 
-	private void publish(ArrayList<ProjectVersion> versions) {
-		ProjectVersion modVersion = versions.get(0);
+	private void publish(ArrayList<ProjectVersion> versions, long delay) {
+		ProjectVersion modVersion = versions.get(versions.size() - 1);
 		if(Bot.jda.getGuildChannelById(channel) instanceof StandardGuildMessageChannel messageChannel) {
-			messageChannel.sendMessageEmbeds(createEmbed(modVersion)).queue();
+			messageChannel.sendMessageEmbeds(createEmbed(modVersion)).queueAfter(delay, TimeUnit.SECONDS, message -> {},throwable -> {
+				KitsunDebugger.ping("Failed to send update message of the " + this.project + " project due to an exception:\n" + throwable);
+			});
 		}
-		latestVersion = modVersion.id;
+		latestVersion = modVersion.getId();
 		ServerData.get(server).save();
 	}
 
 	private MessageEmbed createEmbed(ProjectVersion version) {
 		String changelogPart = "";
 
-		if(!version.changelog.isBlank() && version.changelog.length() < 5000) {
-			changelogPart = changelogPart + "**Changelog**\n" + version.changelog.trim() + "\n ";
+		if(!version.getChangelog().isBlank() && version.getChangelog().length() < 5000) {
+			changelogPart = changelogPart + "**Changelog**\n" + version.getChangelog().trim() + "\n ";
 		}
 
-		Optional<ModrinthUser> user = ModrinthAPI.getUser(version.authorId);
+		Optional<ModrinthUser> user = Modrinth.getUser(version.getAuthorId());
 		if(user.isPresent()) {
 			if(!changelogPart.isBlank()) changelogPart = changelogPart + "\n";
-			String publisherPart = "**Published by** [" + user.get().username + "](https://modrinth.com/user/" + user.get().id + ")";
+			String publisherPart = "**Published by** [" + user.get().getUsername() + "](https://modrinth.com/user/" + user.get().getId() + ")";
 			changelogPart = changelogPart + publisherPart;
 		}
 
 		String linksPart = "";
-		if(cachedProject.sourceUrl != null) {
-			linksPart = linksPart + "\n[Source Code](" + cachedProject.sourceUrl + ")";
+		if(cachedProject.getSourceUrl() != null) {
+			linksPart = linksPart + "\n[Source Code](" + cachedProject.getSourceUrl() + ")";
 		}
-		if(cachedProject.issuesUrl != null) {
+		if(cachedProject.getIssuesUrl() != null) {
 			if(!linksPart.isBlank()) linksPart = linksPart + " | ";
 			else linksPart = linksPart + "\n";
-			linksPart = linksPart + "[Issue Tracker](" + cachedProject.issuesUrl + ")";
+			linksPart = linksPart + "[Issue Tracker](" + cachedProject.getIssuesUrl() + ")";
 		}
-		if(cachedProject.wikiUrl != null) {
+		if(cachedProject.getWikiUrl() != null) {
 			if(!linksPart.isBlank()) linksPart = linksPart + " | ";
 			else linksPart = linksPart + "\n";
-			linksPart = linksPart + "[Wiki](" + cachedProject.wikiUrl + ")";
+			linksPart = linksPart + "[Wiki](" + cachedProject.getWikiUrl() + ")";
 		}
-		String versionType = version.versionType.substring(0, 1).toUpperCase() + version.versionType.substring(1);
-		String minecraftVersions = " for " + version.gameVersions.get(0);
+		String versionType = version.getVersionType().name().toLowerCase().substring(0, 1).toUpperCase() + version.getVersionType().name().toLowerCase().substring(1);
+		String minecraftVersions = " for " + version.getGameVersions().get(0);
 
-		if(version.gameVersions.size() > 1) {
-			minecraftVersions = minecraftVersions + " - " + version.gameVersions.get(version.gameVersions.size() - 1);
+		if(version.getGameVersions().size() > 1) {
+			minecraftVersions = minecraftVersions + " - " + version.getGameVersions().get(version.getGameVersions().size() - 1);
 		}
-		String iconUrl = cachedProject.iconUrl != null ? cachedProject.iconUrl : "https://i.imgur.com/rM5bzkK.png";
+		String iconUrl = cachedProject.getIconUrl() != null ? cachedProject.getIconUrl() : "https://i.imgur.com/rM5bzkK.png";
 
-		//I hate qsl icon lmao
-		if(cachedProject.slug.equals("qsl")) {
-			iconUrl = "https://github.com/QuiltMC/art/blob/master/brand/512png/quilt_mini_icon_dark.png?raw=true";
-		}
 		return new EmbedBuilder()
-				.setAuthor(cachedProject.title)
-				.setTitle(version.versionNumber + " " + versionType + minecraftVersions, cachedProject.getProjectUrl())
+				.setAuthor(cachedProject.getTitle())
+				.setTitle(version.getVersionNumber() + " " + versionType + minecraftVersions, Modrinth.getUrl(cachedProject))
 				.setDescription(changelogPart + linksPart)
 				.setColor(KitsunColors.getCyan().getRGB())
 				.setThumbnail(iconUrl)
-				.setFooter("Modrinth Project | " + cachedProject.license.name, "https://i.imgur.com/abiIc1b.png")
-				.setTimestamp(Instant.parse(version.datePublished))
+				.setFooter("Modrinth Project | " + cachedProject.getLicense().getName(), "https://i.imgur.com/abiIc1b.png")
+				.setTimestamp(version.getDatePublished())
 				.build();
 	}
 }

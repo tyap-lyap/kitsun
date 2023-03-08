@@ -1,4 +1,4 @@
-package ru.pinkgoosik.kitsun.command.next;
+package ru.pinkgoosik.kitsun.command.admin;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -9,14 +9,13 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
-import ru.pinkgoosik.kitsun.command.CommandNext;
+import ru.pinkgoosik.kitsun.command.KitsunCommand;
 import ru.pinkgoosik.kitsun.permission.Permissions;
-import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
 import java.util.Objects;
 
-public class AutoChannelsEnableNext extends CommandNext {
+public class AutoChannelsCommand extends KitsunCommand {
 
 	@Override
 	public String getName() {
@@ -31,19 +30,16 @@ public class AutoChannelsEnableNext extends CommandNext {
 	@Override
 	public SlashCommandData build() {
 		var data = Commands.slash(getName(), getDescription());
-		data.addOption(OptionType.STRING, "channel-id", "Channel id that members should join to create channel.", true);
+		data.addOption(OptionType.CHANNEL, "channel", "Voice channel that members should join to create a new channel.", true);
 		return data;
 	}
 
 	@Override
 	public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
-		String channelId = Objects.requireNonNull(ctx.getOption("channel-id")).getAsString();
+		var channel = Objects.requireNonNull(ctx.getOption("channel")).getAsChannel();
 
 		ctx.deferReply().setEphemeral(true).queue();
-		proceed(helper, channelId);
-	}
 
-	private void proceed(CommandHelper helper, String channelId) {
 		ServerData dat = helper.serverData;
 		var guild = helper.event.getGuild();
 		var member = helper.event.getInteraction().getMember();
@@ -54,12 +50,7 @@ public class AutoChannelsEnableNext extends CommandNext {
 				return;
 			}
 
-			if(!ChannelUtils.isVoiceChannel(dat.server, channelId)) {
-				helper.ephemeral(Embeds.error("Channel you specified isn't a voice channel!"));
-				return;
-			}
-
-			if(Bot.jda.getGuildChannelById(channelId) instanceof VoiceChannel vc) {
+			if(channel instanceof VoiceChannel vc) {
 				var category = vc.getParentCategory();
 				if(category != null) {
 					var perms = category.getPermissionOverride(Objects.requireNonNull(Objects.requireNonNull(Bot.jda.getGuildById(dat.server)).getMemberById(Bot.jda.getSelfUser().getId())));
@@ -68,18 +59,21 @@ public class AutoChannelsEnableNext extends CommandNext {
 						return;
 					}
 				}
+				if(dat.autoChannels.get().enabled) {
+					dat.autoChannels.get().enable(channel.getId());
+					dat.autoChannels.save();
+					helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels parent channel successfully changed!"));
+				}
+				else {
+					dat.autoChannels.get().enable(channel.getId());
+					dat.autoChannels.save();
+					helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels are now enabled!"));
+				}
 			}
-
-			if(dat.autoChannels.get().enabled) {
-				dat.autoChannels.get().enable(channelId);
-				dat.autoChannels.save();
-				helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels parent channel successfully changed!"));
-				return;
+			else {
+				helper.ephemeral(Embeds.error("Channel you specified isn't a voice channel!"));
 			}
-
-			dat.autoChannels.get().enable(channelId);
-			dat.autoChannels.save();
-			helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels are now enabled!"));
 		}
 	}
+
 }

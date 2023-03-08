@@ -3,7 +3,7 @@ package ru.pinkgoosik.kitsun.command;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
-public abstract class CommandNext {
+public abstract class KitsunCommand {
 	public abstract String getName();
 
 	public abstract String getDescription();

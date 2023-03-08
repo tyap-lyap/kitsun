@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
-import ru.pinkgoosik.kitsun.command.Commands;
+import ru.pinkgoosik.kitsun.command.KitsunCommands;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
@@ -31,13 +31,13 @@ public class DiscordEventsListener extends ListenerAdapter {
 		KitsunDebugger.onConnect(event);
 		KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
 		Scheduler.start();
-		Commands.onConnect();
+		KitsunCommands.onConnect();
 	}
 
 	@Override
 	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 		try {
-			Commands.COMMANDS_NEXT.forEach(commandNext -> {
+			KitsunCommands.COMMANDS.forEach(commandNext -> {
 				if(event.getInteraction().getName().equals(commandNext.getName()) && event.getGuild() != null) {
 					commandNext.respond(event, new CommandHelper(event, ServerData.get(event.getGuild().getId())));
 				}
@@ -55,7 +55,6 @@ public class DiscordEventsListener extends ListenerAdapter {
 	@Override
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		cachedMessages.put(event.getMessageId(), new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getChannel().getId(),event.getMessage().getContentRaw()));
-		Commands.onMessageCreate(event);
 	}
 
 	@Override
@@ -79,12 +78,6 @@ public class DiscordEventsListener extends ListenerAdapter {
 			var messageId = event.getMessageId();
 
 			ServerUtils.runFor(guildId, data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(cachedMessages.get(messageId))));
-
-//			if(guildId.isPresent() && message.isPresent()) {
-//				if(message.get().getAuthor().isPresent() && !message.get().getAuthor().get().isBot()) {
-//					ServerUtils.runFor(guildId.get(), data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(message.get())));
-//				}
-//			}
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed message delete event due to an exception:\n" + e);
@@ -96,9 +89,6 @@ public class DiscordEventsListener extends ListenerAdapter {
 		try {
 			ServerUtils.runFor(event.getGuild().getId(), data -> {
 				data.logger.get().ifEnabled(log -> log.onMemberJoin(event.getMember()));
-//				if(!data.config.get().general.memberRoleId.isBlank()) {
-//					event.getMember().addRole(Snowflake.of(data.config.get().general.memberRoleId)).block();
-//				}
 			});
 		}
 		catch(Exception e) {

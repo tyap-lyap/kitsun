@@ -24,6 +24,9 @@ public class ModCardsScheduler {
 
 	private static void proceed(ServerData data) {
 		ArrayList<ModCard> modCards = new ArrayList<>(List.of(data.modCards.get()));
+		modCards.removeIf(card -> card.shouldBeRemoved);
+		data.modCards.set(modCards.toArray(new ModCard[0]));
+		data.modCards.save();
 
 		int index = -1;
 		for(var card : modCards) {
@@ -31,13 +34,17 @@ public class ModCardsScheduler {
 
 			if(Bot.jda.getGuildChannelById(card.channel) instanceof MessageChannel channel) {
 				channel.retrieveMessageById(card.message).queueAfter(index * 10L, TimeUnit.SECONDS, card::update, throwable -> {
-					KitsunDebugger.report("Failed to get " + card.modrinthSlug + " card's message due to an exception:\n" + throwable);
+					if(throwable.getMessage().contains("Unknown Message")) {
+						card.shouldBeRemoved = true;
+					}
+					else {
+						KitsunDebugger.ping("Failed to get " + card.modrinthSlug + " card's message due to an exception:\n" + throwable);
+					}
 				});
 			}
-
+			else {
+				card.shouldBeRemoved = true;
+			}
 		}
-		modCards.removeIf(card -> card.shouldBeRemoved);
-		data.modCards.set(modCards.toArray(new ModCard[0]));
-		data.modCards.save();
 	}
 }

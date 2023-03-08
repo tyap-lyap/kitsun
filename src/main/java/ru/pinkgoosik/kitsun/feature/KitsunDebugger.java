@@ -35,7 +35,6 @@ public class KitsunDebugger {
 		}
 		try {
 			Objects.requireNonNull(Bot.jda.getChannelById(MessageChannelUnion.class, debugChannel)).sendMessage(text).queue();
-//			Bot.rest.getChannelById(Snowflake.of(channel)).createMessage(text).block();
 			CACHE.add(text);
 		}
 		catch(Exception e) {

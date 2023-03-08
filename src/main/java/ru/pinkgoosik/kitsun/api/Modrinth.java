@@ -1,7 +1,6 @@
 package ru.pinkgoosik.kitsun.api;
 
 import masecla.modrinth4j.client.agent.UserAgent;
-import masecla.modrinth4j.endpoints.version.GetProjectVersions;
 import masecla.modrinth4j.main.ModrinthAPI;
 import masecla.modrinth4j.model.project.Project;
 import masecla.modrinth4j.model.user.ModrinthUser;
@@ -30,7 +29,7 @@ public class Modrinth {
 
 	public static Optional<ArrayList<ProjectVersion>> getVersions(String project) {
 		try {
-			return Optional.of(new ArrayList<>(API.versions().getProjectVersions(project, GetProjectVersions.GetProjectVersionsRequest.builder().build()).join()));
+			return Optional.of(new ArrayList<>(API.versions().getVersion(API.projects().get(project).join().getVersions()).join()));
 		}
 		catch (Exception e) {
 			KitsunDebugger.report("Failed to get modrinth project " + project + " versions due to an exception:\n" + e);

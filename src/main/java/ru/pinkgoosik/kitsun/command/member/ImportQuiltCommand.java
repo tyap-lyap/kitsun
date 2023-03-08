@@ -1,18 +1,24 @@
 package ru.pinkgoosik.kitsun.command.member;
 
+import masecla.modrinth4j.model.version.ProjectVersion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import ru.pinkgoosik.kitsun.api.Modrinth;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
-import ru.pinkgoosik.kitsun.api.modrinth.ModrinthAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
-import ru.pinkgoosik.kitsun.command.CommandNext;
+import ru.pinkgoosik.kitsun.command.KitsunCommand;
 import ru.pinkgoosik.kitsun.util.Embeds;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Objects;
 
-public class ImportQuiltCommand extends CommandNext {
+public class ImportQuiltCommand extends KitsunCommand {
+	private static ArrayList<ProjectVersion> cachedVersions = null;
+	private static Instant lastCacheUpdate = Instant.now();
 
 	@Override
 	public String getName() {
@@ -35,21 +41,16 @@ public class ImportQuiltCommand extends CommandNext {
 	public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
 		String mcVersion = Objects.requireNonNull(ctx.getOption("version")).getAsString();
 		ctx.deferReply().queue();
-		proceed(mcVersion, helper);
-	}
 
-	public void proceed(String mcVersion, CommandHelper helper) {
 		String qslVersion = "null";
 		String quiltLoaderVersion = "null";
 		String qmVersion = "null";
 
-		var qsl = ModrinthAPI.getVersions("qsl");
-		if(qsl.isPresent()) {
-			for(var ver : qsl.get()) {
-				if(ver.gameVersions.contains(mcVersion)) {
-					qslVersion = ver.versionNumber;
-					break;
-				}
+		var versions = getQslVersions();
+		for(var ver : versions) {
+			if(ver.getGameVersions().contains(mcVersion)) {
+				qslVersion = ver.getVersionNumber();
+				break;
 			}
 		}
 		var entries = QuiltMeta.getQuiltVersions(mcVersion);
@@ -62,6 +63,19 @@ public class ImportQuiltCommand extends CommandNext {
 		}
 
 		helper.followup(Embeds.success("Import Quilt", "minecraft_version = " + mcVersion + "\nquilt_mappings = " + qmVersion + "\nquilt_loader = " + quiltLoaderVersion + "\nqsl_version = " + qslVersion));
+	}
 
+	public static ArrayList<ProjectVersion> getQslVersions() {
+		if (cachedVersions == null) {
+			Modrinth.getVersions("qsl").ifPresentOrElse(versions -> cachedVersions = versions, () -> cachedVersions = new ArrayList<>());
+		}
+		else {
+			var minutes = ChronoUnit.MINUTES.between(lastCacheUpdate, Instant.now());
+			if(minutes >= 10) {
+				Modrinth.getVersions("qsl").ifPresentOrElse(versions -> cachedVersions = versions, () -> cachedVersions = new ArrayList<>());
+				lastCacheUpdate = Instant.now();
+			}
+		}
+		return cachedVersions;
 	}
 }

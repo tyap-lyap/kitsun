@@ -44,7 +44,10 @@ public class Cached<T> {
 		}
 		catch(FileNotFoundException e) {
 			Bot.LOGGER.info("File " + filePath + " is not found! Setting to default.");
-			return defaultBuilder.create();
+			var dat = defaultBuilder.create();
+			this.data = dat;
+			this.save();
+			return dat;
 		}
 		catch(Exception e) {
 			Bot.LOGGER.error("Failed to read cached data due to an exception:\n" + e + "\n Setting to default.");

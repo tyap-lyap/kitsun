@@ -26,7 +26,7 @@ public class Scheduler {
 			@Override
 			public void run() {
 				KitsunDebugger.CACHE.clear();
-				PublishersScheduler.schedule();
+				ModUpdatesScheduler.schedule();
 				QuiltUpdatesScheduler.schedule();
 			}
 		}, 0, 60 * (60 * 1000));

@@ -12,7 +12,7 @@ public abstract class CachedServerData {
 
 	public Cached<ServerConfig> config;
 	public Cached<PermissionsManager> permissions;
-	public Cached<ModUpdatesPublisher[]> publishers;
+	public Cached<ModUpdatesPublisher[]> modUpdates;
 	public Cached<ServerLogger> logger;
 	public Cached<MCUpdatesPublisher> mcUpdates;
 	public Cached<QuiltUpdatesPublisher> quiltUpdates;
@@ -27,7 +27,7 @@ public abstract class CachedServerData {
 		this.logger = new Cached<>(path, "logger.json", ServerLogger.class, () -> new ServerLogger(serverId));
 		this.config = new Cached<>(path, "config.json", ServerConfig.class, () -> new ServerConfig(serverId));
 		this.permissions = new Cached<>(path, "permissions.json", PermissionsManager.class, () -> new PermissionsManager(serverId));
-		this.publishers = new Cached<>(path, "publishers.json", ModUpdatesPublisher[].class, () -> new ModUpdatesPublisher[]{});
+		this.modUpdates = new Cached<>(path, "mod_updates.json", ModUpdatesPublisher[].class, () -> new ModUpdatesPublisher[]{});
 		this.mcUpdates = new Cached<>(path, "mc_updates.json", MCUpdatesPublisher.class, () -> new MCUpdatesPublisher(serverId));
 		this.quiltUpdates = new Cached<>(path, "quilt_updates.json", QuiltUpdatesPublisher.class, () -> new QuiltUpdatesPublisher(serverId));
 		this.autoChannels = new Cached<>(path, "auto_channels.json", AutoChannelsManager.class, () -> new AutoChannelsManager(serverId));
@@ -37,7 +37,7 @@ public abstract class CachedServerData {
 	public void save() {
 		config.save();
 		permissions.save();
-		publishers.save();
+		modUpdates.save();
 		logger.save();
 		mcUpdates.save();
 		quiltUpdates.save();

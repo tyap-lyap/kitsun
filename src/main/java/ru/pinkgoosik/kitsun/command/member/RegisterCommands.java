@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
-import ru.pinkgoosik.kitsun.command.CommandNext;
+import ru.pinkgoosik.kitsun.command.KitsunCommand;
 import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
 import ru.pinkgoosik.kitsun.cosmetics.FtpConnection;
 import ru.pinkgoosik.kitsun.util.Embeds;
@@ -15,8 +15,8 @@ import java.util.Objects;
 
 public class RegisterCommands {
 
-	public static CommandNext reg() {
-		return new CommandNext() {
+	public static KitsunCommand reg() {
+		return new KitsunCommand() {
 			@Override
 			public String getName() {
 				return "reg";
@@ -43,10 +43,7 @@ public class RegisterCommands {
 			public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
 				String name = Objects.requireNonNull(ctx.getOption("nickname")).getAsString().replaceAll("[^a-zA-Z0-9_]", "");
 				ctx.deferReply().queue();
-				proceed(name, helper);
-			}
 
-			public void proceed(String name, CommandHelper helper) {
 				var member = helper.event.getMember();
 
 				if(member != null) {
@@ -71,8 +68,8 @@ public class RegisterCommands {
 		};
 	}
 
-	public static CommandNext unreg() {
-		return new CommandNext() {
+	public static KitsunCommand unreg() {
+		return new KitsunCommand() {
 			@Override
 			public String getName() {
 				return "unreg";
@@ -96,10 +93,7 @@ public class RegisterCommands {
 			@Override
 			public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
 				ctx.deferReply().queue();
-				proceed(helper);
-			}
 
-			public void proceed(CommandHelper helper) {
 				var member = helper.event.getMember();
 				if(member != null) {
 					var entry = CosmeticsData.getEntry(member.getId());
