@@ -41,7 +41,7 @@ public class ServerLogger {
 
 	public void onMemberJoin(Member member) {
 		var embed = new EmbedBuilder();
-		embed.setAuthor(member.getAsMention() + " joined", member.getAvatarUrl());
+		embed.setAuthor(member.getUser().getAsTag() + " joined", member.getUser().getAvatarUrl());
 		embed.setColor(KitsunColors.getGreen());
 		embed.setTimestamp(Instant.now());
 		log(embed.build());
