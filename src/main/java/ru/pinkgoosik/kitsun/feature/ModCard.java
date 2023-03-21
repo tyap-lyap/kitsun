@@ -190,11 +190,11 @@ public class ModCard {
 		if(project != null) {
 			var versions = Modrinth.getVersions(project.getSlug());
 			if(versions.isPresent()) {
-				mcVersion = " for " + versions.get().get(0).getGameVersions().get(0);
-				var first = versions.get().get(versions.get().size() - 1).getGameVersions().get(0);
+				mcVersion = " for " + versions.get().get(versions.get().size() - 1).getGameVersions().get(0);
+				var first = versions.get().get(0).getGameVersions().get(0);
 
-				if(!first.equals(versions.get().get(0).getGameVersions().get(0))) {
-					mcVersion = " for " + first + " - " + versions.get().get(0).getGameVersions().get(0);
+				if(!first.equals(versions.get().get(versions.get().size() - 1).getGameVersions().get(0))) {
+					mcVersion = " for " + first + " - " + versions.get().get(versions.get().size() - 1).getGameVersions().get(0);
 				}
 			}
 		}
