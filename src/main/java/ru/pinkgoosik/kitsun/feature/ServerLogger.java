@@ -42,7 +42,7 @@ public class ServerLogger {
 
 	public void onMemberJoin(Member member) {
 		var embed = new EmbedBuilder();
-		embed.setAuthor(member.getUser().getAsTag() + " joined", member.getUser().getDefaultAvatarUrl());
+		embed.setAuthor(member.getUser().getAsTag() + " joined", null, member.getUser().getEffectiveAvatarUrl());
 		embed.setColor(KitsunColors.getGreen());
 		embed.setTimestamp(Instant.now());
 		log(embed.build());
@@ -50,7 +50,7 @@ public class ServerLogger {
 
 	public void onMemberLeave(User user) {
 		var embed = new EmbedBuilder();
-		embed.setAuthor(user.getAsMention() + " left", user.getDefaultAvatarUrl());
+		embed.setAuthor(user.getAsTag() + " left", null, user.getEffectiveAvatarUrl());
 		embed.setColor(KitsunColors.getRed());
 		embed.setTimestamp(Instant.now());
 		log(embed.build());
