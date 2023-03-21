@@ -109,7 +109,7 @@ public class ModUpdatesPublisher {
 				.setDescription(changelogPart + linksPart)
 				.setColor(KitsunColors.getCyan().getRGB())
 				.setThumbnail(iconUrl)
-				.setFooter("Modrinth Project | " + cachedProject.getLicense().getName(), "https://i.imgur.com/abiIc1b.png")
+				.setFooter("Modrinth Project | " + cachedProject.getLicense().getName(), "https://cdn.discordapp.com/emojis/1040805093395673128.png")
 				.setTimestamp(version.getDatePublished())
 				.build();
 	}
