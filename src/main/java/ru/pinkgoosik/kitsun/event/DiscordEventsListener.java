@@ -99,7 +99,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 	@Override
 	public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
 		try {
-			ServerUtils.runFor(event.getGuild().getId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(event.getMember())));
+			ServerUtils.runFor(event.getGuild().getId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(event.getUser())));
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed member leave event due to an exception:\n" + e);

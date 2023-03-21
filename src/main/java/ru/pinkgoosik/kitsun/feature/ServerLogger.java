@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -41,20 +42,18 @@ public class ServerLogger {
 
 	public void onMemberJoin(Member member) {
 		var embed = new EmbedBuilder();
-		embed.setAuthor(member.getUser().getAsTag() + " joined", member.getUser().getAvatarUrl());
+		embed.setAuthor(member.getUser().getAsTag() + " joined", member.getUser().getDefaultAvatarUrl());
 		embed.setColor(KitsunColors.getGreen());
 		embed.setTimestamp(Instant.now());
 		log(embed.build());
 	}
 
-	public void onMemberLeave(@Nullable Member member) {
-		if(member != null) {
-			var embed = new EmbedBuilder();
-			embed.setAuthor(member.getAsMention() + " left", member.getAvatarUrl());
-			embed.setColor(KitsunColors.getRed());
-			embed.setTimestamp(Instant.now());
-			log(embed.build());
-		}
+	public void onMemberLeave(User user) {
+		var embed = new EmbedBuilder();
+		embed.setAuthor(user.getAsMention() + " left", user.getDefaultAvatarUrl());
+		embed.setColor(KitsunColors.getRed());
+		embed.setTimestamp(Instant.now());
+		log(embed.build());
 	}
 
 	public void onMessageUpdate(DiscordEventsListener.CachedMessage old, Message message) {
