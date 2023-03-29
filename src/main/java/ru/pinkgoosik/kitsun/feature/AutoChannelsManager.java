@@ -3,6 +3,7 @@ package ru.pinkgoosik.kitsun.feature;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
@@ -32,6 +33,63 @@ public class AutoChannelsManager {
 		this.parentChannel = "";
 	}
 
+	// TODO: rewrite this disaster
+	public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
+		try {
+			if(Bot.jda.getGuildChannelById(this.parentChannel) instanceof VoiceChannel channel) {
+				var members = channel.getMembers();
+				for (var member : members) {
+					var state = member.getVoiceState();
+					if(state != null) {
+						var stateChannel = state.getChannel();
+						if(stateChannel != null) {
+							if (stateChannel.getId().equals(channel.getId())) {
+								this.onParentChannelJoin(member);
+								return;
+							}
+						}
+
+					}
+
+				}
+			}
+		}
+		catch(Exception e) {
+			if(e.getMessage().contains("Unknown Channel")) {
+				this.enabled = false;
+				ServerData.get(this.server).autoChannels.save();
+			}
+			else {
+				KitsunDebugger.ping("Failed to get parent channel duo to an exception:\n" + e);
+			}
+		}
+		this.sessions.forEach(session -> {
+			try {
+				if(Bot.jda.getGuildChannelById(session.channel) instanceof VoiceChannel channel) {
+					var members = ChannelUtils.getMembers(channel);
+					if(members.isPresent() && members.get() == 0) {
+						var guild = Bot.jda.getGuildById(server);
+						if (guild != null) {
+							var member = guild.getMemberById(session.owner);
+							ServerData.get(server).logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
+							channel.delete().queue();
+							session.shouldBeRemoved = true;
+						}
+					}
+				}
+			}
+			catch(Exception e) {
+				if(e.getMessage().contains("Unknown Channel")) {
+					session.shouldBeRemoved = true;
+				}
+				else {
+					KitsunDebugger.ping("Failed to delete auto channel duo to an exception:\n" + e);
+				}
+			}
+		});
+		this.refresh();
+	}
+
 	public void onParentChannelJoin(Member member) {
 		if(!this.hasEmptySession(member)) {
 			this.createSession(member);
@@ -45,7 +103,6 @@ public class AutoChannelsManager {
 				var members = ChannelUtils.getMembers(channel);
 				if(members.isPresent() && members.get() == 0) {
 					member.getGuild().moveVoiceMember(member, channel).queue();
-//					member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(Snowflake.of(session.channel)).build()).block();
 					return true;
 				}
 			}
@@ -62,7 +119,6 @@ public class AutoChannelsManager {
 			var category = vc.getParentCategory();
 			guild.createVoiceChannel("lounge | " + (this.sessions.size() + 1), category).queue(voiceChannel -> {
 				if(voiceChannel != null) {
-					var memberId = member.getId();
 					voiceChannel.upsertPermissionOverride(member).setAllowed(Permission.MANAGE_CHANNEL).queue(override -> {
 						member.getGuild().moveVoiceMember(member, voiceChannel).queue();
 						this.sessions.add(new Session(member.getId(), voiceChannel.getId()));
@@ -73,27 +129,6 @@ public class AutoChannelsManager {
 				}
 			});
 		}
-
-//		if(!channelData.parentId().isAbsent() && channelData.parentId().get().isPresent()) {
-////			String memberName = member.getDisplayName();
-//			String category = channelData.parentId().get().get().asString();
-//			VoiceChannel channel = guild.createVoiceChannel(VoiceChannelCreateSpec.builder().name("lounge | " + (this.sessions.size() + 1)).parentId(Snowflake.of(category)).build()).block();
-//
-//			if(channel != null) {
-//				Snowflake memberId = member.getId();
-//				channel.addMemberOverwrite(memberId, PermissionOverwrite.forMember(memberId, PermissionSet.of(Permission.MANAGE_CHANNELS), PermissionSet.none())).block();
-//				try {
-//					member.edit(GuildMemberEditSpec.builder().newVoiceChannelOrNull(channel.getId()).build()).block();
-//				}
-//				catch(Exception e) {
-//					KitsunDebugger.report("Failed to move member due to an exception:\n" + e);
-//				}
-//				this.sessions.add(new Session(member.getId().asString(), channel.getId().asString()));
-//				ServerData serverData = ServerData.get(server);
-//				serverData.logger.get().ifEnabled(log -> log.onAutoChannelCreate(member, channel));
-//				serverData.save();
-//			}
-//		}
 	}
 
 	public Optional<Session> getSession(String channelID) {

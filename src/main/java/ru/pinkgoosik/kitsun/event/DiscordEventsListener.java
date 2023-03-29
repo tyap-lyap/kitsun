@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -32,6 +33,17 @@ public class DiscordEventsListener extends ListenerAdapter {
 		KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
 		Scheduler.start();
 		KitsunCommands.onConnect();
+	}
+
+	@Override
+	public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+		ServerUtils.runFor(event.getGuild().getId(), data -> {
+			data.autoChannels.get(manager -> {
+				if(manager.enabled) {
+					manager.onGuildVoiceUpdate(event);
+				}
+			});
+		});
 	}
 
 	@Override

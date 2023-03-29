@@ -18,13 +18,6 @@ public class Scheduler {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				AutoChannelsScheduler.schedule();
-			}
-		}, 0, 1000);
-
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
 				KitsunDebugger.CACHE.clear();
 				ModUpdatesScheduler.schedule();
 				QuiltUpdatesScheduler.schedule();

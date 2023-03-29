@@ -102,10 +102,11 @@ public class ModUpdatesPublisher {
 			minecraftVersions = minecraftVersions + " - " + version.getGameVersions().get(version.getGameVersions().size() - 1);
 		}
 		String iconUrl = cachedProject.getIconUrl() != null ? cachedProject.getIconUrl() : "https://i.imgur.com/rM5bzkK.png";
+		String versionNum = version.getVersionNumber();
 
 		return new EmbedBuilder()
 				.setAuthor(cachedProject.getTitle())
-				.setTitle(version.getVersionNumber() + " " + versionType + minecraftVersions, Modrinth.getUrl(cachedProject))
+				.setTitle(versionNum.contains("+") ? versionNum.split("\\+")[0] : versionNum + " " + versionType + minecraftVersions, Modrinth.getUrl(cachedProject))
 				.setDescription(changelogPart + linksPart)
 				.setColor(KitsunColors.getCyan().getRGB())
 				.setThumbnail(iconUrl)
