@@ -106,7 +106,7 @@ public class ModUpdatesPublisher {
 
 		return new EmbedBuilder()
 				.setAuthor(cachedProject.getTitle())
-				.setTitle(versionNum.contains("+") ? versionNum.split("\\+")[0] : versionNum + " " + versionType + minecraftVersions, Modrinth.getUrl(cachedProject))
+				.setTitle((versionNum.contains("+") ? versionNum.split("\\+")[0] : versionNum) + " " + versionType + minecraftVersions, Modrinth.getUrl(cachedProject))
 				.setDescription(changelogPart + linksPart)
 				.setColor(KitsunColors.getCyan().getRGB())
 				.setThumbnail(iconUrl)
