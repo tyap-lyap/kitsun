@@ -52,12 +52,12 @@ public class ModUpdatesPublisher {
 	}
 
 	private boolean updated(ArrayList<ProjectVersion> versions) {
-		String latest = versions.get(versions.size() - 1).getId();
+		String latest = versions.get(0).getId();
 		return !latest.isEmpty() && !latestVersion.equals(latest);
 	}
 
 	private void publish(ArrayList<ProjectVersion> versions, long delay) {
-		ProjectVersion modVersion = versions.get(versions.size() - 1);
+		ProjectVersion modVersion = versions.get(0);
 		if(Bot.jda.getGuildChannelById(channel) instanceof StandardGuildMessageChannel messageChannel) {
 			messageChannel.sendMessageEmbeds(createEmbed(modVersion)).queueAfter(delay, TimeUnit.SECONDS, message -> {},throwable -> {
 				KitsunDebugger.ping("Failed to send update message of the " + this.project + " project due to an exception:\n" + throwable);
