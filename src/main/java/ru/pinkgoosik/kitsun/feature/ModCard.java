@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
@@ -108,7 +109,9 @@ public class ModCard {
 
 	}
 
-	private void updateMessage(Message message, Project project, CurseForgeMod mod) {
+	private void updateMessage(Message message, @Nullable Project project, @Nullable CurseForgeMod mod) {
+		if (server.equals(ModMilestones.SERVER) && project != null) ModMilestones.run(project, mod);
+
 		message.editMessageEmbeds(ModCard.createEmbed(project, mod)).queue(m -> {}, throwable -> {
 
 			if(throwable.getMessage().contains("Unknown Message")) {
