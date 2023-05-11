@@ -33,7 +33,7 @@ public class ImportFabricCommand extends KitsunCommand {
 	@Override
 	public SlashCommandData build() {
 		var data = Commands.slash(getName(), getDescription());
-		data.addOption(OptionType.STRING, "version", "Minecraft version", true);
+		data.addOption(OptionType.STRING, "version", "Minecraft version", true, true);
 		return data;
 	}
 
@@ -54,7 +54,7 @@ public class ImportFabricCommand extends KitsunCommand {
 			}
 		}
 		var entries = FabricMeta.getFabricVersions(mcVersion);
-		if(entries.isPresent()) {
+		if(entries.isPresent() && !entries.get().isEmpty()) {
 			fabricLoaderVersion = entries.get().get(0).loader.version;
 			yarnVersion = entries.get().get(0).mappings.version;
 		}

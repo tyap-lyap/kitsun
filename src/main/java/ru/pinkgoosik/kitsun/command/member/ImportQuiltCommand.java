@@ -33,7 +33,7 @@ public class ImportQuiltCommand extends KitsunCommand {
 	@Override
 	public SlashCommandData build() {
 		var data = Commands.slash(getName(), getDescription());
-		data.addOption(OptionType.STRING, "version", "Minecraft version", true);
+		data.addOption(OptionType.STRING, "version", "Minecraft version", true, true);
 		return data;
 	}
 
@@ -54,11 +54,11 @@ public class ImportQuiltCommand extends KitsunCommand {
 			}
 		}
 		var entries = QuiltMeta.getQuiltVersions(mcVersion);
-		if(entries.isPresent()) {
+		if(entries.isPresent() && !entries.get().isEmpty()) {
 			quiltLoaderVersion = entries.get().get(0).loader.version;
 		}
 		var mappings = QuiltMeta.getQuiltMappingsVersions(mcVersion);
-		if(mappings.isPresent()) {
+		if(mappings.isPresent() && !mappings.get().isEmpty()) {
 			qmVersion = mappings.get().get(0).version;
 		}
 

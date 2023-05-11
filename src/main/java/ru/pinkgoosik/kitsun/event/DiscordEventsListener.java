@@ -6,15 +6,18 @@ import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import org.apache.commons.collections4.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommands;
@@ -22,7 +25,11 @@ import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DiscordEventsListener extends ListenerAdapter {
 
@@ -57,6 +64,20 @@ public class DiscordEventsListener extends ListenerAdapter {
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to proceed chat input interaction event due to an exception:\n" + e);
+		}
+	}
+
+	@Override
+	public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+		if (event.getName().equals("import-fabric") || event.getName().equals("import-quilt") && event.getFocusedOption().getName().equals("version")) {
+			ArrayList<String> versions = MojangAPI.getMcVersionsCache();
+
+			List<Command.Choice> options = Stream.of(versions.toArray(new String[]{}))
+				.filter(word -> word.startsWith(event.getFocusedOption().getValue())) // only display words that start with the user's current input
+				.map(word -> new Command.Choice(word, word)) // map the words to choices
+				.collect(Collectors.toList());
+
+			event.replyChoices(options.size() <= 20 ? options : options.subList(0, 20)).queue();
 		}
 	}
 

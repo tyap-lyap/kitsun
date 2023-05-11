@@ -8,11 +8,14 @@ import ru.pinkgoosik.kitsun.util.UrlParser;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class MojangAPI {
 	private static final String URL_STRING = "https://api.mojang.com/users/profiles/minecraft/%nickname%";
 	private static final String MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+
+	private static ArrayList<String> mcVersionsCache = new ArrayList<>();
 
 	public static Optional<VersionManifest> getManifest() {
 		try {
@@ -22,6 +25,27 @@ public class MojangAPI {
 			KitsunDebugger.report("Failed to parse minecraft versions manifest due to an exception:\n" + e);
 		}
 		return Optional.empty();
+	}
+
+	public static ArrayList<String> getMcVersionsCache() {
+		if(mcVersionsCache.isEmpty()) {
+			updateMcVersionsCache();
+		}
+		return mcVersionsCache;
+	}
+
+	public static void updateMcVersionsCache() {
+		MojangAPI.getManifest().ifPresent(versionManifest -> {
+			ArrayList<String> versions = new ArrayList<>();
+			versionManifest.versions.forEach(version -> versions.add(version.id));
+			mcVersionsCache = versions;
+		});
+	}
+
+	public static void setMcVersionsCache(VersionManifest manifest) {
+		ArrayList<String> versions = new ArrayList<>();
+		manifest.versions.forEach(version -> versions.add(version.id));
+		mcVersionsCache = versions;
 	}
 
 	public static Optional<String> getUuid(String nickname) {

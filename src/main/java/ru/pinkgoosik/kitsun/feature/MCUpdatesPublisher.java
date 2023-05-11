@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.api.mojang.PatchNotes;
 import ru.pinkgoosik.kitsun.api.mojang.VersionManifest;
 import ru.pinkgoosik.kitsun.cache.ServerData;
@@ -55,10 +56,12 @@ public class MCUpdatesPublisher {
 		if(!manifest.latest.release.equals(latestRelease)) {
 			this.latestRelease = manifest.latest.release;
 			publish(manifest.latest.release, "Release");
+			MojangAPI.setMcVersionsCache(manifest);
 		}
 		if(!manifest.latest.snapshot.equals(latestSnapshot)) {
 			this.latestSnapshot = manifest.latest.snapshot;
 			publish(manifest.latest.snapshot, "Snapshot");
+			MojangAPI.setMcVersionsCache(manifest);
 		}
 		if(!debtor.isBlank()) {
 			PatchNotes.getEntry(debtor).ifPresent(entry -> {
