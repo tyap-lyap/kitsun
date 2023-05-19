@@ -1,6 +1,7 @@
 package ru.pinkgoosik.kitsun.feature;
 
 import masecla.modrinth4j.model.project.Project;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
@@ -51,10 +52,10 @@ public class ModMilestones {
 				if(mod != null)downloads = downloads + mod.data.downloadCount;
 
 				if(!achievedDownloadMilestones.contains(ms) && downloads >= ms) {
-					var announcements = Bot.getGuild(SERVER).getTextChannelById(CHANNEL);
+					var announcements = Bot.getGuild(SERVER).getGuildChannelById(CHANNEL);
 
-					if(announcements != null) {
-						announcements.sendMessage(project.getTitle() + " just achieved " + commas(ms) + " downloads milestone! Congrats :tada:").queue();
+					if(announcements instanceof GuildMessageChannel chan) {
+						chan.sendMessage(project.getTitle() + " just achieved " + commas(ms) + " downloads milestone! Congrats :tada:").queue();
 						achievedDownloadMilestones.add(ms);
 						stack.save();
 					}
