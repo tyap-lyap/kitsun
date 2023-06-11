@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 public class Cached<T> {
@@ -39,7 +40,7 @@ public class Cached<T> {
 	public T read(Class<T> type) {
 		String filePath = path.isBlank() ? this.file : this.path + "/" + this.file;
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			BufferedReader reader = new BufferedReader(new FileReader(filePath, StandardCharsets.UTF_8));
 			return GSON.fromJson(reader, type);
 		}
 		catch(FileNotFoundException e) {
@@ -59,7 +60,7 @@ public class Cached<T> {
 		try {
 			String filePath = path.isBlank() ? this.file : this.path + "/" + this.file;
 			FileUtils.createDir(this.path);
-			try(FileWriter writer = new FileWriter(filePath)) {
+			try(FileWriter writer = new FileWriter(filePath, StandardCharsets.UTF_8)) {
 				writer.write(GSON.toJson(this.data));
 			}
 		}

@@ -17,8 +17,8 @@ public abstract class CachedServerData {
 	public Cached<MCUpdatesPublisher> mcUpdates;
 	public Cached<QuiltUpdatesPublisher> quiltUpdates;
 	public Cached<AutoChannelsManager> autoChannels;
-
 	public Cached<ModCard[]> modCards;
+	public Cached<AutoReaction[]> autoReactions;
 
 	public CachedServerData(String serverId) {
 		this.server = serverId;
@@ -32,6 +32,7 @@ public abstract class CachedServerData {
 		this.quiltUpdates = new Cached<>(path, "quilt_updates.json", QuiltUpdatesPublisher.class, () -> new QuiltUpdatesPublisher(serverId));
 		this.autoChannels = new Cached<>(path, "auto_channels.json", AutoChannelsManager.class, () -> new AutoChannelsManager(serverId));
 		this.modCards = new Cached<>(path, "mod_cards.json", ModCard[].class, () -> new ModCard[]{});
+		this.autoReactions = new Cached<>(path, "auto_reactions.json", AutoReaction[].class, () -> new AutoReaction[]{});
 	}
 
 	public void save() {
@@ -43,6 +44,7 @@ public abstract class CachedServerData {
 		quiltUpdates.save();
 		autoChannels.save();
 		modCards.save();
+		autoReactions.save();
 	}
 
 }

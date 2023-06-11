@@ -4,9 +4,7 @@ import masecla.modrinth4j.model.project.Project;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.jetbrains.annotations.Nullable;
-import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
@@ -74,44 +72,7 @@ public class ModCard {
 		}
 	}
 
-	@Deprecated
-	public void update() {
-		if(Bot.jda.getGuildChannelById(this.channel) instanceof MessageChannel messageChannel) {
-			messageChannel.retrieveMessageById(this.message).queue(message -> {
-				if(this.hasCurseforgePage && this.hasModrinthPage) {
-					var project = Modrinth.getProject(this.modrinth);
-					var mod = CurseForgeAPI.getMod(this.curseforge);
-					if(mod.isPresent() && project.isPresent()) {
-						//slugs can be changed anytime
-						this.curseforgeSlug = mod.get().data.slug;
-						this.modrinthSlug = project.get().getSlug();
-						this.updateMessage(message, project.get(), mod.get());
-					}
-				}
-				else if(this.hasModrinthPage) {
-					var project = Modrinth.getProject(this.modrinth);
-					if(project.isPresent()) {
-						this.modrinthSlug = project.get().getSlug();
-						this.updateMessage(message, project.get(), null);
-					}
-				}
-				else if(this.hasCurseforgePage) {
-					var mod = CurseForgeAPI.getMod(this.curseforge);
-					if(mod.isPresent()) {
-						this.curseforgeSlug = mod.get().data.slug;
-						this.updateMessage(message, null, mod.get());
-					}
-				}
-			}, throwable -> {
-				KitsunDebugger.report("Failed to get " + this.modrinthSlug + " card's message due to an exception:\n" + throwable);
-			});
-		}
-
-	}
-
 	private void updateMessage(Message message, @Nullable Project project, @Nullable CurseForgeMod mod) {
-		if (server.equals(ModMilestones.SERVER) && project != null) ModMilestones.run(project, mod);
-
 		message.editMessageEmbeds(ModCard.createEmbed(project, mod)).queue(m -> {}, throwable -> {
 
 			if(throwable.getMessage().contains("Unknown Message")) {

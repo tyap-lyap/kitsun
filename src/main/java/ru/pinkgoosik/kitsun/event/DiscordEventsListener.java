@@ -1,6 +1,7 @@
 package ru.pinkgoosik.kitsun.event;
 
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -21,6 +22,7 @@ import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommands;
+import ru.pinkgoosik.kitsun.feature.AutoReaction;
 import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
@@ -79,6 +81,24 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 			event.replyChoices(options.size() <= 20 ? options : options.subList(0, 20)).queue();
 		}
+		if (event.getName().equals("auto-reaction") && event.getSubcommandName().equals("remove") && event.getFocusedOption().getName().equals("regex")) {
+
+			if(event.getGuild() != null) {
+				var data = ServerData.get(event.getGuild().getId());
+				ArrayList<String> regexes = new ArrayList<>();
+				for(var react : data.autoReactions.get()) {
+					if(!regexes.contains(react.regex))regexes.add(react.regex);
+				}
+
+				List<Command.Choice> options = Stream.of(regexes.toArray(new String[]{}))
+					.filter(word -> word.startsWith(event.getFocusedOption().getValue())) // only display words that start with the user's current input
+					.map(word -> new Command.Choice(word, word)) // map the words to choices
+					.collect(Collectors.toList());
+
+				event.replyChoices(options.size() <= 20 ? options : options.subList(0, 20)).queue();
+			}
+
+		}
 	}
 
 	static Map<String, CachedMessage> cachedMessages = new HashedMap<>();
@@ -87,6 +107,35 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 	@Override
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+		var content = event.getMessage().getContentRaw().toLowerCase();
+
+		ServerUtils.runFor(event.getGuild().getId(), serverData -> {
+			boolean updateList = false;
+			for(AutoReaction react : serverData.autoReactions.get()) {
+				if(content.matches(react.regex.toLowerCase())) {
+
+					if(react.unicode) {
+						event.getMessage().addReaction(Emoji.fromUnicode(react.emoji)).queue();
+					}
+					else {
+						var emoji = event.getMessage().getGuild().getEmojiById(react.emoji);
+						if(emoji != null) {
+							event.getMessage().addReaction(emoji).queue();
+						}
+						else {
+							react.shouldBeRemoved = true;
+							updateList = true;
+						}
+					}
+				}
+			}
+			if (updateList) {
+				ArrayList<AutoReaction> autoReactions = new ArrayList<>(List.of(serverData.autoReactions.get()));
+				autoReactions.removeIf(card -> card.shouldBeRemoved);
+				serverData.autoReactions.set(autoReactions.toArray(new AutoReaction[0]));
+				serverData.autoReactions.save();
+			}
+		});
 		cachedMessages.put(event.getMessageId(), new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getChannel().getId(),event.getMessage().getContentRaw()));
 	}
 

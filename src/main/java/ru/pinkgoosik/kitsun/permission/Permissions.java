@@ -10,6 +10,9 @@ public class Permissions {
 	public static final String CHANGELOG_PUBLISHER_ADD = add("command.mod_updates_publisher.add");
 	public static final String CHANGELOG_PUBLISHER_REMOVE = add("command.mod_updates_publisher.remove");
 
+	public static final String AUTO_REACTION_ADD = add("command.auto_reaction.add");
+	public static final String AUTO_REACTION_REMOVE = add("command.auto_reaction.remove");
+
 	public static final String MC_UPDATES_ENABLE = add("command.mc_updates.enable");
 	public static final String MC_UPDATES_DISABLE = add("command.mc_updates.disable");
 
