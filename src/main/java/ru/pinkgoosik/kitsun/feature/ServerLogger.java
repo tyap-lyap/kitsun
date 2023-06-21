@@ -42,7 +42,7 @@ public class ServerLogger {
 
 	public void onMemberJoin(Member member) {
 		var embed = new EmbedBuilder();
-		embed.setAuthor(member.getUser().getAsTag() + " joined", null, member.getUser().getEffectiveAvatarUrl());
+		embed.setAuthor(member.getUser().getAsTag().replace("#0000", "") + " joined", null, member.getUser().getEffectiveAvatarUrl());
 		embed.setColor(KitsunColors.getGreen());
 		embed.setTimestamp(Instant.now());
 		log(embed.build());
@@ -50,7 +50,7 @@ public class ServerLogger {
 
 	public void onMemberLeave(User user) {
 		var embed = new EmbedBuilder();
-		embed.setAuthor(user.getAsTag() + " left", null, user.getEffectiveAvatarUrl());
+		embed.setAuthor(user.getAsTag().replace("#0000", "") + " left", null, user.getEffectiveAvatarUrl());
 		embed.setColor(KitsunColors.getRed());
 		embed.setTimestamp(Instant.now());
 		log(embed.build());
@@ -120,7 +120,7 @@ public class ServerLogger {
 		log(embed.build());
 	}
 
-	private void log(MessageEmbed embed) {
+	public void log(MessageEmbed embed) {
 		if(Bot.jda.getGuildChannelById(ChannelType.TEXT, channel) instanceof GuildMessageChannel chan) {
 			chan.sendMessageEmbeds(embed).queue();
 		}

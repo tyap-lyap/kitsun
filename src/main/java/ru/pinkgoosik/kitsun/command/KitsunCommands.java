@@ -25,6 +25,7 @@ public class KitsunCommands {
 		add(new LoggerCommand());
 		add(new QuiltUpdatesCommand());
 		add(new AutoReactionCommand());
+		add(new SayCommand());
 	}
 
 	private static void add(KitsunCommand command) {
