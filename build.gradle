@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-	// https://github.com/DV8FromTheWorld/JDA/releases
-	implementation("net.dv8tion:JDA:5.0.0-beta.8") {
+	// https://github.com/discord-jda/JDA/releases
+	implementation("net.dv8tion:JDA:5.0.0-beta.11") {
         exclude module: "opus-java"
     }
 	implementation "dev.masecla:Modrinth4J:2.2.0" // https://github.com/masecla22/Modrinth4J
