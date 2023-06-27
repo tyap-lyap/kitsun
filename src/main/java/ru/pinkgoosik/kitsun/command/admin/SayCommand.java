@@ -28,12 +28,14 @@ public class SayCommand extends KitsunCommand {
 	public SlashCommandData build() {
 		var data = Commands.slash(getName(), getDescription());
 		data.addOption(OptionType.STRING, "message", "The message", true);
+		data.addOption(OptionType.STRING, "reference", "The message's id to reply to", false);
 		return data;
 	}
 
 	@Override
 	public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
 		String message = Objects.requireNonNull(ctx.getOption("message")).getAsString();
+		var reference = ctx.getOption("reference");
 		var channel = helper.event.getChannel();
 		var member = helper.event.getInteraction().getMember();
 		var guild = helper.event.getGuild();
@@ -44,14 +46,32 @@ public class SayCommand extends KitsunCommand {
 				helper.ephemeral(Embeds.error("Not enough permissions."));
 				return;
 			}
-
-			channel.sendMessage(message).queue();
-			ServerData.get(guild.getId()).logger.get(serverLogger -> {
-				if(serverLogger.enabled) {
-					serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
+			if(reference != null) {
+				var history = channel.getHistoryAround(reference.getAsString(), 10).complete();
+				var messageToReply = history.getMessageById(reference.getAsString());
+				if(messageToReply != null) {
+					messageToReply.reply(message).queue();
+					ServerData.get(guild.getId()).logger.get(serverLogger -> {
+						if(serverLogger.enabled) {
+							serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
+						}
+					});
+					helper.ephemeral(Embeds.success("Success", ""));
 				}
-			});
-			helper.ephemeral(Embeds.success("Success", ""));
+				else {
+					helper.ephemeral(Embeds.error(""));
+				}
+			}
+			else {
+				channel.sendMessage(message).queue();
+				ServerData.get(guild.getId()).logger.get(serverLogger -> {
+					if(serverLogger.enabled) {
+						serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
+					}
+				});
+				helper.ephemeral(Embeds.success("Success", ""));
+			}
+
 		}
 	}
 }
