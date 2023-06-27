@@ -30,6 +30,7 @@ import ru.pinkgoosik.kitsun.util.ServerUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -112,7 +113,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 		ServerUtils.runFor(event.getGuild().getId(), serverData -> {
 			boolean updateList = false;
 			for(AutoReaction react : serverData.autoReactions.get()) {
-				if(content.matches(react.regex.toLowerCase())) {
+				if(Pattern.compile(react.regex.toLowerCase()).matcher(content).find()) {
 
 					if(react.unicode) {
 						event.getMessage().addReaction(Emoji.fromUnicode(react.emoji)).queue();
