@@ -2,7 +2,6 @@ package ru.pinkgoosik.kitsun.command.member;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
@@ -33,10 +32,8 @@ public class RegisterCommands {
 			}
 
 			@Override
-			public SlashCommandData build() {
-				var data = Commands.slash(getName(), getDescription());
+			public void build(SlashCommandData data) {
 				data.addOption(OptionType.STRING, "nickname", "Your Minecraft nickname.", true);
-				return data;
 			}
 
 			@Override
@@ -44,25 +41,23 @@ public class RegisterCommands {
 				String name = Objects.requireNonNull(ctx.getOption("nickname")).getAsString().replaceAll("[^a-zA-Z0-9_]", "");
 				ctx.deferReply().queue();
 
-				var member = helper.event.getMember();
+				var member = helper.member;
 
-				if(member != null) {
-					if(CosmeticsData.getEntry(member.getId()).isPresent()) {
-						helper.followup(Embeds.error("You already registered!"));
-						return;
-					}
-					if(CosmeticsData.getEntryByName(name).isPresent()) {
-						helper.followup(Embeds.error("Player `" + name + "` is already registered!"));
-						return;
-					}
-					if(MojangAPI.getUuid(name).isPresent()) {
-						CosmeticsData.register(member.getId(), name, MojangAPI.getUuid(name).get());
-						FtpConnection.updateData();
-						helper.followup(Embeds.success("Player Registration", "You've been successfully registered. Use `/unreg` command if you'd like to unregister or change your nickname."));
-					}
-					else {
-						helper.followup(Embeds.error("Player `" + name + "` is not found. Write down your Minecraft username."));
-					}
+				if(CosmeticsData.getEntry(member.getId()).isPresent()) {
+					helper.followup(Embeds.error("You already registered!"));
+					return;
+				}
+				if(CosmeticsData.getEntryByName(name).isPresent()) {
+					helper.followup(Embeds.error("Player `" + name + "` is already registered!"));
+					return;
+				}
+				if(MojangAPI.getUuid(name).isPresent()) {
+					CosmeticsData.register(member.getId(), name, MojangAPI.getUuid(name).get());
+					FtpConnection.updateData();
+					helper.followup(Embeds.success("Player Registration", "You've been successfully registered. Use `/unreg` command if you'd like to unregister or change your nickname."));
+				}
+				else {
+					helper.followup(Embeds.error("Player `" + name + "` is not found. Write down your Minecraft username."));
 				}
 			}
 		};
@@ -86,26 +81,23 @@ public class RegisterCommands {
 			}
 
 			@Override
-			public SlashCommandData build() {
-				return Commands.slash(getName(), getDescription());
+			public void build(SlashCommandData data) {
 			}
 
 			@Override
 			public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
 				ctx.deferReply().queue();
 
-				var member = helper.event.getMember();
-				if(member != null) {
-					var entry = CosmeticsData.getEntry(member.getId());
-					if(entry.isPresent()) {
-						CosmeticsData.unregister(member.getId());
-						FtpConnection.updateData();
-						String text = "Player " + entry.get().user.name + " is successfully unregistered. \nHope to see you soon later!";
-						helper.followup(Embeds.success("Player Unregistering", text));
-					}
-					else {
-						helper.followup(Embeds.error("You have not registered yet!"));
-					}
+				var member = helper.member;
+				var entry = CosmeticsData.getEntry(member.getId());
+				if(entry.isPresent()) {
+					CosmeticsData.unregister(member.getId());
+					FtpConnection.updateData();
+					String text = "Player " + entry.get().user.name + " is successfully unregistered. \nHope to see you soon later!";
+					helper.followup(Embeds.success("Player Unregistering", text));
+				}
+				else {
+					helper.followup(Embeds.error("You have not registered yet!"));
 				}
 			}
 		};

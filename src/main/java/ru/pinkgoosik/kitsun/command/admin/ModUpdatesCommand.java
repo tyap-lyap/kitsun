@@ -2,7 +2,6 @@ package ru.pinkgoosik.kitsun.command.admin;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import ru.pinkgoosik.kitsun.api.Modrinth;
@@ -31,17 +30,13 @@ public class ModUpdatesCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
-
+	public void build(SlashCommandData data) {
 		data.addSubcommands(new SubcommandData("add", "Creates mod updates publisher of the certain Modrinth project.")
 				.addOption(OptionType.STRING,"slug", "Slug of the Modrinth project", true)
 				.addOption(OptionType.CHANNEL, "channel", "Discord channel where updates should be published", true));
 
 		data.addSubcommands(new SubcommandData("remove", "Removes mod updates publisher.")
 				.addOption(OptionType.STRING,"slug", "Slug of the Modrinth project", true));
-
-		return data;
 	}
 
 	@Override
@@ -54,83 +49,79 @@ public class ModUpdatesCommand extends KitsunCommand {
 			String channelId = channel.getId();
 			ctx.deferReply().setEphemeral(true).queue();
 
-			var guild = helper.event.getGuild();
-			var member = helper.event.getInteraction().getMember();
-			if(guild != null && member != null) {
-				var data = ServerData.get(guild.getId());
+			var guild = helper.guild;
+			var member = helper.member;
+			var data = ServerData.get(guild.getId());
 
-				if(!data.permissions.get().hasAccessTo(member, Permissions.CHANGELOG_PUBLISHER_ADD)) {
-					helper.ephemeral(Embeds.error("Not enough permissions."));
-					return;
-				}
-				if(!ChannelUtils.exist(data.server, channelId)) {
-					helper.ephemeral(Embeds.error("Such channel doesn't exist!"));
-					return;
-				}
-				if(ChannelUtils.isVoiceChannel(data.server, channelId)) {
-					helper.ephemeral(Embeds.error("You can't link publisher to a voice channel!"));
-					return;
-				}
-				var project = Modrinth.getProject(slug);
-				if(project.isPresent()) {
-					for(var publisher : data.modUpdates.get()) {
-						if(publisher.channel.equals(channelId) && publisher.project.equals(project.get().getId())) {
-							helper.ephemeral(Embeds.error("This channel already has a publisher of the `" + slug + "` project."));
-							return;
-						}
-					}
-					var old = data.modUpdates.get();
-					var newOnes = new ArrayList<>(List.of(data.modUpdates.get()));
-					newOnes.add(new ModUpdatesPublisher(data.server, channelId, project.get().getId()));
-					data.modUpdates.set(newOnes.toArray(old));
-					data.modUpdates.save();
-
-					String text = "Changelog publisher for the project `" + slug + "` got successfully created! Make sure bot has permission to send messages in this channel otherwise it wont work.";
-					helper.ephemeral(Embeds.success("Creating Changelog Publisher", text));
-				}
-				else {
-					helper.ephemeral(Embeds.error("Project `" + slug + "` is not found."));
-				}
+			if(!data.permissions.get().hasAccessTo(member, Permissions.CHANGELOG_PUBLISHER_ADD)) {
+				helper.ephemeral(Embeds.error("Not enough permissions."));
+				return;
 			}
+			if(!ChannelUtils.exist(data.server, channelId)) {
+				helper.ephemeral(Embeds.error("Such channel doesn't exist!"));
+				return;
+			}
+			if(ChannelUtils.isVoiceChannel(data.server, channelId)) {
+				helper.ephemeral(Embeds.error("You can't link publisher to a voice channel!"));
+				return;
+			}
+			var project = Modrinth.getProject(slug);
+			if(project.isPresent()) {
+				for(var publisher : data.modUpdates.get()) {
+					if(publisher.channel.equals(channelId) && publisher.project.equals(project.get().getId())) {
+						helper.ephemeral(Embeds.error("This channel already has a publisher of the `" + slug + "` project."));
+						return;
+					}
+				}
+				var old = data.modUpdates.get();
+				var newOnes = new ArrayList<>(List.of(data.modUpdates.get()));
+				newOnes.add(new ModUpdatesPublisher(data.server, channelId, project.get().getId()));
+				data.modUpdates.set(newOnes.toArray(old));
+				data.modUpdates.save();
 
+				String text = "Changelog publisher for the project `" + slug + "` got successfully created! Make sure bot has permission to send messages in this channel otherwise it wont work.";
+				helper.ephemeral(Embeds.success("Creating Changelog Publisher", text));
+			}
+			else {
+				helper.ephemeral(Embeds.error("Project `" + slug + "` is not found."));
+			}
 
 		}
 		else if(subcommand.equals("remove")) {
 			String slug = Objects.requireNonNull(ctx.getOption("slug")).getAsString();
 			ctx.deferReply().setEphemeral(true).queue();
 
-			var guild = helper.event.getGuild();
-			var member = helper.event.getInteraction().getMember();
-			if(guild != null && member != null) {
-				var data = ServerData.get(guild.getId());
-				var project = Modrinth.getProject(slug);
-				if(!data.permissions.get().hasAccessTo(member, Permissions.CHANGELOG_PUBLISHER_REMOVE)) {
-					helper.ephemeral(Embeds.error("Not enough permissions."));
-					return;
-				}
-				if(project.isPresent()) {
-					if(hasPublishers(project.get().getId(), data)) {
-						var old = new ArrayList<>(List.of(data.modUpdates.get()));
-						old.removeIf(publisher -> publisher.project.equals(project.get().getId()));
+			var guild = helper.guild;
+			var member = helper.member;
+			var data = ServerData.get(guild.getId());
+			var project = Modrinth.getProject(slug);
 
-						var newOnes = new ModUpdatesPublisher[old.size()];
-						for(int i = 0; i < old.size(); i++) {
-							newOnes[i] = old.get(i);
-						}
+			if(!data.permissions.get().hasAccessTo(member, Permissions.CHANGELOG_PUBLISHER_REMOVE)) {
+				helper.ephemeral(Embeds.error("Not enough permissions."));
+				return;
+			}
+			if(project.isPresent()) {
+				if(hasPublishers(project.get().getId(), data)) {
+					var old = new ArrayList<>(List.of(data.modUpdates.get()));
+					old.removeIf(publisher -> publisher.project.equals(project.get().getId()));
 
-						data.modUpdates.set(newOnes);
-						data.modUpdates.save();
-						String text = "All publisher of the `" + slug + "` project got removed.";
-						helper.ephemeral(Embeds.success("Removing Changelog Publisher", text));
-
+					var newOnes = new ModUpdatesPublisher[old.size()];
+					for(int i = 0; i < old.size(); i++) {
+						newOnes[i] = old.get(i);
 					}
-					else {
-						helper.ephemeral(Embeds.error("`" + slug + "` project doesn't have any publishers."));
-					}
+
+					data.modUpdates.set(newOnes);
+					data.modUpdates.save();
+					String text = "All publisher of the `" + slug + "` project got removed.";
+					helper.ephemeral(Embeds.success("Removing Changelog Publisher", text));
+
 				}
 				else {
-					helper.ephemeral(Embeds.error("Project `" + slug + "` is not found."));
+					helper.ephemeral(Embeds.error("`" + slug + "` project doesn't have any publishers."));
 				}
+			}
+			else {
+				helper.ephemeral(Embeds.error("Project `" + slug + "` is not found."));
 			}
 		}
 	}

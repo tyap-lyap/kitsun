@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommand;
@@ -26,12 +25,10 @@ public class EmbedCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
+	public void build(SlashCommandData data) {
 		data.addOption(OptionType.STRING, "description", "Embed description.", true);
 		data.addOption(OptionType.STRING, "title", "Embed title.", false);
 		data.addOption(OptionType.STRING, "color", "Embed color.", false);
-		return data;
 	}
 
 	@Override
@@ -41,34 +38,32 @@ public class EmbedCommand extends KitsunCommand {
 		var color = ctx.getOption("color");
 		var channel = helper.event.getChannel();
 		var embed = new EmbedBuilder();
-		var member = helper.event.getInteraction().getMember();
+		var member = helper.member;
 		ctx.deferReply().setEphemeral(true).queue();
 
-		if(member != null) {
-			if(!member.getPermissions().contains(Permission.ADMINISTRATOR)) {
-				helper.ephemeral(Embeds.error("Not enough permissions."));
+		if(!member.getPermissions().contains(Permission.ADMINISTRATOR)) {
+			helper.ephemeral(Embeds.error("Not enough permissions."));
+			return;
+		}
+
+		if(color != null) {
+			try {
+				embed.setColor(Color.decode(color.getAsString()));
+			}
+			catch (NumberFormatException e) {
+				helper.ephemeral(Embeds.error("Color can't be decoded!"));
 				return;
 			}
-
-			if(color != null) {
-				try {
-					embed.setColor(Color.decode(color.getAsString()));
-				}
-				catch (NumberFormatException e) {
-					helper.ephemeral(Embeds.error("Color can't be decoded!"));
-					return;
-				}
-			}
-			else {
-				embed.setColor(KitsunColors.getBlue());
-			}
-
-			if(title != null) {
-				embed.setTitle(title.getAsString());
-			}
-
-			channel.sendMessageEmbeds(embed.setDescription(description).build()).queue();
-			helper.ephemeral(Embeds.success("Embed Creation", "Success."));
 		}
+		else {
+			embed.setColor(KitsunColors.getBlue());
+		}
+
+		if(title != null) {
+			embed.setTitle(title.getAsString());
+		}
+
+		channel.sendMessageEmbeds(embed.setDescription(description).build()).queue();
+		helper.ephemeral(Embeds.success("Embed Creation", "Success."));
 	}
 }

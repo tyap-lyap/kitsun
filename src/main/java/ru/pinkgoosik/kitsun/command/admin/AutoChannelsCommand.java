@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
@@ -28,10 +27,8 @@ public class AutoChannelsCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
+	public void build(SlashCommandData data) {
 		data.addOption(OptionType.CHANNEL, "channel", "Voice channel that members should join to create a new channel.", true);
-		return data;
 	}
 
 	@Override
@@ -41,38 +38,35 @@ public class AutoChannelsCommand extends KitsunCommand {
 		ctx.deferReply().setEphemeral(true).queue();
 
 		ServerData dat = helper.serverData;
-		var guild = helper.event.getGuild();
-		var member = helper.event.getInteraction().getMember();
+		var member = helper.member;
 
-		if(guild != null && member != null) {
-			if(!dat.permissions.get().hasAccessTo(member, Permissions.AUTO_CHANNELS_ENABLE)) {
-				helper.ephemeral(Embeds.error("Not enough permissions."));
-				return;
+		if(!dat.permissions.get().hasAccessTo(member, Permissions.AUTO_CHANNELS_ENABLE)) {
+			helper.ephemeral(Embeds.error("Not enough permissions."));
+			return;
+		}
+
+		if(channel instanceof VoiceChannel vc) {
+			var category = vc.getParentCategory();
+			if(category != null) {
+				var perms = category.getPermissionOverride(Objects.requireNonNull(Objects.requireNonNull(Bot.jda.getGuildById(dat.server)).getMemberById(Bot.jda.getSelfUser().getId())));
+				if(perms != null && !perms.getAllowed().contains(Permission.ADMINISTRATOR)) {
+					helper.ephemeral(Embeds.error("Bot doesn't have permission of administrator! It required for auto channels to work properly."));
+					return;
+				}
 			}
-
-			if(channel instanceof VoiceChannel vc) {
-				var category = vc.getParentCategory();
-				if(category != null) {
-					var perms = category.getPermissionOverride(Objects.requireNonNull(Objects.requireNonNull(Bot.jda.getGuildById(dat.server)).getMemberById(Bot.jda.getSelfUser().getId())));
-					if(perms != null && !perms.getAllowed().contains(Permission.ADMINISTRATOR)) {
-						helper.ephemeral(Embeds.error("Bot doesn't have permission of administrator! It required for auto channels to work properly."));
-						return;
-					}
-				}
-				if(dat.autoChannels.get().enabled) {
-					dat.autoChannels.get().enable(channel.getId());
-					dat.autoChannels.save();
-					helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels parent channel successfully changed!"));
-				}
-				else {
-					dat.autoChannels.get().enable(channel.getId());
-					dat.autoChannels.save();
-					helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels are now enabled!"));
-				}
+			if(dat.autoChannels.get().enabled) {
+				dat.autoChannels.get().enable(channel.getId());
+				dat.autoChannels.save();
+				helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels parent channel successfully changed!"));
 			}
 			else {
-				helper.ephemeral(Embeds.error("Channel you specified isn't a voice channel!"));
+				dat.autoChannels.get().enable(channel.getId());
+				dat.autoChannels.save();
+				helper.ephemeral(Embeds.success("Auto Channels Enabling", "Auto channels are now enabled!"));
 			}
+		}
+		else {
+			helper.ephemeral(Embeds.error("Channel you specified isn't a voice channel!"));
 		}
 	}
 

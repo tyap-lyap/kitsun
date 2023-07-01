@@ -1,12 +1,15 @@
 package ru.pinkgoosik.kitsun.command.member;
 
 import masecla.modrinth4j.model.version.ProjectVersion;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.api.FabricMeta;
 import ru.pinkgoosik.kitsun.api.Modrinth;
+import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommand;
 import ru.pinkgoosik.kitsun.util.Embeds;
@@ -14,7 +17,10 @@ import ru.pinkgoosik.kitsun.util.Embeds;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ImportFabricCommand extends KitsunCommand {
 	private static ArrayList<ProjectVersion> cachedVersions = null;
@@ -31,10 +37,8 @@ public class ImportFabricCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
+	public void build(SlashCommandData data) {
 		data.addOption(OptionType.STRING, "version", "Minecraft version", true, true);
-		return data;
 	}
 
 	@Override
@@ -74,5 +78,18 @@ public class ImportFabricCommand extends KitsunCommand {
 			}
 		}
 		return cachedVersions;
+	}
+
+	public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+		if (event.getName().equals("import-fabric") || event.getName().equals("import-quilt") && event.getFocusedOption().getName().equals("version")) {
+			ArrayList<String> versions = MojangAPI.getMcVersionsCache();
+
+			List<Command.Choice> options = Stream.of(versions.toArray(new String[]{}))
+				.filter(word -> word.startsWith(event.getFocusedOption().getValue())) // only display words that start with the user's current input
+				.map(word -> new Command.Choice(word, word)) // map the words to choices
+				.collect(Collectors.toList());
+
+			event.replyChoices(options.size() <= 20 ? options : options.subList(0, 20)).queue();
+		}
 	}
 }

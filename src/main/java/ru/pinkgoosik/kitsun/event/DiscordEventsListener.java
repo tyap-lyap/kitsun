@@ -14,11 +14,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import org.apache.commons.collections4.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
 import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommands;
@@ -31,8 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DiscordEventsListener extends ListenerAdapter {
 
@@ -59,9 +55,9 @@ public class DiscordEventsListener extends ListenerAdapter {
 	@Override
 	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 		try {
-			KitsunCommands.COMMANDS.forEach(commandNext -> {
-				if(event.getInteraction().getName().equals(commandNext.getName()) && event.getGuild() != null) {
-					commandNext.respond(event, new CommandHelper(event, ServerData.get(event.getGuild().getId())));
+			KitsunCommands.COMMANDS.forEach(command -> {
+				if(event.getInteraction().getName().equals(command.getName()) && event.getGuild() != null && event.getInteraction().getMember() != null) {
+					command.respond(event, new CommandHelper(event, ServerData.get(event.getGuild().getId()), event.getGuild(), event.getInteraction().getMember()));
 				}
 			});
 		}
@@ -72,33 +68,15 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 	@Override
 	public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
-		if (event.getName().equals("import-fabric") || event.getName().equals("import-quilt") && event.getFocusedOption().getName().equals("version")) {
-			ArrayList<String> versions = MojangAPI.getMcVersionsCache();
-
-			List<Command.Choice> options = Stream.of(versions.toArray(new String[]{}))
-				.filter(word -> word.startsWith(event.getFocusedOption().getValue())) // only display words that start with the user's current input
-				.map(word -> new Command.Choice(word, word)) // map the words to choices
-				.collect(Collectors.toList());
-
-			event.replyChoices(options.size() <= 20 ? options : options.subList(0, 20)).queue();
-		}
-		if (event.getName().equals("auto-reaction") && event.getSubcommandName().equals("remove") && event.getFocusedOption().getName().equals("regex")) {
-
-			if(event.getGuild() != null) {
-				var data = ServerData.get(event.getGuild().getId());
-				ArrayList<String> regexes = new ArrayList<>();
-				for(var react : data.autoReactions.get()) {
-					if(!regexes.contains(react.regex))regexes.add(react.regex);
+		try {
+			KitsunCommands.COMMANDS.forEach(command -> {
+				if(event.getInteraction().getName().equals(command.getName())) {
+					command.onCommandAutoCompleteInteraction(event);
 				}
-
-				List<Command.Choice> options = Stream.of(regexes.toArray(new String[]{}))
-					.filter(word -> word.startsWith(event.getFocusedOption().getValue())) // only display words that start with the user's current input
-					.map(word -> new Command.Choice(word, word)) // map the words to choices
-					.collect(Collectors.toList());
-
-				event.replyChoices(options.size() <= 20 ? options : options.subList(0, 20)).queue();
-			}
-
+			});
+		}
+		catch(Exception e) {
+			KitsunDebugger.report("Failed to proceed command auto complete interaction event due to an exception:\n" + e);
 		}
 	}
 

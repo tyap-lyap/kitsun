@@ -1,6 +1,7 @@
 package ru.pinkgoosik.kitsun.command;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
@@ -39,7 +40,9 @@ public class KitsunCommands {
 		ArrayList<CommandData> globalCommands = new ArrayList<>();
 
 		KitsunCommands.COMMANDS.forEach(command -> {
-			var data = command.build();
+			var data = Commands.slash(command.getName(), command.getDescription());
+			command.build(data);
+
 			if(command.isTLExclusive()) {
 				tlCommands.add(data);
 			}

@@ -2,7 +2,6 @@ package ru.pinkgoosik.kitsun.command.admin;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.api.Modrinth;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
@@ -25,10 +24,8 @@ public class ModrinthCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
+	public void build(SlashCommandData data) {
 		data.addOption(OptionType.STRING, "slug", "Slug of the Modrinth project.", true);
-		return data;
 	}
 
 	@Override

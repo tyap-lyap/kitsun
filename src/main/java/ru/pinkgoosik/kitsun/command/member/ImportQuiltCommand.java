@@ -3,7 +3,6 @@ package ru.pinkgoosik.kitsun.command.member;
 import masecla.modrinth4j.model.version.ProjectVersion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.api.Modrinth;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
@@ -31,10 +30,8 @@ public class ImportQuiltCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
+	public void build(SlashCommandData data) {
 		data.addOption(OptionType.STRING, "version", "Minecraft version", true, true);
-		return data;
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package ru.pinkgoosik.kitsun.command.admin;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
@@ -25,12 +24,10 @@ public class SayCommand extends KitsunCommand {
 	}
 
 	@Override
-	public SlashCommandData build() {
-		var data = Commands.slash(getName(), getDescription());
+	public void build(SlashCommandData data) {
 		data.addOption(OptionType.STRING, "message", "The message", true);
 		data.addOption(OptionType.STRING, "reference", "The message's id to reply to", false);
 		data.addOption(OptionType.BOOLEAN, "ping", "Ping the replied user (Default: true)", false);
-		return data;
 	}
 
 	@Override
@@ -42,33 +39,19 @@ public class SayCommand extends KitsunCommand {
 		if(pingOption != null) ping = pingOption.getAsBoolean();
 
 		var channel = helper.event.getChannel();
-		var member = helper.event.getInteraction().getMember();
-		var guild = helper.event.getGuild();
+		var member = helper.member;
+		var guild = helper.guild;
 		ctx.deferReply().setEphemeral(true).queue();
 
-		if(member != null && guild != null) {
-			if(!member.getPermissions().contains(Permission.ADMINISTRATOR)) {
-				helper.ephemeral(Embeds.error("Not enough permissions."));
-				return;
-			}
-			if(reference != null) {
-				var history = channel.getHistoryAround(reference.getAsString(), 10).complete();
-				var messageToReply = history.getMessageById(reference.getAsString());
-				if(messageToReply != null) {
-					messageToReply.reply(message).mentionRepliedUser(ping).queue();
-					ServerData.get(guild.getId()).logger.get(serverLogger -> {
-						if(serverLogger.enabled) {
-							serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
-						}
-					});
-					helper.ephemeral(Embeds.success("Success", ""));
-				}
-				else {
-					helper.ephemeral(Embeds.error(""));
-				}
-			}
-			else {
-				channel.sendMessage(message).queue();
+		if(!member.getPermissions().contains(Permission.ADMINISTRATOR)) {
+			helper.ephemeral(Embeds.error("Not enough permissions."));
+			return;
+		}
+		if(reference != null) {
+			var history = channel.getHistoryAround(reference.getAsString(), 10).complete();
+			var messageToReply = history.getMessageById(reference.getAsString());
+			if(messageToReply != null) {
+				messageToReply.reply(message).mentionRepliedUser(ping).queue();
 				ServerData.get(guild.getId()).logger.get(serverLogger -> {
 					if(serverLogger.enabled) {
 						serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
@@ -76,7 +59,18 @@ public class SayCommand extends KitsunCommand {
 				});
 				helper.ephemeral(Embeds.success("Success", ""));
 			}
-
+			else {
+				helper.ephemeral(Embeds.error(""));
+			}
+		}
+		else {
+			channel.sendMessage(message).queue();
+			ServerData.get(guild.getId()).logger.get(serverLogger -> {
+				if(serverLogger.enabled) {
+					serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
+				}
+			});
+			helper.ephemeral(Embeds.success("Success", ""));
 		}
 	}
 }
