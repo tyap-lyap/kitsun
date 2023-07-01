@@ -29,6 +29,7 @@ public class SayCommand extends KitsunCommand {
 		var data = Commands.slash(getName(), getDescription());
 		data.addOption(OptionType.STRING, "message", "The message", true);
 		data.addOption(OptionType.STRING, "reference", "The message's id to reply to", false);
+		data.addOption(OptionType.BOOLEAN, "ping", "Ping the replied user (Default: true)", false);
 		return data;
 	}
 
@@ -36,6 +37,10 @@ public class SayCommand extends KitsunCommand {
 	public void respond(SlashCommandInteractionEvent ctx, CommandHelper helper) {
 		String message = Objects.requireNonNull(ctx.getOption("message")).getAsString();
 		var reference = ctx.getOption("reference");
+		boolean ping = true;
+		var pingOption = ctx.getOption("ping");
+		if(pingOption != null) ping = pingOption.getAsBoolean();
+
 		var channel = helper.event.getChannel();
 		var member = helper.event.getInteraction().getMember();
 		var guild = helper.event.getGuild();
@@ -50,7 +55,7 @@ public class SayCommand extends KitsunCommand {
 				var history = channel.getHistoryAround(reference.getAsString(), 10).complete();
 				var messageToReply = history.getMessageById(reference.getAsString());
 				if(messageToReply != null) {
-					messageToReply.reply(message).queue();
+					messageToReply.reply(message).mentionRepliedUser(ping).queue();
 					ServerData.get(guild.getId()).logger.get(serverLogger -> {
 						if(serverLogger.enabled) {
 							serverLogger.log(Embeds.info(member.getEffectiveName() + " used the say command and said", message));
