@@ -2,6 +2,7 @@ package ru.pinkgoosik.kitsun;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -39,7 +40,7 @@ public class Bot {
 					}
 				})
 				.addEventListeners(new DiscordEventsListener())
-				.enableIntents(Arrays.asList(GatewayIntent.values()))
+				.enableIntents(Arrays.asList(GatewayIntent.values())).setActivity(Activity.playing(secrets.get().activity))
 				.build();
 
 		jda.awaitReady();
