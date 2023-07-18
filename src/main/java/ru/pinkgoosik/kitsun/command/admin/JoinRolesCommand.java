@@ -28,10 +28,10 @@ public class JoinRolesCommand extends KitsunCommand {
 
 	@Override
 	public void build(SlashCommandData data) {
-		data.addSubcommands(new SubcommandData("add", "")
+		data.addSubcommands(new SubcommandData("add", "Adds join role")
 			.addOption(OptionType.ROLE,"role", "The role", true));
 
-		data.addSubcommands(new SubcommandData("remove", "")
+		data.addSubcommands(new SubcommandData("remove", "Removes john role")
 			.addOption(OptionType.ROLE,"role", "The role", true));
 	}
 
