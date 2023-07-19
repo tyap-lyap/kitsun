@@ -151,8 +151,12 @@ public class DiscordEventsListener extends ListenerAdapter {
 			ServerUtils.runFor(event.getGuild().getId(), data -> {
 				data.logger.get().ifEnabled(log -> log.onMemberJoin(event.getMember()));
 
-				for(String role : data.config.get().general.joinRoles) {
-					event.getMember().getRoles().add(event.getGuild().getRoleById(role));
+				for(String roleId : data.config.get().general.joinRoles) {
+					var role = event.getGuild().getRoleById(roleId);
+					if(role != null) {
+						event.getGuild().addRoleToMember(event.getMember(), role).queue();
+					}
+
 				}
 			});
 		}
