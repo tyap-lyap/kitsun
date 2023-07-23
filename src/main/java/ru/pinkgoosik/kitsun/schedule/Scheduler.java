@@ -13,7 +13,7 @@ public class Scheduler {
 			public void run() {
 				MCUpdatesScheduler.schedule();
 			}
-		}, 0, 5 * (60 * 1000));
+		}, 0, 10 * (60 * 1000));
 
 		timer.schedule(new TimerTask() {
 			@Override
