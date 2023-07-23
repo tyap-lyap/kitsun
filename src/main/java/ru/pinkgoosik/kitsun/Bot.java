@@ -33,17 +33,20 @@ public class Bot {
 			System.exit(0);
 		}
 
-		JDA jda = JDABuilder.createDefault(token)
+		var jda = JDABuilder.createDefault(token)
 				.addEventListeners((EventListener) event -> {
 					if(event instanceof ReadyEvent readyEvent) {
 						DiscordEventsListener.onConnect(readyEvent);
 					}
 				})
 				.addEventListeners(new DiscordEventsListener())
-				.enableIntents(Arrays.asList(GatewayIntent.values())).setActivity(Activity.playing(secrets.get().activity))
-				.build();
+				.enableIntents(Arrays.asList(GatewayIntent.values()));
 
-		jda.awaitReady();
+		if(!secrets.get().activity.isBlank()) {
+			jda.setActivity(Activity.playing(secrets.get().activity));
+		}
+
+		jda.build().awaitReady();
 	}
 
 	public static Guild getGuild(String id) {

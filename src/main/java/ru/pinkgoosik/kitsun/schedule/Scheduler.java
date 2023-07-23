@@ -11,9 +11,10 @@ public class Scheduler {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				KitsunDebugger.CACHE.clear();
 				MCUpdatesScheduler.schedule();
 			}
-		}, 0, 10 * (60 * 1000));
+		}, 0, 5 * (60 * 1000));
 
 		timer.schedule(new TimerTask() {
 			@Override
