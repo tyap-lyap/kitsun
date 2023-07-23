@@ -6,6 +6,7 @@ import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
 import ru.pinkgoosik.kitsun.util.UrlParser;
 
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -20,6 +21,9 @@ public class MojangAPI {
 	public static Optional<VersionManifest> getManifest() {
 		try {
 			return Optional.of(UrlParser.get(MANIFEST, VersionManifest.class));
+		}
+		catch(ConnectException e) {
+			return Optional.empty();
 		}
 		catch(Exception e) {
 			KitsunDebugger.report("Failed to parse minecraft versions manifest due to an exception:\n" + e);
