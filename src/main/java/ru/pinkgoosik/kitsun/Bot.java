@@ -21,19 +21,20 @@ public class Bot {
 	public static Cached<Secrets> secrets = Cached.of("secrets", Secrets.class, () -> Secrets.DEFAULT);
 	public static JDA jda;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		CosmeticsData.fetch();
 		Bot.init();
 	}
 
-	public static void init() throws InterruptedException {
-		String token = secrets.get().discordToken;
-		if(token.isBlank()) {
-			LOGGER.error("Discord token is blank, please modify secrets.json");
-			System.exit(0);
-		}
+	public static void init() {
+		try {
+			String token = secrets.get().discordToken;
+			if(token.isBlank()) {
+				LOGGER.error("Discord token is blank, please modify secrets.json");
+				System.exit(0);
+			}
 
-		var jda = JDABuilder.createDefault(token)
+			var jda = JDABuilder.createDefault(token)
 				.addEventListeners((EventListener) event -> {
 					if(event instanceof ReadyEvent readyEvent) {
 						DiscordEventsListener.onConnect(readyEvent);
@@ -42,11 +43,16 @@ public class Bot {
 				.addEventListeners(new DiscordEventsListener())
 				.enableIntents(Arrays.asList(GatewayIntent.values()));
 
-		if(!secrets.get().activity.isBlank()) {
-			jda.setActivity(Activity.playing(secrets.get().activity));
+			if(!secrets.get().activity.isBlank()) {
+				jda.setActivity(Activity.playing(secrets.get().activity));
+			}
+
+			jda.build().awaitReady();
+		}
+		catch (Exception e) {
+			System.out.println("Bot can't be started due to an exception: " + e);
 		}
 
-		jda.build().awaitReady();
 	}
 
 	public static Guild getGuild(String id) {

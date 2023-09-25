@@ -1,6 +1,5 @@
 package ru.pinkgoosik.kitsun.feature;
 
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -12,10 +11,11 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.event.DiscordEventsListener;
+import ru.pinkgoosik.kitsun.util.DurationUtils;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 
 public class ServerLogger {
@@ -102,7 +102,7 @@ public class ServerLogger {
 		if(session != null) {
 			Instant created = Instant.parse(session.created);
 			Instant now = Instant.now();
-			embed.addField(new MessageEmbed.Field("Lasted", "**" + (int) ChronoUnit.MINUTES.between(created, now) + "** min", false));
+			embed.addField(new MessageEmbed.Field("Lasted", DurationUtils.format(Duration.between(created, now)), false));
 		}
 
 		embed.setColor(KitsunColors.getRed());
