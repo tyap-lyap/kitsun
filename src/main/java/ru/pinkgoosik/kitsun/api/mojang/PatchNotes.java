@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class PatchNotes {
 	public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
-	private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/javaPatchNotes.json";
+	private static final String LAUNCHER_CONTENT = "https://launchercontent.mojang.com/v2/javaPatchNotes.json";
 
 	public static Optional<PatchNotesEntry> getEntry(String version) {
 		try {
@@ -33,18 +33,20 @@ public class PatchNotes {
 	@SuppressWarnings("unused")
 	public static class PatchNotesEntry {
 		public String title = "";
-		public String type = "";
 		public String version = "";
+		public String type = "";
 		public Image image = new Image();
-		public String body = "";
-		public String id = "";
 		public String contentPath = "";
+		public String id = "";
+		public String date = "";
+		public String shortText = "";
 
 		public String summary() {
-			String[] firstParagraph = body.split("<h1>");
-			String description = firstParagraph[0];
-			description = clearFormation(description);
-			return removeUrls(description);
+			return shortText;
+//			String[] firstParagraph = body.split("<h1>");
+//			String description = firstParagraph[0];
+//			description = clearFormation(description);
+//			return removeUrls(description);
 		}
 
 		private String clearFormation(String content) {
