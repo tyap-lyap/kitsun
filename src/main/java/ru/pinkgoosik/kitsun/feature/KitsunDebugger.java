@@ -1,11 +1,10 @@
 package ru.pinkgoosik.kitsun.feature;
 
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import ru.pinkgoosik.kitsun.Bot;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class KitsunDebugger {
 	private static String debugChannel = "967506328190877726";
@@ -34,7 +33,9 @@ public class KitsunDebugger {
 			if(reported.equals(text)) return;
 		}
 		try {
-			Objects.requireNonNull(Bot.jda.getChannelById(MessageChannelUnion.class, debugChannel)).sendMessage(text).queue();
+			if(Bot.jda.getGuildChannelById(debugChannel) instanceof TextChannel textChannel) {
+				textChannel.sendMessage(text).queue();
+			}
 			CACHE.add(text);
 		}
 		catch(Exception e) {

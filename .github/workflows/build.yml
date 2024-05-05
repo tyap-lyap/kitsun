@@ -30,3 +30,9 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/kitsun.jar
+      - name: Deploy Stage
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.RESTART_URL }}
+          method: 'GET'
+          preventFailureOnNoResponse: 'true'
