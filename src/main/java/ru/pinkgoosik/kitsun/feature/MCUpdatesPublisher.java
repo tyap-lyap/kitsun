@@ -13,7 +13,7 @@ import ru.pinkgoosik.kitsun.util.KitsunColors;
 import java.time.Instant;
 
 public class MCUpdatesPublisher {
-	private static final String QUILT_MC_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
+	public static final String QUILT_MC_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
 
 	public boolean enabled = false;
 	/**

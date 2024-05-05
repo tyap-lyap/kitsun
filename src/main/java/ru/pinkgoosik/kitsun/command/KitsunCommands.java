@@ -28,6 +28,7 @@ public class KitsunCommands {
 		add(new AutoReactionCommand());
 		add(new SayCommand());
 		add(new JoinRolesCommand());
+		add(new McPatchnoteCommand());
 	}
 
 	private static void add(KitsunCommand command) {
