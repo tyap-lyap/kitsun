@@ -37,6 +37,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 		String note = Bot.secrets.get().note;
 		KitsunDebugger.onConnect(event);
 		KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
+		KitsunDebugger.info("This is test");
 		Scheduler.start();
 		KitsunCommands.onConnect();
 	}
