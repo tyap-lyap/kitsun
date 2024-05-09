@@ -33,7 +33,8 @@ public class ModUpdatesCommand extends KitsunCommand {
 	public void build(SlashCommandData data) {
 		data.addSubcommands(new SubcommandData("add", "Creates mod updates publisher of the certain Modrinth project.")
 				.addOption(OptionType.STRING,"slug", "Slug of the Modrinth project", true)
-				.addOption(OptionType.CHANNEL, "channel", "Discord channel where updates should be published", true));
+				.addOption(OptionType.CHANNEL, "channel", "Discord channel where updates should be published", true)
+			    .addOption(OptionType.BOOLEAN, "manual-check", "Option if this publisher's check should be called manually", false));
 
 		data.addSubcommands(new SubcommandData("remove", "Removes mod updates publisher.")
 				.addOption(OptionType.STRING,"slug", "Slug of the Modrinth project", true));
@@ -46,6 +47,9 @@ public class ModUpdatesCommand extends KitsunCommand {
 		if(subcommand.equals("add")) {
 			String slug = Objects.requireNonNull(ctx.getOption("slug")).getAsString();
 			var channel = Objects.requireNonNull(ctx.getOption("channel")).getAsChannel();
+			var manualCheckOption = ctx.getOption("manual-check");
+			boolean manualCheck = manualCheckOption != null ? manualCheckOption.getAsBoolean() : false;
+
 			String channelId = channel.getId();
 			ctx.deferReply().setEphemeral(true).queue();
 
@@ -75,7 +79,7 @@ public class ModUpdatesCommand extends KitsunCommand {
 				}
 				var old = data.modUpdates.get();
 				var newOnes = new ArrayList<>(List.of(data.modUpdates.get()));
-				newOnes.add(new ModUpdatesPublisher(data.server, channelId, project.get().getId()));
+				newOnes.add(new ModUpdatesPublisher(data.server, channelId, project.get().getId(), manualCheck));
 				data.modUpdates.set(newOnes.toArray(old));
 				data.modUpdates.save();
 

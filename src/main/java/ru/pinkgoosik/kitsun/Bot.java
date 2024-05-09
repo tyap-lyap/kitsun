@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import ru.pinkgoosik.kitsun.cache.Cached;
 import ru.pinkgoosik.kitsun.config.Secrets;
-import ru.pinkgoosik.kitsun.cosmetics.CosmeticsData;
 import ru.pinkgoosik.kitsun.event.DiscordEventsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.pinkgoosik.kitsun.http.KitsunHttpServer;
 
 import java.util.Arrays;
 
@@ -22,8 +22,8 @@ public class Bot {
 	public static JDA jda;
 
 	public static void main(String[] args) {
-		CosmeticsData.fetch();
 		Bot.init();
+		KitsunHttpServer.init();
 	}
 
 	public static void init() {

@@ -32,13 +32,15 @@ public class ModUpdatesPublisher {
 	 * Cached Modrinth project's latest version ID
 	 */
 	public String latestVersion = "";
+	public boolean manualCall = false;
 
 	public transient Project cachedProject = null;
 
-	public ModUpdatesPublisher(String serverID, String channelID, String projectID) {
+	public ModUpdatesPublisher(String serverID, String channelID, String projectID, boolean manualCall) {
 		this.server = serverID;
 		this.channel = channelID;
 		this.project = projectID;
+		this.manualCall = manualCall;
 	}
 
 	public void check(long delay) {

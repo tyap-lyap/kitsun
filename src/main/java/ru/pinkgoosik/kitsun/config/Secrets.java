@@ -10,6 +10,8 @@ public class Secrets {
 	public String password = "";
 	public String dir = "";
 	public String activity = "";
+	public int httpPort = 0;
+	public String httpToken = "";
 
 	public static final Secrets DEFAULT = new Secrets();
 }

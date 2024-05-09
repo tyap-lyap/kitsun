@@ -32,15 +32,19 @@ public class ModUpdatesScheduler {
 
 			int index = -1;
 			for(var pub : publishers) {
-				index++;
-				pub.check(index * 10L);
+				if(!pub.manualCall) {
+					index++;
+					pub.check(index * 10L);
+				}
 			}
 		}
 		else {
 			int index = -1;
 			for(var pub : CACHE.get(serverId)) {
-				index++;
-				pub.check(index * 10L);
+				if(!pub.manualCall) {
+					index++;
+					pub.check(index * 10L);
+				}
 			}
 		}
 	}
