@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import ru.pinkgoosik.kitsun.Bot;
 import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.util.ServerUtils;
 
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -16,15 +17,34 @@ public class KitsunHttpServer {
 	public static HttpServer server;
 
 	public static void init() {
-		if(Bot.secrets.get().httpPort > 0) {
+		if(Bot.secrets.get().http.port > 0) {
 			try {
-				HttpServer server = HttpServer.create(new InetSocketAddress(Bot.secrets.get().httpPort), 0);
+				HttpServer server = HttpServer.create(new InetSocketAddress(Bot.secrets.get().http.port), 0);
 				server.createContext("/mod_update", exchange -> {
 					var map = parseParams(exchange);
 
-					if (map.containsKey("token") && Bot.secrets.get().httpToken.equals(map.get("token"))) {
-						success(exchange, "Success");
-						if(map.containsKey("server") && map.containsKey("project")) modUpdateWebhook(map.get("server"), map.get("project"));
+					if (map.containsKey("token") && Bot.secrets.get().http.token.equals(map.get("token"))) {
+						if(map.containsKey("server") && map.containsKey("project")) {
+							if (!ServerUtils.exist(map.get("server"))) {
+								success(exchange, "Server not found");
+								return;
+							}
+							var data = ServerData.get(map.get("server"));
+
+							for(var publisher : data.modUpdates.get()) {
+								if(publisher.project.equals(map.get("project"))) {
+									success(exchange, "Success");
+									try {
+										Thread.sleep(5 * 1000);
+										publisher.check(0);
+									}
+									catch (Exception ignored) {}
+									return;
+								}
+							}
+							success(exchange, "Project not found");
+							return;
+						}
 					}
 
 					notFound(exchange);
@@ -36,21 +56,6 @@ public class KitsunHttpServer {
 			}
 			catch (Exception e) {
 				Bot.LOGGER.error("Failed to setup http server due to an exception: " + e);
-			}
-		}
-	}
-
-	static void modUpdateWebhook(String server, String project) {
-		var data = ServerData.get(server);
-
-		for(var publisher : data.modUpdates.get()) {
-			if(publisher.project.equals(project)) {
-				try {
-					Thread.sleep(5 * 1000);
-					publisher.check(0);
-				}
-				catch (Exception ignored) {}
-				return;
 			}
 		}
 	}

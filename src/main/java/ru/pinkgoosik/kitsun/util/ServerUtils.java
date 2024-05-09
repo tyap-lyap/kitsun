@@ -20,6 +20,13 @@ public class ServerUtils {
 		});
 	}
 
+	public static boolean exist(String serverId) {
+		for(var guild : Bot.jda.getGuilds()) {
+			if(guild.getId().equals(serverId)) return true;
+		}
+		return false;
+	}
+
 	@FunctionalInterface
 	public interface ServerRunnable {
 		void run(ServerData serverData);

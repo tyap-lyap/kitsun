@@ -13,8 +13,6 @@ public class KitsunCommands {
 	public static final List<KitsunCommand> COMMANDS = new ArrayList<>();
 
 	public static void init() {
-		add(RegisterCommands.reg());
-		add(RegisterCommands.unreg());
 		add(new ModUpdatesCommand());
 		add(new ImportFabricCommand());
 		add(new ImportQuiltCommand());

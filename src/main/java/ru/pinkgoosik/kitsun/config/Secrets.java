@@ -5,13 +5,13 @@ public class Secrets {
 	public String modrinthApiKey = "";
 	public String discordToken = "";
 	public String note = "";
-	public String host = "";
-	public String user = "";
-	public String password = "";
-	public String dir = "";
 	public String activity = "";
-	public int httpPort = 0;
-	public String httpToken = "";
+	public HttpConfig http = new HttpConfig();
 
 	public static final Secrets DEFAULT = new Secrets();
+
+	public static class HttpConfig {
+		public int port = 0;
+		public String token = "";
+	}
 }
