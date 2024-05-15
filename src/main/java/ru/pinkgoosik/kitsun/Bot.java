@@ -50,9 +50,8 @@ public class Bot {
 			jda.build().awaitReady();
 		}
 		catch (Exception e) {
-			System.out.println("Bot can't be started due to an exception: " + e);
+			LOGGER.error("Bot can't be started due to an exception: " + e);
 		}
-
 	}
 
 	public static Guild getGuild(String id) {

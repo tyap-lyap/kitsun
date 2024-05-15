@@ -18,7 +18,7 @@ public class Scheduler {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				KitsunDebugger.CACHE.clear();
+//				KitsunDebugger.CACHE.clear();
 				ModUpdatesScheduler.schedule();
 				QuiltUpdatesScheduler.schedule();
 			}

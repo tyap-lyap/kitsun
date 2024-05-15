@@ -25,18 +25,19 @@ public class KitsunDebugger {
 	}
 
 	public static void info(String text) {
+		Bot.LOGGER.info(text);
 		sendMessage(text);
 	}
 
 	private static void sendMessage(String text) {
-		for(String reported : CACHE) {
-			if(reported.equals(text)) return;
-		}
+//		for(String reported : CACHE) {
+//			if(reported.equals(text)) return;
+//		}
 		try {
 			if(Bot.jda.getGuildChannelById(debugChannel) instanceof TextChannel textChannel) {
 				textChannel.sendMessage(text).queue();
 			}
-			CACHE.add(text);
+//			CACHE.add(text);
 		}
 		catch(Exception e) {
 			Bot.LOGGER.error("Failed to send debug message due to an exception:\n" + e);
