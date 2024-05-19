@@ -10,7 +10,7 @@ public class KitsunHttpServer {
 	public static void init() {
 		if(Bot.secrets.get().http.port > 0) {
 			try {
-				HttpServer server = HttpServer.create(new InetSocketAddress(Bot.secrets.get().http.port), 0);
+				HttpServer server = HttpServer.create(new InetSocketAddress(Bot.secrets.get().http.hostname, Bot.secrets.get().http.port), 0);
 
 				server.createContext("/github", new GithubWebhook());
 				server.createContext("/mod_update", new ModUpdateWebhook());
