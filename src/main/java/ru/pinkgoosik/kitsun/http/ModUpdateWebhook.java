@@ -40,6 +40,8 @@ public class ModUpdateWebhook extends KitsunHttpHandler {
 						});
 					}
 				} catch (Exception ignored) {}
+
+				return;
 			}
 		}
 
