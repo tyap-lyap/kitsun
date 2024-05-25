@@ -22,7 +22,7 @@ public class ModUpdateWebhook extends KitsunHttpHandler {
 					return;
 				}
 
-				if(ChannelUtils.exist(map.get("server"), map.get("channel"))) {
+				if(!ChannelUtils.exist(map.get("server"), map.get("channel"))) {
 					success(exchange, "Channel not found");
 					return;
 				}
