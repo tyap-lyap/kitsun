@@ -61,7 +61,7 @@ public class ModUpdatesPublisher {
 	private void publish(ArrayList<ProjectVersion> versions, long delay) {
 		ProjectVersion modVersion = versions.get(0);
 		if(Bot.jda.getGuildChannelById(channel) instanceof StandardGuildMessageChannel messageChannel) {
-			messageChannel.sendMessageEmbeds(createEmbed(modVersion)).queueAfter(delay, TimeUnit.SECONDS, message -> {},throwable -> {
+			messageChannel.sendMessageEmbeds(createEmbed(this.cachedProject, modVersion)).queueAfter(delay, TimeUnit.SECONDS, message -> {},throwable -> {
 				KitsunDebugger.ping("Failed to send update message of the " + this.project + " project due to an exception:\n" + throwable);
 			});
 		}
@@ -69,7 +69,7 @@ public class ModUpdatesPublisher {
 		ServerData.get(server).save();
 	}
 
-	private MessageEmbed createEmbed(ProjectVersion version) {
+	public static MessageEmbed createEmbed(Project project, ProjectVersion version) {
 		String changelogPart = "";
 
 		if(!version.getChangelog().isBlank() && version.getChangelog().length() < 5000) {
@@ -84,18 +84,18 @@ public class ModUpdatesPublisher {
 		}
 
 		String linksPart = "";
-		if(cachedProject.getSourceUrl() != null) {
-			linksPart = linksPart + "\n[Source Code](" + cachedProject.getSourceUrl() + ")";
+		if(project.getSourceUrl() != null) {
+			linksPart = linksPart + "\n[Source Code](" + project.getSourceUrl() + ")";
 		}
-		if(cachedProject.getIssuesUrl() != null) {
+		if(project.getIssuesUrl() != null) {
 			if(!linksPart.isBlank()) linksPart = linksPart + " | ";
 			else linksPart = linksPart + "\n";
-			linksPart = linksPart + "[Issue Tracker](" + cachedProject.getIssuesUrl() + ")";
+			linksPart = linksPart + "[Issue Tracker](" + project.getIssuesUrl() + ")";
 		}
-		if(cachedProject.getWikiUrl() != null) {
+		if(project.getWikiUrl() != null) {
 			if(!linksPart.isBlank()) linksPart = linksPart + " | ";
 			else linksPart = linksPart + "\n";
-			linksPart = linksPart + "[Wiki](" + cachedProject.getWikiUrl() + ")";
+			linksPart = linksPart + "[Wiki](" + project.getWikiUrl() + ")";
 		}
 		String versionType = version.getVersionType().name().toLowerCase().substring(0, 1).toUpperCase() + version.getVersionType().name().toLowerCase().substring(1);
 		String minecraftVersions = " for " + version.getGameVersions().get(0);
@@ -103,16 +103,16 @@ public class ModUpdatesPublisher {
 		if(version.getGameVersions().size() > 1) {
 			minecraftVersions = minecraftVersions + " - " + version.getGameVersions().get(version.getGameVersions().size() - 1);
 		}
-		String iconUrl = cachedProject.getIconUrl() != null ? cachedProject.getIconUrl() : "https://i.imgur.com/rM5bzkK.png";
+		String iconUrl = project.getIconUrl() != null ? project.getIconUrl() : "https://i.imgur.com/rM5bzkK.png";
 		String versionNum = version.getVersionNumber();
 
 		return new EmbedBuilder()
-				.setAuthor(cachedProject.getTitle())
-				.setTitle((versionNum.contains("+") ? versionNum.split("\\+")[0] : versionNum) + " " + versionType + minecraftVersions, Modrinth.getUrl(cachedProject))
+				.setAuthor(project.getTitle())
+				.setTitle((versionNum.contains("+") ? versionNum.split("\\+")[0] : versionNum) + " " + versionType + minecraftVersions, Modrinth.getUrl(project))
 				.setDescription(changelogPart + linksPart)
 				.setColor(KitsunColors.getCyan().getRGB())
 				.setThumbnail(iconUrl)
-				.setFooter("Modrinth Project | " + cachedProject.getLicense().getName(), "https://cdn.discordapp.com/emojis/1040805093395673128.png")
+				.setFooter("Modrinth Project | " + project.getLicense().getName(), "https://cdn.discordapp.com/emojis/1040805093395673128.png")
 				.setTimestamp(version.getDatePublished())
 				.build();
 	}
