@@ -9,7 +9,11 @@ import ru.pinkgoosik.kitsun.feature.ModUpdatesPublisher;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
+import java.util.ArrayList;
+
 public class ModUpdateWebhook extends KitsunHttpHandler {
+
+	public static ArrayList<String> publishedVersions = new ArrayList<>();
 
 	@Override
 	public void handle(HttpExchange exchange) {
@@ -34,7 +38,8 @@ public class ModUpdateWebhook extends KitsunHttpHandler {
 					var project = Modrinth.getProject(map.get("project"));
 					var versions = Modrinth.getVersions(map.get("project"));
 
-					if(project.isPresent() && versions.isPresent() && Bot.jda.getGuildChannelById(map.get("channel")) instanceof StandardGuildMessageChannel messageChannel) {
+					if(project.isPresent() && versions.isPresent() && !publishedVersions.contains(versions.get().get(0).getId()) && Bot.jda.getGuildChannelById(map.get("channel")) instanceof StandardGuildMessageChannel messageChannel) {
+						publishedVersions.add(versions.get().get(0).getId());
 						messageChannel.sendMessageEmbeds(ModUpdatesPublisher.createEmbed(project.get(), versions.get().get(0))).queue(message -> {}, throwable -> {
 							KitsunDebugger.ping("Failed to send update message of the " + project.get() + " project due to an exception:\n" + throwable);
 						});
