@@ -1,6 +1,6 @@
 package ru.pinkgoosik.kitsun.api;
 
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.util.UrlParser;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class QuiltMeta {
 			return Optional.of(new ArrayList<>(List.of(versions)));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to parse quilt versions due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to parse quilt versions due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}
@@ -28,7 +28,7 @@ public class QuiltMeta {
 			return Optional.of(new ArrayList<>(List.of(entries)));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to parse quilt versions for game version " + gameVersion + " due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to parse quilt versions for game version " + gameVersion + " due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}
@@ -39,7 +39,7 @@ public class QuiltMeta {
 			return Optional.of(new ArrayList<>(List.of(versions)));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to parse quilt mappings versions for game version " + gameVersion + " due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to parse quilt mappings versions for game version " + gameVersion + " due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}

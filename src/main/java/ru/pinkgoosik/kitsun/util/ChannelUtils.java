@@ -1,14 +1,14 @@
 package ru.pinkgoosik.kitsun.util;
 
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 
 import java.util.Optional;
 
 public class ChannelUtils {
 
 	public static boolean exist(String serverId, String channelId) {
-		var guild = Bot.jda.getGuildById(serverId);
+		var guild = DiscordApp.jda.getGuildById(serverId);
 
 		if(guild != null) {
 			var channel = guild.getGuildChannelById(channelId);
@@ -29,7 +29,7 @@ public class ChannelUtils {
 	}
 
 	public static boolean isVoiceChannel(String serverId, String channelId) {
-		var guild = Bot.jda.getGuildById(serverId);
+		var guild = DiscordApp.jda.getGuildById(serverId);
 
 		if(guild != null) {
 			var channel = guild.getGuildChannelById(channelId);

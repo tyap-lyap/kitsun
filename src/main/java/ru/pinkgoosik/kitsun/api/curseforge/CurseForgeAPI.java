@@ -2,9 +2,9 @@ package ru.pinkgoosik.kitsun.api.curseforge;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ public class CurseForgeAPI {
 			HttpRequest request = HttpRequest.newBuilder()
 					.GET()
 					.uri(new URI(API_MOD_URL.replace("%id%", id)))
-					.headers("x-api-key", Bot.secrets.get().curseforgeApiKey)
+					.headers("x-api-key", DiscordApp.secrets.get().curseforgeApiKey)
 					.build();
 
 			HttpResponse<InputStream> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
@@ -38,7 +38,7 @@ public class CurseForgeAPI {
 			return Optional.empty();
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to parse curseforge mod " + id + " due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to parse curseforge mod " + id + " due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}

@@ -2,7 +2,7 @@ package ru.pinkgoosik.kitsun.command;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.command.member.*;
 import ru.pinkgoosik.kitsun.command.admin.*;
 
@@ -51,8 +51,8 @@ public class KitsunCommands {
 			}
 		});
 
-		Bot.jda.updateCommands().addCommands(globalCommands).queue();
-		var guild = Bot.getGuild("854349856164020244");
+		DiscordApp.jda.updateCommands().addCommands(globalCommands).queue();
+		var guild = DiscordApp.getGuild("854349856164020244");
 
 		if(guild != null) {
 			guild.updateCommands().addCommands(tlCommands).queue();

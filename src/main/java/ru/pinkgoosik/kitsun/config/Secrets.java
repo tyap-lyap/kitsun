@@ -7,6 +7,7 @@ public class Secrets {
 	public String githubToken = "";
 	public String note = "";
 	public String activity = "";
+	public String debugWebhook = "";
 	public HttpConfig http = new HttpConfig();
 
 	public static final Secrets DEFAULT = new Secrets();

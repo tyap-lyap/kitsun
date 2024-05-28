@@ -6,9 +6,10 @@ import masecla.modrinth4j.model.version.ProjectVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.api.Modrinth;
 import ru.pinkgoosik.kitsun.cache.ServerData;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 
 import java.util.ArrayList;
@@ -60,9 +61,9 @@ public class ModUpdatesPublisher {
 
 	private void publish(ArrayList<ProjectVersion> versions, long delay) {
 		ProjectVersion modVersion = versions.get(0);
-		if(Bot.jda.getGuildChannelById(channel) instanceof StandardGuildMessageChannel messageChannel) {
+		if(DiscordApp.jda.getGuildChannelById(channel) instanceof StandardGuildMessageChannel messageChannel) {
 			messageChannel.sendMessageEmbeds(createEmbed(this.cachedProject, modVersion)).queueAfter(delay, TimeUnit.SECONDS, message -> {},throwable -> {
-				KitsunDebugger.ping("Failed to send update message of the " + this.project + " project due to an exception:\n" + throwable);
+				KitsunDebugWebhook.ping("Failed to send update message of the " + this.project + " project due to an exception:\n" + throwable);
 			});
 		}
 		latestVersion = modVersion.getId();

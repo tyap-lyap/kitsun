@@ -1,7 +1,7 @@
 package ru.pinkgoosik.kitsun.api.mojang;
 
 import com.google.gson.*;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -25,7 +25,7 @@ public class PatchNotes {
 			}
 		}
 		catch(Exception e) {
-			Bot.LOGGER.error("Failed to parse patch note entry due to an exception:\n" + e);
+			DiscordApp.LOGGER.error("Failed to parse patch note entry due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}

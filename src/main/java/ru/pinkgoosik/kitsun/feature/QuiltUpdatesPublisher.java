@@ -3,7 +3,7 @@ package ru.pinkgoosik.kitsun.feature;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.api.QuiltMeta;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
@@ -50,7 +50,7 @@ public class QuiltUpdatesPublisher {
 
 	private void publish(String version) {
 		ServerData.get(server).save();
-		if(Bot.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
+		if(DiscordApp.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
 			textChannel.sendMessageEmbeds(createEmbed(version)).queue();
 		}
 	}

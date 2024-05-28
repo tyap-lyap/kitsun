@@ -3,7 +3,7 @@ package ru.pinkgoosik.kitsun.feature;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.api.mojang.MojangAPI;
 import ru.pinkgoosik.kitsun.api.mojang.PatchNotes;
 import ru.pinkgoosik.kitsun.api.mojang.VersionManifest;
@@ -74,7 +74,7 @@ public class MCUpdatesPublisher {
 
 	private void publish(String version, String type) {
 		ServerData.get(server).save();
-		if(Bot.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
+		if(DiscordApp.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
 			textChannel.sendMessageEmbeds(createEmbed(version, type)).queue();
 		}
 		tryToPublishPatchNotes(version);
@@ -96,7 +96,7 @@ public class MCUpdatesPublisher {
 	}
 
 	private void publishPatchNotesEntry(PatchNotes.PatchNotesEntry entry) {
-		if(Bot.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
+		if(DiscordApp.jda.getGuildChannelById(channel) instanceof TextChannel textChannel) {
 			textChannel.sendMessageEmbeds(createPatchNotesEmbed(entry)).queue();
 		}
 	}

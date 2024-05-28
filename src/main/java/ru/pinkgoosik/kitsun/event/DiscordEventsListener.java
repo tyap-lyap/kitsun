@@ -16,12 +16,12 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.collections4.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommands;
 import ru.pinkgoosik.kitsun.feature.AutoReaction;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.schedule.Scheduler;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
@@ -33,10 +33,7 @@ import java.util.regex.Pattern;
 public class DiscordEventsListener extends ListenerAdapter {
 
 	public static void onConnect(ReadyEvent event) {
-		Bot.jda = event.getJDA();
-		String note = Bot.secrets.get().note;
-		KitsunDebugger.onConnect(event);
-		KitsunDebugger.info(note.isEmpty() ? "Kitsun is now running!" : note);
+		DiscordApp.jda = event.getJDA();
 		Scheduler.start();
 		KitsunCommands.onConnect();
 	}
@@ -62,7 +59,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 			});
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed chat input interaction event due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to proceed chat input interaction event due to an exception:\n" + e);
 		}
 	}
 
@@ -76,7 +73,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 			});
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed command auto complete interaction event due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to proceed command auto complete interaction event due to an exception:\n" + e);
 		}
 	}
 
@@ -129,7 +126,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 			ServerUtils.runFor(guildId, data -> data.logger.get().ifEnabled(log -> log.onMessageUpdate(oldMessage, newMessage)));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed message update event due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to proceed message update event due to an exception:\n" + e);
 		}
 	}
 
@@ -141,7 +138,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 			ServerUtils.runFor(guildId, data -> data.logger.get().ifEnabled(log -> log.onMessageDelete(cachedMessages.get(messageId))));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed message delete event due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to proceed message delete event due to an exception:\n" + e);
 		}
 	}
 
@@ -161,7 +158,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 			});
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed member join event due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to proceed member join event due to an exception:\n" + e);
 		}
 	}
 
@@ -171,7 +168,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 			ServerUtils.runFor(event.getGuild().getId(), data -> data.logger.get().ifEnabled(log -> log.onMemberLeave(event.getUser())));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to proceed member leave event due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to proceed member leave event due to an exception:\n" + e);
 		}
 	}
 
@@ -191,7 +188,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 			}
 			catch(Exception e) {
-				KitsunDebugger.report("Failed to proceed voice channel update event due to an exception:\n" + e);
+				KitsunDebugWebhook.report("Failed to proceed voice channel update event due to an exception:\n" + e);
 			}
 		}
 	}
@@ -206,7 +203,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 				ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
 					manager.getSession(channelId).ifPresent(session -> {
-						var guild = Bot.jda.getGuildById(data.server);
+						var guild = DiscordApp.jda.getGuildById(data.server);
 						if(guild != null) {
 							var member = guild.getMemberById(session.owner);
 							data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
@@ -223,7 +220,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 				}));
 			}
 			catch(Exception e) {
-				KitsunDebugger.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
+				KitsunDebugWebhook.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
 			}
 		}
 	}

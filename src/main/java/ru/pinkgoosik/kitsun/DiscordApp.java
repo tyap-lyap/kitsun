@@ -16,13 +16,13 @@ import ru.pinkgoosik.kitsun.http.KitsunHttpServer;
 
 import java.util.Arrays;
 
-public class Bot {
+public class DiscordApp {
 	public static final Logger LOGGER = LoggerFactory.getLogger("Kitsun");
 	public static Cached<Secrets> secrets = Cached.of("secrets", Secrets.class, () -> Secrets.DEFAULT);
 	public static JDA jda;
 
 	public static void main(String[] args) {
-		Bot.init();
+		DiscordApp.init();
 		KitsunHttpServer.init();
 	}
 

@@ -1,7 +1,5 @@
 package ru.pinkgoosik.kitsun.schedule;
 
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
-
 import java.util.*;
 
 public class Scheduler {

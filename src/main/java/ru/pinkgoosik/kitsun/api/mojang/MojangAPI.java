@@ -2,7 +2,7 @@ package ru.pinkgoosik.kitsun.api.mojang;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.util.UrlParser;
 
 import java.io.InputStreamReader;
@@ -26,7 +26,7 @@ public class MojangAPI {
 			return Optional.empty();
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to parse minecraft versions manifest due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to parse minecraft versions manifest due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}
@@ -61,7 +61,7 @@ public class MojangAPI {
 			return Optional.of(fromTrimmed(element.getAsJsonObject().get("id").getAsString()));
 		}
 		catch(Exception e) {
-			KitsunDebugger.report("Failed to parse " + nickname + "'s UUID due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to parse " + nickname + "'s UUID due to an exception:\n" + e);
 			return Optional.empty();
 		}
 	}

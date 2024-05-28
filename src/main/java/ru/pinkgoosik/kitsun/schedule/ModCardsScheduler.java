@@ -1,9 +1,9 @@
 package ru.pinkgoosik.kitsun.schedule;
 
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.cache.ServerData;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.feature.ModCard;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
@@ -18,7 +18,7 @@ public class ModCardsScheduler {
 			ServerUtils.forEach(ModCardsScheduler::proceed);
 		}
 		catch(Exception e) {
-			KitsunDebugger.ping("Failed to schedule mod cards duo to an exception:\n" + e);
+			KitsunDebugWebhook.ping("Failed to schedule mod cards duo to an exception:\n" + e);
 		}
 	}
 
@@ -32,13 +32,13 @@ public class ModCardsScheduler {
 		for(var card : modCards) {
 			index++;
 
-			if(Bot.jda.getGuildChannelById(card.channel) instanceof MessageChannel channel) {
+			if(DiscordApp.jda.getGuildChannelById(card.channel) instanceof MessageChannel channel) {
 				channel.retrieveMessageById(card.message).queueAfter(index * 10L, TimeUnit.SECONDS, card::update, throwable -> {
 					if(throwable.getMessage().contains("Unknown Message")) {
 						card.shouldBeRemoved = true;
 					}
 					else {
-						KitsunDebugger.ping("Failed to get " + card.modrinthSlug + " card's message due to an exception:\n" + throwable);
+						KitsunDebugWebhook.ping("Failed to get " + card.modrinthSlug + " card's message due to an exception:\n" + throwable);
 					}
 				});
 			}

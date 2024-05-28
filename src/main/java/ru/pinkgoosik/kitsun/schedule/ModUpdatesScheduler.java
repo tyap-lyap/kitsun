@@ -1,7 +1,7 @@
 package ru.pinkgoosik.kitsun.schedule;
 
 import ru.pinkgoosik.kitsun.feature.ModUpdatesPublisher;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.util.ServerUtils;
 
@@ -18,7 +18,7 @@ public class ModUpdatesScheduler {
 			ServerUtils.forEach(ModUpdatesScheduler::proceed);
 		}
 		catch(Exception e) {
-			KitsunDebugger.ping("Failed to schedule mod changelog publishers duo to an exception:\n" + e);
+			KitsunDebugWebhook.ping("Failed to schedule mod changelog publishers duo to an exception:\n" + e);
 		}
 	}
 

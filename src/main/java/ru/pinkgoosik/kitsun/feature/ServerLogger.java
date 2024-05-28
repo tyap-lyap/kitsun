@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.Nullable;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.event.DiscordEventsListener;
 import ru.pinkgoosik.kitsun.util.DurationUtils;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
@@ -121,7 +121,7 @@ public class ServerLogger {
 	}
 
 	public void log(MessageEmbed embed) {
-		if(Bot.jda.getGuildChannelById(ChannelType.TEXT, channel) instanceof GuildMessageChannel chan) {
+		if(DiscordApp.jda.getGuildChannelById(ChannelType.TEXT, channel) instanceof GuildMessageChannel chan) {
 			chan.sendMessageEmbeds(embed).queue();
 		}
 	}

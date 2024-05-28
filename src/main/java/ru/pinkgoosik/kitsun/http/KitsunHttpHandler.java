@@ -2,7 +2,7 @@ package ru.pinkgoosik.kitsun.http;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 
 import java.io.OutputStream;
 import java.net.URLDecoder;
@@ -31,7 +31,7 @@ public abstract class KitsunHttpHandler implements HttpHandler {
 			}
 		}
 		catch (Exception e) {
-			Bot.LOGGER.error("Failed to split parameters: " + params + ", " + e);
+			DiscordApp.LOGGER.error("Failed to split parameters: " + params + ", " + e);
 		}
 		return queryPairs;
 	}
@@ -47,7 +47,7 @@ public abstract class KitsunHttpHandler implements HttpHandler {
 			exchange.close();
 		}
 		catch (Exception e) {
-			Bot.LOGGER.error("Failed to send not found response " + e);
+			DiscordApp.LOGGER.error("Failed to send not found response " + e);
 		}
 	}
 
@@ -59,7 +59,7 @@ public abstract class KitsunHttpHandler implements HttpHandler {
 			os.close();
 		}
 		catch (Exception e) {
-			Bot.LOGGER.error("Failed to send success response " + e);
+			DiscordApp.LOGGER.error("Failed to send success response " + e);
 		}
 	}
 
@@ -71,7 +71,7 @@ public abstract class KitsunHttpHandler implements HttpHandler {
 			os.close();
 		}
 		catch (Exception e) {
-			Bot.LOGGER.error("Failed to send success response " + e);
+			DiscordApp.LOGGER.error("Failed to send success response " + e);
 		}
 	}
 }

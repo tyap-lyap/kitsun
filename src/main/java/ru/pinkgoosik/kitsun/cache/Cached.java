@@ -2,8 +2,8 @@ package ru.pinkgoosik.kitsun.cache;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.DiscordApp;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.util.FileUtils;
 
 import java.io.BufferedReader;
@@ -44,14 +44,14 @@ public class Cached<T> {
 			return GSON.fromJson(reader, type);
 		}
 		catch(FileNotFoundException e) {
-			Bot.LOGGER.info("File " + filePath + " is not found! Setting to default.");
+			DiscordApp.LOGGER.info("File " + filePath + " is not found! Setting to default.");
 			var dat = defaultBuilder.create();
 			this.data = dat;
 			this.save();
 			return dat;
 		}
 		catch(Exception e) {
-			Bot.LOGGER.error("Failed to read cached data due to an exception:\n" + e + "\n Setting to default.");
+			DiscordApp.LOGGER.error("Failed to read cached data due to an exception:\n" + e + "\n Setting to default.");
 			return defaultBuilder.create();
 		}
 	}
@@ -65,7 +65,7 @@ public class Cached<T> {
 			}
 		}
 		catch(Exception e) {
-			KitsunDebugger.ping("Failed to save cached data due to an exception:\n" + e);
+			KitsunDebugWebhook.ping("Failed to save cached data due to an exception:\n" + e);
 			e.printStackTrace();
 		}
 	}

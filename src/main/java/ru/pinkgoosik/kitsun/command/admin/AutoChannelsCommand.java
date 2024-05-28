@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import ru.pinkgoosik.kitsun.Bot;
+import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.cache.ServerData;
 import ru.pinkgoosik.kitsun.command.CommandHelper;
 import ru.pinkgoosik.kitsun.command.KitsunCommand;
@@ -48,7 +48,7 @@ public class AutoChannelsCommand extends KitsunCommand {
 		if(channel instanceof VoiceChannel vc) {
 			var category = vc.getParentCategory();
 			if(category != null) {
-				var perms = category.getPermissionOverride(Objects.requireNonNull(Objects.requireNonNull(Bot.jda.getGuildById(dat.server)).getMemberById(Bot.jda.getSelfUser().getId())));
+				var perms = category.getPermissionOverride(Objects.requireNonNull(Objects.requireNonNull(DiscordApp.jda.getGuildById(dat.server)).getMemberById(DiscordApp.jda.getSelfUser().getId())));
 				if(perms != null && !perms.getAllowed().contains(Permission.ADMINISTRATOR)) {
 					helper.ephemeral(Embeds.error("Bot doesn't have permission of administrator! It required for auto channels to work properly."));
 					return;

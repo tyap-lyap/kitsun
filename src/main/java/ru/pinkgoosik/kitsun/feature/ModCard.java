@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.api.curseforge.CurseForgeAPI;
 import ru.pinkgoosik.kitsun.api.curseforge.entity.CurseForgeMod;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.util.KitsunColors;
 import ru.pinkgoosik.kitsun.api.Modrinth;
 
@@ -79,7 +80,7 @@ public class ModCard {
 				this.shouldBeRemoved = true;
 			}
 			else {
-				KitsunDebugger.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + throwable);
+				KitsunDebugWebhook.report("Failed to update " + this.modrinthSlug + " card's message due to an exception:\n" + throwable);
 			}
 		});
 	}

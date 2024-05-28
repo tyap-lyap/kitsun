@@ -6,8 +6,8 @@ import masecla.modrinth4j.main.ModrinthAPI;
 import masecla.modrinth4j.model.project.Project;
 import masecla.modrinth4j.model.user.ModrinthUser;
 import masecla.modrinth4j.model.version.ProjectVersion;
-import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.DiscordApp;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -16,14 +16,14 @@ public class Modrinth {
 	public static final String PROJECT_URL = "https://modrinth.com/project/%slug%";
 	public static final ModrinthAPI API = ModrinthAPI.rateLimited(
 			UserAgent.builder().authorUsername("tyap-lyap").projectName("kitsun").projectVersion("latest").build(),
-			Bot.secrets.get().modrinthApiKey);
+			DiscordApp.secrets.get().modrinthApiKey);
 
 	public static Optional<Project> getProject(String project) {
 		try {
 			return Optional.of(API.projects().get(project).join());
 		}
 		catch (Exception e) {
-			KitsunDebugger.report("Failed to get modrinth project " + project + " due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to get modrinth project " + project + " due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}
@@ -33,7 +33,7 @@ public class Modrinth {
 			return Optional.of(new ArrayList<>(API.versions().getProjectVersions(project, GetProjectVersions.GetProjectVersionsRequest.builder().build()).get()));
 		}
 		catch (Exception e) {
-			KitsunDebugger.report("Failed to get modrinth project " + project + " versions due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to get modrinth project " + project + " versions due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}
@@ -43,7 +43,7 @@ public class Modrinth {
 			return Optional.of(API.users().getUser(id).join());
 		}
 		catch (Exception e) {
-			KitsunDebugger.report("Failed to get modrinth user " + id + " due to an exception:\n" + e);
+			KitsunDebugWebhook.report("Failed to get modrinth user " + id + " due to an exception:\n" + e);
 		}
 		return Optional.empty();
 	}

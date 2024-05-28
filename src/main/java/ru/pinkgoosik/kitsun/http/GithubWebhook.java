@@ -1,8 +1,8 @@
 package ru.pinkgoosik.kitsun.http;
 
 import com.sun.net.httpserver.HttpExchange;
-import ru.pinkgoosik.kitsun.Bot;
-import ru.pinkgoosik.kitsun.feature.KitsunDebugger;
+import ru.pinkgoosik.kitsun.DiscordApp;
+import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,7 +15,7 @@ public class GithubWebhook extends KitsunHttpHandler {
 	public void handle(HttpExchange exchange) {
 		var map = parseParams(exchange);
 
-		if(map.containsKey("token") && Bot.secrets.get().http.token.equals(map.get("token")) && exchange.getRequestMethod().equals("POST") && exchange.getRequestHeaders().containsKey("x-github-event")) {
+		if(map.containsKey("token") && DiscordApp.secrets.get().http.token.equals(map.get("token")) && exchange.getRequestMethod().equals("POST") && exchange.getRequestHeaders().containsKey("x-github-event")) {
 			var event = exchange.getRequestHeaders().get("x-github-event").get(0);
 			var is = exchange.getRequestBody();
 			StringBuilder textBuilder = new StringBuilder();
@@ -27,11 +27,11 @@ public class GithubWebhook extends KitsunHttpHandler {
 				}
 			}
 			catch (Exception e) {
-				Bot.LOGGER.info("Failed to handle github webhook due to an exception: " + e);
+				DiscordApp.LOGGER.info("Failed to handle github webhook due to an exception: " + e);
 			}
 			String body = textBuilder.toString();
 
-			KitsunDebugger.info(event + ": \n" + body);
+			KitsunDebugWebhook.info(event + ": \n" + body);
 
 			success(exchange, "Accepted", 202);
 			return;
