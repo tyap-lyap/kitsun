@@ -29,7 +29,7 @@ distZip.shouldRunAfter(build)
 
 jar {
 	manifest {
-		attributes "Main-Class": "ru.pinkgoosik.kitsun.Bot",
+		attributes "Main-Class": "ru.pinkgoosik.kitsun.DiscordApp",
 				"Class-Path": configurations.runtimeClasspath.files.collect { "lib/" + it.getName() }.join(' ')
 	}
 }
