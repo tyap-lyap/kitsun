@@ -206,7 +206,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 					manager.getSession(channelId).ifPresent(session -> {
 						var owner = event.getGuild().getMemberById(session.owner);
-						serverData.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, owner, channel));
+						serverData.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, channel));
 						session.shouldBeRemoved = true;
 					});
 

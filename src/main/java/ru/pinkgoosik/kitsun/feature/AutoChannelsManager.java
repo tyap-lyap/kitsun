@@ -131,7 +131,7 @@ public class AutoChannelsManager {
 		}
 
 		public void updateHistory(String line) {
-			this.history = history + "\n" + DurationUtils.format(Duration.between(Instant.parse(this.created), Instant.now())) + " - " + line;
+			this.history = history + (history.isEmpty() ? "" : "\n") + DurationUtils.format(Duration.between(Instant.parse(this.created), Instant.now())) + " - " + line;
 		}
 	}
 }

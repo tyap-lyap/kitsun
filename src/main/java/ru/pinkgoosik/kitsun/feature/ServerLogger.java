@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import org.jetbrains.annotations.Nullable;
 import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.event.DiscordEventsListener;
 import ru.pinkgoosik.kitsun.util.DurationUtils;
@@ -90,18 +89,14 @@ public class ServerLogger {
 //		log(embed.build());
 	}
 
-	public void onVoiceChannelDelete(AutoChannelsManager.Session session, @Nullable Member owner, Channel voiceChannel) {
+	public void onVoiceChannelDelete(AutoChannelsManager.Session session, Channel voiceChannel) {
 		var embed = new EmbedBuilder();
 		embed.setTitle("Voice Channel Deleted");
 
 		Instant created = Instant.parse(session.created);
 		Instant now = Instant.now();
-		String ownerLine = "";
-		if(owner != null) {
-			ownerLine = " **Owner** " + "<@" + owner.getId() + ">";
-		}
 
-		embed.setDescription("**Channel** " + voiceChannel.getName() + ownerLine + " **Lasted** " + DurationUtils.format(Duration.between(created, now)) + "\n \n" + session.history);
+		embed.setDescription("**Channel** " + voiceChannel.getName() + " **Owner** " + "<@" + session.owner + ">" + " **Lasted** " + DurationUtils.format(Duration.between(created, now)) + "\n \n" + session.history);
 
 		embed.setColor(KitsunColors.getRed());
 		embed.setTimestamp(Instant.now());
