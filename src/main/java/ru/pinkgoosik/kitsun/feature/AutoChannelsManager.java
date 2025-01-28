@@ -6,13 +6,14 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.cache.ServerData;
-import ru.pinkgoosik.kitsun.debug.KitsunDebugWebhook;
 import ru.pinkgoosik.kitsun.util.ChannelUtils;
+import ru.pinkgoosik.kitsun.util.DurationUtils;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class AutoChannelsManager {
 	public String server;
@@ -34,61 +35,39 @@ public class AutoChannelsManager {
 		this.parentChannel = "";
 	}
 
-	// TODO: rewrite this disaster
+	public void ifEnabled(Consumer<AutoChannelsManager> consumer) {
+		if(enabled) consumer.accept(this);
+	}
+
 	public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
-		try {
-			if(DiscordApp.jda.getGuildChannelById(this.parentChannel) instanceof VoiceChannel channel) {
-				var members = channel.getMembers();
-				for (var member : members) {
-					var state = member.getVoiceState();
-					if(state != null) {
-						var stateChannel = state.getChannel();
-						if(stateChannel != null) {
-							if (stateChannel.getId().equals(channel.getId())) {
-								this.onParentChannelJoin(member);
-								return;
-							}
-						}
+		sessions.removeIf(session -> session.shouldBeRemoved || !ChannelUtils.exist(server, session.channel));
 
-					}
+		var member = event.getMember();
+		var joinedChannel = event.getChannelJoined();
+		var leftChannel = event.getChannelLeft();
 
-				}
+		if(joinedChannel != null) {
+			if(joinedChannel.getId().equals(this.parentChannel)) {
+				this.onParentChannelJoin(member);
+				return;
 			}
+			getSession(joinedChannel.getId()).ifPresent(session -> {
+				if(!(leftChannel != null && leftChannel.getId().equals(parentChannel))) {
+					session.updateHistory("<@" + member.getId() + ">" + " joined");
+				}
+			});
 		}
-		catch(Exception e) {
-			if(e.getMessage().contains("Unknown Channel")) {
-				this.enabled = false;
-				ServerData.get(this.server).autoChannels.save();
-			}
-			else {
-				KitsunDebugWebhook.ping("Failed to get parent channel duo to an exception:\n" + e);
-			}
+
+		if(leftChannel != null) {
+			getSession(leftChannel.getId()).ifPresent(session -> {
+				session.updateHistory("<@" + member.getId() + ">" + " left");
+
+				if(session.owner.equals(member.getId()) && leftChannel.getMembers().isEmpty()) {
+					leftChannel.delete().queue();
+				}
+			});
 		}
-		this.sessions.forEach(session -> {
-			try {
-				if(DiscordApp.jda.getGuildChannelById(session.channel) instanceof VoiceChannel channel) {
-					var members = ChannelUtils.getMembers(channel);
-					if(members.isPresent() && members.get() == 0) {
-						var guild = DiscordApp.jda.getGuildById(server);
-						if (guild != null) {
-							var member = guild.getMemberById(session.owner);
-							ServerData.get(server).logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
-							channel.delete().queue();
-							session.shouldBeRemoved = true;
-						}
-					}
-				}
-			}
-			catch(Exception e) {
-				if(e.getMessage().contains("Unknown Channel")) {
-					session.shouldBeRemoved = true;
-				}
-				else {
-					KitsunDebugWebhook.ping("Failed to delete auto channel duo to an exception:\n" + e);
-				}
-			}
-		});
-		this.refresh();
+		ServerData.get(server).autoChannels.save();
 	}
 
 	public void onParentChannelJoin(Member member) {
@@ -99,8 +78,7 @@ public class AutoChannelsManager {
 
 	private boolean hasEmptySession(Member member) {
 		for(var session : this.sessions) {
-			var chan = DiscordApp.jda.getGuildChannelById(session.channel);
-			if(session.owner.equals(member.getId()) && chan instanceof VoiceChannel channel) {
+			if(session.owner.equals(member.getId()) && DiscordApp.jda.getGuildChannelById(session.channel) instanceof VoiceChannel channel) {
 				var members = ChannelUtils.getMembers(channel);
 				if(members.isPresent() && members.get() == 0) {
 					member.getGuild().moveVoiceMember(member, channel).queue();
@@ -139,29 +117,21 @@ public class AutoChannelsManager {
 		return Optional.empty();
 	}
 
-	public void refresh() {
-		AtomicBoolean removedSomething = new AtomicBoolean(false);
-		sessions.removeIf(session -> {
-			if(session.shouldBeRemoved) {
-				removedSomething.set(true);
-				return true;
-			}
-			return false;
-		});
-		if(removedSomething.get()) {
-			ServerData.get(server).save();
-		}
-	}
-
 	public static class Session {
 		public String created = Instant.now().toString();
 		public String owner;
 		public String channel;
 		public boolean shouldBeRemoved = false;
+		public String history = "";
 
 		public Session(String owner, String channel) {
 			this.owner = owner;
 			this.channel = channel;
+			this.updateHistory("<@" + owner + ">" + " joined");
+		}
+
+		public void updateHistory(String line) {
+			this.history = history + "\n" + DurationUtils.format(Duration.between(Instant.parse(this.created), Instant.now())) + " - " + line;
 		}
 	}
 }

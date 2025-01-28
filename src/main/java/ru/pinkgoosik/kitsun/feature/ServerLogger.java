@@ -82,28 +82,26 @@ public class ServerLogger {
 	}
 
 	public void onVoiceChannelNameUpdate(String old, String current) {
-		var embed = new EmbedBuilder();
-		embed.setTitle("Voice Channel Updated");
-		embed.addField(new MessageEmbed.Field("Before", old, false));
-		embed.addField(new MessageEmbed.Field("After", current, false));
-		embed.setColor(KitsunColors.getBlue());
-		embed.setTimestamp(Instant.now());
-		log(embed.build());
+//		var embed = new EmbedBuilder();
+//		embed.setTitle("Voice Channel Renamed");
+//		embed.setDescription("From **" + old + "** to **" + current + "**");
+//		embed.setColor(KitsunColors.getBlue());
+//		embed.setTimestamp(Instant.now());
+//		log(embed.build());
 	}
 
 	public void onVoiceChannelDelete(AutoChannelsManager.Session session, @Nullable Member owner, Channel voiceChannel) {
 		var embed = new EmbedBuilder();
 		embed.setTitle("Voice Channel Deleted");
-		embed.addField(new MessageEmbed.Field("Channel", voiceChannel.getName(), true));
+
+		Instant created = Instant.parse(session.created);
+		Instant now = Instant.now();
+		String ownerLine = "";
 		if(owner != null) {
-			embed.addField(new MessageEmbed.Field("Owner", "<@" + owner.getId() + ">", true));
+			ownerLine = " **Owner** " + "<@" + owner.getId() + ">";
 		}
 
-		if(session != null) {
-			Instant created = Instant.parse(session.created);
-			Instant now = Instant.now();
-			embed.addField(new MessageEmbed.Field("Lasted", DurationUtils.format(Duration.between(created, now)), false));
-		}
+		embed.setDescription("**Channel** " + voiceChannel.getName() + ownerLine + " **Lasted** " + DurationUtils.format(Duration.between(created, now)) + "\n \n" + session.history);
 
 		embed.setColor(KitsunColors.getRed());
 		embed.setTimestamp(Instant.now());

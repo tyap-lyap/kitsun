@@ -40,6 +40,7 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 	@Override
 	public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+
 		ServerUtils.runFor(event.getGuild().getId(), data -> {
 			data.autoChannels.get(manager -> {
 				if(manager.enabled) {
@@ -174,54 +175,52 @@ public class DiscordEventsListener extends ListenerAdapter {
 
 	@Override
 	public void onChannelUpdateName(@NotNull ChannelUpdateNameEvent event) {
-		if(event.getChannelType().equals(ChannelType.VOICE)) {
-			try {
-				var currentName = event.getNewValue();
-				var oldName = event.getOldValue();
-				if(oldName != null) {
-					ServerUtils.runFor(event.getGuild().getId(), data -> {
-						if(!oldName.equals(currentName)) {
-							data.logger.get().ifEnabled(log -> log.onVoiceChannelNameUpdate(oldName, currentName));
-						}
-					});
-				}
+		try {
+			var currentName = event.getNewValue();
+			var oldName = event.getOldValue();
 
+			if(event.getChannelType().equals(ChannelType.VOICE) && oldName != null && !oldName.equals(currentName)) {
+				ServerUtils.runFor(event.getGuild().getId(), data -> data.autoChannels.get().ifEnabled(manager -> {
+					manager.getSession(event.getChannel().getId()).ifPresent(session -> {
+						session.updateHistory("Renamed from **" + oldName + "** to **" + currentName + "**");
+						data.autoChannels.save();
+					});
+				}));
 			}
-			catch(Exception e) {
-				KitsunDebugWebhook.report("Failed to proceed voice channel update event due to an exception:\n" + e);
-			}
+
+		}
+		catch(Exception e) {
+			KitsunDebugWebhook.report("Failed to proceed voice channel update event due to an exception:\n" + e);
 		}
 	}
 
 	@Override
 	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
 		super.onChannelDelete(event);
-		if(event.getChannelType().equals(ChannelType.VOICE)) {
-			try {
-				var channel = event.getChannel();
-				String channelId = channel.getId();
 
-				ServerUtils.forEach(data -> data.autoChannels.modify(manager -> {
+		try {
+			if(event.getChannelType().equals(ChannelType.VOICE)) {
+				ServerUtils.runFor(event.getGuild().getId(), serverData -> serverData.autoChannels.get().ifEnabled(manager -> {
+					var channel = event.getChannel();
+					var channelId = channel.getId();
+
 					manager.getSession(channelId).ifPresent(session -> {
-						var guild = DiscordApp.jda.getGuildById(data.server);
-						if(guild != null) {
-							var member = guild.getMemberById(session.owner);
-							data.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, member, channel));
-							session.shouldBeRemoved = true;
-						}
+						var owner = event.getGuild().getMemberById(session.owner);
+						serverData.logger.get().ifEnabled(log -> log.onVoiceChannelDelete(session, owner, channel));
+						session.shouldBeRemoved = true;
 					});
 
-					if(manager.enabled) {
-						if(manager.parentChannel.equals(channelId)) {
-							manager.disable();
-						}
+					if(manager.parentChannel.equals(channelId)) {
+						manager.disable();
 					}
-					manager.refresh();
+
+					manager.sessions.removeIf(session -> session.shouldBeRemoved);
+					serverData.autoChannels.save();
 				}));
 			}
-			catch(Exception e) {
-				KitsunDebugWebhook.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
-			}
+		}
+		catch(Exception e) {
+			KitsunDebugWebhook.report("Failed to proceed voice channel delete event due to an exception:\n" + e);
 		}
 	}
 }
