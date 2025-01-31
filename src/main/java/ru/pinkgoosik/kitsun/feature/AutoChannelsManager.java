@@ -3,6 +3,7 @@ package ru.pinkgoosik.kitsun.feature;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import ru.pinkgoosik.kitsun.DiscordApp;
 import ru.pinkgoosik.kitsun.cache.ServerData;
@@ -46,34 +47,41 @@ public class AutoChannelsManager {
 		var joinedChannel = event.getChannelJoined();
 		var leftChannel = event.getChannelLeft();
 
-		if(joinedChannel != null) {
+		if(joinedChannel != null && leftChannel == null) { // First ever channel join
 			if(joinedChannel.getId().equals(this.parentChannel)) {
-				this.onParentChannelJoin(member);
-				return;
+				this.createSession(member);
 			}
-			getSession(joinedChannel.getId()).ifPresent(session -> {
-				if(!(leftChannel != null && leftChannel.getId().equals(parentChannel))) {
-					session.updateHistory("<@" + member.getId() + ">" + " joined");
-				}
-			});
+			else this.onChannelJoin(member, joinedChannel);
 		}
-
-		if(leftChannel != null) {
-			getSession(leftChannel.getId()).ifPresent(session -> {
-				session.updateHistory("<@" + member.getId() + ">" + " left");
-
-				if(session.owner.equals(member.getId()) && leftChannel.getMembers().isEmpty()) {
-					leftChannel.delete().queue();
+		else if(joinedChannel != null) { // Moved from channel to channel
+			if(joinedChannel.getId().equals(this.parentChannel)) {
+				if(!this.hasEmptySession(member)) {
+					this.createSession(member);
+					this.onChannelLeft(member, leftChannel);
 				}
-			});
+			}
+			else if(!leftChannel.getId().equals(this.parentChannel)) this.onChannelJoin(member, joinedChannel);
+		}
+		else if(leftChannel != null) { // Completely left channel
+			this.onChannelLeft(member, leftChannel);
 		}
 		ServerData.get(server).autoChannels.save();
 	}
 
-	public void onParentChannelJoin(Member member) {
-		if(!this.hasEmptySession(member)) {
-			this.createSession(member);
-		}
+	void onChannelJoin(Member member, AudioChannelUnion channel) {
+		getSession(channel.getId()).ifPresent(session -> {
+			session.updateHistory("<@" + member.getId() + ">" + " joined");
+		});
+	}
+
+	void onChannelLeft(Member member, AudioChannelUnion channel) {
+		getSession(channel.getId()).ifPresent(session -> {
+			session.updateHistory("<@" + member.getId() + ">" + " left");
+
+			if(channel.getMembers().isEmpty()) {
+				channel.delete().queue();
+			}
+		});
 	}
 
 	private boolean hasEmptySession(Member member) {
