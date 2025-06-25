@@ -15,7 +15,6 @@ public class KitsunCommands {
 	public static void init() {
 		add(new ModUpdatesCommand());
 		add(new ImportFabricCommand());
-		add(new ImportQuiltCommand());
 		add(new ModrinthCommand());
 		add(new AutoChannelsCommand());
 		add(new EmbedCommand());
