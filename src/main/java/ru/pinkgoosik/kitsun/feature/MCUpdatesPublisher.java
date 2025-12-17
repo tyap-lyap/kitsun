@@ -13,7 +13,7 @@ import ru.pinkgoosik.kitsun.util.KitsunColors;
 import java.time.Instant;
 
 public class MCUpdatesPublisher {
-	public static final String ARTICLE_URL = "https://www.minecraft.net/en-us/article/minecraft-#%version%";
+	public static final String ARTICLE_URL = "https://www.minecraft.net/en-us/article/minecraft-%version%";
 
 	public boolean enabled = false;
 	/**
@@ -104,7 +104,7 @@ public class MCUpdatesPublisher {
 	private MessageEmbed createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {
 		return new EmbedBuilder().setTitle(entry.version + " Patch Notes")
 				.setThumbnail(entry.image.getFullUrl())
-				.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + ARTICLE_URL.replaceAll("%version%", entry.version) + ")")
+				.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + ARTICLE_URL.replaceAll("%version%", entry.version.replaceAll("\\.", "-")) + ")")
 				.setColor(KitsunColors.getCyan())
 				.setTimestamp(Instant.now())
 				.build();

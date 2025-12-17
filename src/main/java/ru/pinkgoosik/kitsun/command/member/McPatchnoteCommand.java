@@ -72,7 +72,7 @@ public class McPatchnoteCommand extends KitsunCommand {
 	private MessageEmbed createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {
 		return new EmbedBuilder().setTitle(entry.version + " Patch Notes")
 			.setThumbnail(entry.image.getFullUrl())
-			.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + MCUpdatesPublisher.ARTICLE_URL.replaceAll("%version%", entry.version) + ")")
+			.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + MCUpdatesPublisher.ARTICLE_URL.replaceAll("%version%", entry.version.replaceAll("\\.", "-")) + ")")
 			.setColor(KitsunColors.getCyan())
 			.setTimestamp(Instant.now())
 			.build();
