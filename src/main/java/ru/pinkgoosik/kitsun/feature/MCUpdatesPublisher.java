@@ -13,7 +13,7 @@ import ru.pinkgoosik.kitsun.util.KitsunColors;
 import java.time.Instant;
 
 public class MCUpdatesPublisher {
-	public static final String QUILT_MC_PATCH_NOTES = "https://quiltmc.org/mc-patchnotes/#%version%";
+	public static final String ARTICLE_URL = "https://www.minecraft.net/en-us/article/minecraft-#%version%";
 
 	public boolean enabled = false;
 	/**
@@ -58,7 +58,7 @@ public class MCUpdatesPublisher {
 			publish(manifest.latest.release, "Release");
 			MojangAPI.setMcVersionsCache(manifest);
 		}
-		if(!manifest.latest.snapshot.equals(latestSnapshot)) {
+		if(!manifest.latest.snapshot.equals(latestSnapshot) && !manifest.latest.snapshot.equals(manifest.latest.release)) {
 			this.latestSnapshot = manifest.latest.snapshot;
 			publish(manifest.latest.snapshot, "Snapshot");
 			MojangAPI.setMcVersionsCache(manifest);
@@ -104,7 +104,7 @@ public class MCUpdatesPublisher {
 	private MessageEmbed createPatchNotesEmbed(PatchNotes.PatchNotesEntry entry) {
 		return new EmbedBuilder().setTitle(entry.version + " Patch Notes")
 				.setThumbnail(entry.image.getFullUrl())
-				.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + QUILT_MC_PATCH_NOTES.replaceAll("%version%", entry.version) + ")")
+				.setDescription(entry.summary() + "\n[Homepage](https://minecraft.net) | [Issue Tracker](https://bugs.mojang.com/issues) | [Full Patch Notes](" + ARTICLE_URL.replaceAll("%version%", entry.version) + ")")
 				.setColor(KitsunColors.getCyan())
 				.setTimestamp(Instant.now())
 				.build();
